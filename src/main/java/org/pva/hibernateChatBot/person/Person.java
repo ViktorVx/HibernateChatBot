@@ -1,10 +1,9 @@
 package org.pva.hibernateChatBot.person;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 public class Person {
@@ -25,6 +24,21 @@ public class Person {
     @Column
     Date birthDate;
 
+    @Column
+    Gender gender;
+
+    @ElementCollection
+    List<String> phones = new ArrayList<String>();
+
+
+    public List<String> getPhones() {
+        return phones;
+    }
+
+    public void setPhones(List<String> phones) {
+        this.phones = phones;
+    }
+
     public Person() {
     }
 
@@ -32,6 +46,15 @@ public class Person {
         this.firstName = firstName;
         this.lastName = lastName;
         this.middleName = middleName;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
+
+    @Enumerated(EnumType.ORDINAL)
+    public Gender getGender() {
+        return gender;
     }
 
     public Date getBirthDate() {
