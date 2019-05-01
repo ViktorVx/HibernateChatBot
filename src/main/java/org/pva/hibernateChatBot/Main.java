@@ -4,6 +4,8 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.pva.hibernateChatBot.communication.Communication;
+import org.pva.hibernateChatBot.communication.TerminalCommunication;
 import org.pva.hibernateChatBot.enums.Gender;
 import org.pva.hibernateChatBot.person.Person;
 import org.pva.hibernateChatBot.person.PersonDao;
@@ -20,6 +22,7 @@ public class Main {
     private static final Integer RANDOM_FROM = 1;
     private static final Integer RANDOM_TO = 100000;
     private static PersonDao personDao;
+    private static Communication agent = new TerminalCommunication();
 
     static {
         try {
@@ -38,13 +41,25 @@ public class Main {
     }
 
     public static void main(final String[] args) throws Exception {
+        //*************************
+        agent.welcome();
+
+        if (agent.isRegistresUser()) {
+
+        } else {
+            agent.userRegistration();
+        }
+        while (true) {
+            break;
+        }
+        //*************************
 //        fulfillDatabase();
-        getFromDatabase();
+//        getFromDatabase();
     }
 
     private static void getFromDatabase() {
         List<Person> personList = personDao.getAll();
-        Person singlePerson = personDao.get(1).orElse(null);
+        Person singlePerson = personDao.get(2).orElse(null);
         for (Person person : personList) {
             System.out.println(PersonService.getFullName(person));
         }

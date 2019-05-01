@@ -21,7 +21,13 @@ public class PersonDao implements Dao<Person> {
 
     @Override
     public Optional<Person> get(long id) {
-        Person person = (Person) entityManager.createQuery("select p from Person p where p.id=:id").setParameter("id", id).getResultList().get(0);
+//        Person person = (Person) (entityManager.createQuery("select p from Person p where p.id=:id").setParameter("id", id).);
+//        Session session = sessionFactory.openSession();
+//        Transaction tx = session.beginTransaction();
+//        Person person = session.load(Person.class, id);
+//        tx.commit();
+//        session.close();
+        Person person = entityManager.find(Person.class, id);
         return Optional.ofNullable(person);
     }
 
