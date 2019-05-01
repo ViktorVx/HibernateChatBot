@@ -1,5 +1,8 @@
 package org.pva.hibernateChatBot.person;
 
+import org.pva.hibernateChatBot.enums.Gender;
+import org.pva.hibernateChatBot.reminder.Reminder;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
@@ -10,34 +13,43 @@ public class Person {
 
     @Id
     @GeneratedValue
-    Long id;
+    private Long id;
 
     @Column
-    String firstName;
+    private String firstName;
 
     @Column(nullable = false)
-    String lastName;
+    private String lastName;
 
     @Column
-    String middleName;
+    private String middleName;
 
     @Column
-    Date birthDate;
+    private Date birthDate;
 
     @Column
-    Gender gender;
+    @Enumerated(EnumType.ORDINAL)
+    private Gender gender;
 
     @Column
-    String login;
+    private String login;
 
     @Column
-    String password;
+    private String password;
 
     @Column
-    String email;
+    private String email;
 
-    @ElementCollection
-    List<String> phones = new ArrayList<String>();
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reminder> reminderList = new ArrayList<Reminder>();
+
+    public List<Reminder> getReminderList() {
+        return reminderList;
+    }
+
+    public void setReminderList(List<Reminder> reminderList) {
+        this.reminderList = reminderList;
+    }
 
     public String getLogin() {
         return login;
@@ -63,14 +75,6 @@ public class Person {
         this.email = email;
     }
 
-    public List<String> getPhones() {
-        return phones;
-    }
-
-    public void setPhones(List<String> phones) {
-        this.phones = phones;
-    }
-
     public Person() {
     }
 
@@ -84,7 +88,6 @@ public class Person {
         this.gender = gender;
     }
 
-    @Enumerated(EnumType.ORDINAL)
     public Gender getGender() {
         return gender;
     }

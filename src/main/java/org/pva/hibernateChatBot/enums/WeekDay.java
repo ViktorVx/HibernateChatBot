@@ -1,4 +1,4 @@
-package org.pva.hibernateChatBot.person;
+package org.pva.hibernateChatBot.enums;
 
 public enum WeekDay {
     MONDAY,

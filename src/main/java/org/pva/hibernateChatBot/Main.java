@@ -5,11 +5,10 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
-import org.pva.hibernateChatBot.person.Gender;
+import org.pva.hibernateChatBot.enums.Gender;
 import org.pva.hibernateChatBot.person.Person;
 
 import java.util.Date;
-import java.util.Scanner;
 
 public class Main {
     private static final SessionFactory ourSessionFactory;
@@ -55,7 +54,7 @@ public class Main {
 //            if (command.equals(EXIT)) break;
 //            if (command.equals(START)) {
             fulfillDatabase();
-//                break;
+            break;
 //            }
 
 //            List<String> fio = Arrays.asList(command.split(" "));
@@ -73,21 +72,15 @@ public class Main {
         Person person1 = new Person(getRandom("Иванов"), getRandom("Иван"), getRandom("Иванович"));
         person1.setBirthDate(new Date());
         person1.setGender(Gender.MALE);
-        person1.getPhones().add("8-800-555-35-35");
-        person1.getPhones().add("8-777-777-77-77");
 
 
         Person person2 = new Person(getRandom("Петров"), getRandom("Петр"), getRandom("Петрович"));
         person2.setBirthDate(new Date());
         person2.setGender(Gender.MALE);
-        person2.getPhones().add("8-800-555-35-35");
-        person2.getPhones().add("8-777-777-77-77");
 
         Person person3 = new Person(getRandom("Соколова"), getRandom("Наталья"), getRandom("Павловна"));
         person3.setBirthDate(new Date());
         person3.setGender(Gender.FEMALE);
-        person3.getPhones().add("8-800-555-35-35");
-        person3.getPhones().add("8-777-777-77-77");
 
         Session session = getSession();
         Transaction tx = session.beginTransaction();

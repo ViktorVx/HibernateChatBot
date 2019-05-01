@@ -16,5 +16,13 @@
         <property name="format_sql">true</property> <!-- Show SQL formatted -->
 
         <mapping class="org.pva.hibernateChatBot.person.Person"/>
+
+        <mapping class="org.pva.hibernateChatBot.reminder.CircleReminder"/>
+        <mapping class="org.pva.hibernateChatBot.reminder.EveryDayReminder"/>
+        <mapping class="org.pva.hibernateChatBot.reminder.EveryMonthReminder"/>
+        <mapping class="org.pva.hibernateChatBot.reminder.EveryWeekReminder"/>
+        <mapping class="org.pva.hibernateChatBot.reminder.EveryYearReminder"/>
+        <mapping class="org.pva.hibernateChatBot.reminder.Reminder"/>
+        <mapping class="org.pva.hibernateChatBot.reminder.SimpleReminder"/>
     </session-factory>
 </hibernate-configuration>
