@@ -31,13 +31,13 @@ public class Person {
     @Enumerated(EnumType.ORDINAL)
     private Gender gender;
 
-    @Column
+    @Column(unique = true)
     private String login;
 
     @Column
     private String password;
 
-    @Column
+    @Column(unique = true)
     private String email;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
@@ -131,4 +131,6 @@ public class Person {
     public void setMiddleName(String middleName) {
         this.middleName = middleName;
     }
+
+
 }
