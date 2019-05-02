@@ -7,6 +7,8 @@ public interface Dao<T> {
 
     Optional<T> get(long id);
 
+    T findByLogin(String login);
+
     List<T> getAll();
 
     void save(T t);

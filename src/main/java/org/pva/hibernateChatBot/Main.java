@@ -17,12 +17,10 @@ import java.util.List;
 
 public class Main {
     private static final SessionFactory ourSessionFactory;
-    private static final String EXIT = "exit";
-    private static final String START = "start";
     private static final Integer RANDOM_FROM = 1;
     private static final Integer RANDOM_TO = 100000;
     private static PersonDao personDao;
-    private static Communication agent = new TerminalCommunication();
+    private static Communication agent;
 
     static {
         try {
@@ -34,6 +32,7 @@ public class Main {
             throw new ExceptionInInitializerError(ex);
         }
         personDao = new PersonDao(ourSessionFactory);
+        agent =  new TerminalCommunication(personDao);
     }
 
     public static Session getSession() throws HibernateException {
@@ -41,13 +40,16 @@ public class Main {
     }
 
     public static void main(final String[] args) throws Exception {
+        Person person;
         //*************************
         agent.welcome();
 
         if (agent.isRegistresUser()) {
 
         } else {
-            agent.userRegistration();
+            person = agent.userRegistration();
+            personDao.save(person);
+            agent.messageUserRegistrationSuccess();
         }
         while (true) {
             break;

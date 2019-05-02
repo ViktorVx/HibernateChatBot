@@ -6,6 +6,7 @@ import org.hibernate.Transaction;
 import org.pva.hibernateChatBot.dao.Dao;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,6 +14,16 @@ public class PersonDao implements Dao<Person> {
 
     private SessionFactory sessionFactory;
     private EntityManager entityManager;
+
+    public void setSessionFactory(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+        this.entityManager = sessionFactory.createEntityManager();
+    }
+
+
+
+    public PersonDao() {
+    }
 
     public PersonDao(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
@@ -29,6 +40,19 @@ public class PersonDao implements Dao<Person> {
 //        session.close();
         Person person = entityManager.find(Person.class, id);
         return Optional.ofNullable(person);
+    }
+
+    @Override
+    public Person findByLogin(String login) {
+        Query query = entityManager.createQuery("select p from Person p where p.login=:login").setParameter("login", login);
+        Person person;
+        try {
+            person = (Person) query.getSingleResult();
+        } catch (Exception e) {
+//            System.out.println(e.getMessage());
+            return null;
+        }
+        return person;
     }
 
     @Override
