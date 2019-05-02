@@ -21,6 +21,7 @@ public class Main {
     private static final Integer RANDOM_TO = 100000;
     private static PersonDao personDao;
     private static Communication agent;
+    private static Person person;
 
     static {
         try {
@@ -40,14 +41,16 @@ public class Main {
     }
 
     public static void main(final String[] args) throws Exception {
-        Person person;
-        //*************************
+        //*** Autorisation *********************************************************************************************
         while (true) {
             agent.welcome();
             if (agent.isRegistresUser()) {
                 person = agent.userAuthentication();
-                if (person == null) {
-
+                if (person != null) {
+                    agent.messageLoginSuccess(person.getLogin());
+                    break;
+                } else {
+                    agent.messageLoginFail();
                     continue;
                 }
             } else {
@@ -55,12 +58,8 @@ public class Main {
                 personDao.save(person);
                 agent.messageUserRegistrationSuccess();
             }
-            while (true) {
-                break;
-            }
             break;
         }
-
         //*************************
 //        fulfillDatabase();
 //        getFromDatabase();

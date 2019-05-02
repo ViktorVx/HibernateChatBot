@@ -22,14 +22,16 @@ public class TerminalCommunication implements Communication {
     public Person userAuthentication() throws NoSuchAlgorithmException {
         String login = authenticationEnterLogin();
         String passwordHash = authenticationEnterPassword();
-        //todo stop here!!!!!!!!!!!!!!!!
-
-
-        return null;
+        return authentication(login, passwordHash);
     }
 
     @Override
     public Person authentication(String login, String passwordHash) {
+        Person person = personDao.findByLogin(login);
+        if (person == null) return null;
+        if (person.getPassword() == null) return null;
+        if (person.getPassword().equals(passwordHash))
+            return person;
         return null;
     }
 
@@ -177,6 +179,15 @@ public class TerminalCommunication implements Communication {
         System.out.println("Пользователь успешно зарегистрирован!");
     }
 
+    @Override
+    public void messageLoginSuccess(String login) {
+        System.out.println(String.format("Вы успешно вошли в систему, как %s!", login));
+    }
+
+    @Override
+    public void messageLoginFail() {
+        System.out.println("Ошибка авторизации. Пользователя с таким логином и паролем не существует!");
+    }
     //******************************************************************************************************************
 
     @Override

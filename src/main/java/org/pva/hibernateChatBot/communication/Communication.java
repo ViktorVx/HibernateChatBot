@@ -20,6 +20,10 @@ public interface Communication {
 
     boolean isRegistresUser();
 
+    void messageLoginSuccess(String login);
+
+    void messageLoginFail();
+
     void checkOnExit(String input);
 
     void checkOnExit(char[] input);
