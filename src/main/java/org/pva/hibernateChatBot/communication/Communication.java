@@ -16,11 +16,17 @@ public interface Communication {
 
     void welcome();
 
+    Person authentication(String login, String passwordHash);
+
     boolean isRegistresUser();
 
     void checkOnExit(String input);
 
+    void checkOnExit(char[] input);
+
     Person userRegistration() throws NoSuchAlgorithmException;
+
+    Person userAuthentication() throws NoSuchAlgorithmException;
 
     void messageUserRegistrationSuccess();
 

@@ -42,18 +42,25 @@ public class Main {
     public static void main(final String[] args) throws Exception {
         Person person;
         //*************************
-        agent.welcome();
-
-        if (agent.isRegistresUser()) {
-
-        } else {
-            person = agent.userRegistration();
-            personDao.save(person);
-            agent.messageUserRegistrationSuccess();
-        }
         while (true) {
+            agent.welcome();
+            if (agent.isRegistresUser()) {
+                person = agent.userAuthentication();
+                if (person == null) {
+
+                    continue;
+                }
+            } else {
+                person = agent.userRegistration();
+                personDao.save(person);
+                agent.messageUserRegistrationSuccess();
+            }
+            while (true) {
+                break;
+            }
             break;
         }
+
         //*************************
 //        fulfillDatabase();
 //        getFromDatabase();

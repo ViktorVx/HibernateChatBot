@@ -17,25 +17,43 @@ public class TerminalCommunication implements Communication {
         this.personDao = personDao;
     }
 
+    //*** User Authentication ******************************************************************************************
     @Override
-    public void messageUserRegistrationSuccess() {
-        System.out.println("Пользователь успешно зарегистрирован!");
+    public Person userAuthentication() throws NoSuchAlgorithmException {
+        String login = authenticationEnterLogin();
+        String passwordHash = authenticationEnterPassword();
+        //todo stop here!!!!!!!!!!!!!!!!
+
+
+        return null;
     }
 
     @Override
-    public void checkOnExit(String input) {
-        if (input.equals("exit")) System.exit(0);
+    public Person authentication(String login, String passwordHash) {
+        return null;
     }
 
-    public void checkOnExit(char[] input) {
-        if (input.length != 4) return;
-        if (input[0] != 'e') return;
-        if (input[1] != 'x') return;
-        if (input[2] != 'i') return;
-        if (input[3] != 't') return;
-        System.exit(0);
+    private String authenticationEnterLogin() {
+        Scanner scanner = new Scanner(System.in);
+        String login;
+        System.out.println("Введите Ваш логин:");
+        login = scanner.nextLine();
+        checkOnExit(login);
+        return login;
     }
 
+    private String authenticationEnterPassword() throws NoSuchAlgorithmException {
+        Scanner scanner = new Scanner(System.in);
+        String hashPassword;
+        char[] password;
+        System.out.println("Введите пароль:");
+        password = scanner.nextLine().toCharArray();
+        checkOnExit(password);
+        hashPassword = Communication.getHashFromArray(password);
+        return hashPassword;
+    }
+
+    //*** User registration ********************************************************************************************
     @Override
     public Person userRegistration() throws NoSuchAlgorithmException {
         String login = registrationEnterLogin();
@@ -147,14 +165,38 @@ public class TerminalCommunication implements Communication {
         return login;
     }
 
-    @Override
-    public boolean isLoginInDatabase(String login) {
-        return personDao.findByLogin(login) != null;
-    }
+    //*** Agent messages ***********************************************************************************************
 
     @Override
     public void welcome() {
         System.out.println("Приветсвуем Вас в НАПОМИНАЛКЕ!");
+    }
+
+    @Override
+    public void messageUserRegistrationSuccess() {
+        System.out.println("Пользователь успешно зарегистрирован!");
+    }
+
+    //******************************************************************************************************************
+
+    @Override
+    public void checkOnExit(String input) {
+        if (input.equals("exit")) System.exit(0);
+    }
+
+    @Override
+    public void checkOnExit(char[] input) {
+        if (input.length != 4) return;
+        if (input[0] != 'e') return;
+        if (input[1] != 'x') return;
+        if (input[2] != 'i') return;
+        if (input[3] != 't') return;
+        System.exit(0);
+    }
+
+    @Override
+    public boolean isLoginInDatabase(String login) {
+        return personDao.findByLogin(login) != null;
     }
 
     @Override
