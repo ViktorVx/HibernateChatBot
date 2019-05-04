@@ -4,13 +4,15 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-import org.pva.hibernateChatBot.communication.Communication;
-import org.pva.hibernateChatBot.communication.TerminalCommunication;
 import org.pva.hibernateChatBot.enums.Gender;
 import org.pva.hibernateChatBot.person.Person;
 import org.pva.hibernateChatBot.person.PersonDao;
 import org.pva.hibernateChatBot.person.PersonService;
 import org.pva.hibernateChatBot.reminder.SimpleReminder;
+import org.pva.hibernateChatBot.telegramBot.Bot;
+import org.telegram.telegrambots.ApiContextInitializer;
+import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
 import java.util.Date;
 import java.util.List;
@@ -20,8 +22,8 @@ public class Main {
     private static final Integer RANDOM_FROM = 1;
     private static final Integer RANDOM_TO = 100000;
     private static PersonDao personDao;
-    private static Communication agent;
-    private static Person person;
+//    private static Communication agent;
+//    private static Person person;
 
     static {
         try {
@@ -33,7 +35,8 @@ public class Main {
             throw new ExceptionInInitializerError(ex);
         }
         personDao = new PersonDao(ourSessionFactory);
-        agent =  new TerminalCommunication(personDao);
+//        agent =  new TerminalCommunication(personDao);
+//        agent =  new TelegramCommunication(personDao);
     }
 
     public static Session getSession() throws HibernateException {
@@ -41,25 +44,37 @@ public class Main {
     }
 
     public static void main(final String[] args) throws Exception {
-        //*** Autorisation *********************************************************************************************
-        while (true) {
-            agent.welcome();
-            if (agent.isRegistresUser()) {
-                person = agent.userAuthentication();
-                if (person != null) {
-                    agent.messageLoginSuccess(person.getLogin());
-                    break;
-                } else {
-                    agent.messageLoginFail();
-                    continue;
-                }
-            } else {
-                person = agent.userRegistration();
-                personDao.save(person);
-                agent.messageUserRegistrationSuccess();
-            }
-            break;
+
+        ApiContextInitializer.init();
+        TelegramBotsApi telegramBotsApi = new TelegramBotsApi();
+        try {
+            telegramBotsApi.registerBot(new Bot());
+        } catch (TelegramApiRequestException e) {
+            e.printStackTrace();
         }
+
+        while (true) {
+
+        }
+        //*** Autorisation *********************************************************************************************
+//        while (true) {
+//            agent.welcome();
+//            if (agent.isRegistresUser()) {
+//                person = agent.userAuthentication();
+//                if (person != null) {
+//                    agent.messageLoginSuccess(person.getLogin());
+//                    break;
+//                } else {
+//                    agent.messageLoginFail();
+//                    continue;
+//                }
+//            } else {
+//                person = agent.userRegistration();
+//                personDao.save(person);
+//                agent.messageUserRegistrationSuccess();
+//            }
+//            break;
+//        }
         //*************************
 //        fulfillDatabase();
 //        getFromDatabase();

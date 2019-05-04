@@ -15,4 +15,4 @@ target/*
 !.vscode/extensions.json
 _site/
 *.log
-token.txt
+token*.txt

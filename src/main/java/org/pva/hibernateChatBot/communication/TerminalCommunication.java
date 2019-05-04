@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.Scanner;
 
+@Deprecated
 public class TerminalCommunication implements Communication {
 
     private PersonDao personDao;

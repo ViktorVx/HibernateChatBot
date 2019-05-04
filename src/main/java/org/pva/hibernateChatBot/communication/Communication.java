@@ -10,6 +10,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+@Deprecated
 public interface Communication {
 
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy");
