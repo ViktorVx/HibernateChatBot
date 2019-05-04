@@ -2,18 +2,48 @@ package org.pva.hibernateChatBot.telegramBot;
 
 import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.api.objects.Ability;
-import org.telegram.abilitybots.api.objects.Locality;
-import org.telegram.abilitybots.api.objects.Privacy;
+
+import java.util.Map;
+
+import static org.telegram.abilitybots.api.objects.Locality.ALL;
+import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
 
 public class Bot extends AbilityBot {
 
-    public Bot(String botToken, String botUsername) {
-        super(botToken, botUsername);
+    private static final String BOT_TOKEN = System.getenv("TELEGRAM_TOKEN");
+    private static final String BOT_USERNAME = "ReminderVxBot";
+    private static final Integer BOT_CREATOR_ID = 127155577;
+
+    public Bot() {
+        super(BOT_TOKEN, BOT_USERNAME);
     }
 
     @Override
     public int creatorId() {
-        return 127155577;
+        return BOT_CREATOR_ID;
+    }
+
+    public Ability replyToStart() {
+        String MESSAGE = "Привет, username!\n" +
+                "Ты зашет в бот-напоминайку!\n" +
+                "Очем напомнить?\n" +
+                "/addSimpleReminder - добавить простое напоминание\n" +
+                "/addCircleReminder - добавить циклическое напоминание\n" +
+                "/viewActiveReminders - показать активные напоминания\n" +
+                "/viewCircleReminders - показать все циклические напоминания\n" +
+                "/viewClosestReminders - показать ближайшие напоминания\n" +
+                "Настройки:\n" +
+                "/start - начало работы\n" +
+                "/settings - настройки пользователя\n" +
+                "/help - помощь";
+        return Ability
+                .builder()
+                .name("start")
+                .info("Starts the bot!")
+                .locality(ALL)
+                .privacy(PUBLIC)
+                .action(ctx -> silent.send(MESSAGE, ctx.chatId()))
+                .build();
     }
 
     public Ability sayHelloWorld() {
@@ -21,9 +51,28 @@ public class Bot extends AbilityBot {
                 .builder()
                 .name("hello")
                 .info("says hello world!")
-                .locality(Locality.ALL)
-                .privacy(Privacy.PUBLIC)
+                .locality(ALL)
+                .privacy(PUBLIC)
                 .action(ctx -> silent.send("Hello world!!!!!!!!!!!!!", ctx.chatId()))
+                .build();
+    }
+
+    public Ability useDatabaseToCountPerUser() {
+        return Ability.builder()
+                .name("count")
+                .info("Increments a counter per user")
+                .privacy(PUBLIC)
+                .locality(ALL)
+                .input(0)
+                .action(ctx -> {
+                    Map<String, Integer> countMap = db.getMap("COUNTERS");
+                    int userId = ctx.user().getId();
+
+                    Integer counter = countMap.compute(String.valueOf(userId), (id, count) -> count == null ? 1 : ++count);
+
+                    String message = String.format("%s, your count is now *%d*!", ctx.user().getLastName(), counter);
+                    silent.send(message, ctx.chatId());
+                })
                 .build();
     }
 
@@ -34,7 +83,7 @@ public class Bot extends AbilityBot {
 //        if (message != null && message.hasText()) {
 //            switch (text) {
 //                case "/start":
-//                    startHandler(message);
+//                    replyToStart(message);
 //                    break;
 //                case "/help":
 //                    helpHandler(message);
@@ -69,7 +118,7 @@ public class Bot extends AbilityBot {
 //        }
 //    }
 //
-//    private void startHandler(Message message) {
+//    private void replyToStart(Message message) {
 //        String MESSAGE_TEXT = "Привет, %s!\n" +
 //                "Ты зашет в бот-напоминайку!\n" +
 //                "Очем напомнить?\n" +
