@@ -23,20 +23,58 @@ public class Bot extends TelegramLongPollingBot {
         if (message != null && message.hasText()) {
             switch (text) {
                 case "/start":
-                    String username = message.getChat().getUserName();
-                    sendMsg(message, String.format("Привет, %s)!", username == null ? "безымянный пользователь" : username));
+                    startHandler(message);
                     break;
-                default: break;
+                case "/help":
+                    helpHandler(message);
+                    break;
+                default:
+                    break;
             }
         }
     }
 
-    public void sendMsg(Message message, String text) {
+    private void helpHandler(Message message) {
+        String MESSAGE_TEXT = "Доступные команды:\n" +
+                "/addSimpleReminder - добавить простое напоминание\n" +
+                "/addCircleReminder - добавить циклическое напоминание\n" +
+                "/viewActiveReminders - показать активные напоминания\n" +
+                "/viewCircleReminders - показать все циклические напоминания\n" +
+                "/viewClosestReminders - показать ближайшие напоминания\n" +
+                "Настройки:\n" +
+                "/start - начало работы\n" +
+                "/settings - настройки пользователя\n" +
+                "/help - помощь";
         SendMessage sendMsg = new SendMessage();
         sendMsg.enableMarkdown(true);
-        sendMsg.setText(text);
+        sendMsg.setText(MESSAGE_TEXT);
         sendMsg.setChatId(message.getChatId());
-        setButtons(sendMsg);
+        try {
+            execute(sendMsg);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void startHandler(Message message) {
+        String MESSAGE_TEXT = "Привет, %s!\n" +
+                "Ты зашет в бот-напоминайку!\n" +
+                "Очем напомнить?\n" +
+                "/addSimpleReminder - добавить простое напоминание\n" +
+                "/addCircleReminder - добавить циклическое напоминание\n" +
+                "/viewActiveReminders - показать активные напоминания\n" +
+                "/viewCircleReminders - показать все циклические напоминания\n" +
+                "/viewClosestReminders - показать ближайшие напоминания\n" +
+                "Настройки:\n" +
+                "/start - начало работы\n" +
+                "/settings - настройки пользователя\n" +
+                "/help - помощь";
+        String username = message.getChat().getUserName();
+        SendMessage sendMsg = new SendMessage();
+        sendMsg.enableMarkdown(true);
+        sendMsg.setText(String.format(MESSAGE_TEXT, username == null ? "безымянный пользователь" : username));
+        sendMsg.setChatId(message.getChatId());
+//        setButtons(sendMsg);
 //        sendMsg.setReplyToMessageId(message.getMessageId());
         try {
             execute(sendMsg);
@@ -45,21 +83,21 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
-    public void setButtons(SendMessage sendMessage) {
-        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
-        sendMessage.setReplyMarkup(replyKeyboardMarkup);
-        replyKeyboardMarkup.setSelective(true);
-        replyKeyboardMarkup.setResizeKeyboard(true);
-        replyKeyboardMarkup.setOneTimeKeyboard(false);
-
-        List<KeyboardRow> keyboardRowList = new ArrayList<>();
-        KeyboardRow keyboardRow1 = new KeyboardRow();
-        keyboardRow1.add(new KeyboardButton("/start"));
-//        keyboardRow1.add(new KeyboardButton("Пока!"));
-
-        keyboardRowList.add(keyboardRow1);
-        replyKeyboardMarkup.setKeyboard(keyboardRowList);
-    }
+//    public void setButtons(SendMessage sendMessage) {
+//        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+//        sendMessage.setReplyMarkup(replyKeyboardMarkup);
+//        replyKeyboardMarkup.setSelective(true);
+//        replyKeyboardMarkup.setResizeKeyboard(true);
+//        replyKeyboardMarkup.setOneTimeKeyboard(false);
+//
+//        List<KeyboardRow> keyboardRowList = new ArrayList<>();
+//        KeyboardRow keyboardRow1 = new KeyboardRow();
+//        keyboardRow1.add(new KeyboardButton("/start"));
+////        keyboardRow1.add(new KeyboardButton("Пока!"));
+//
+//        keyboardRowList.add(keyboardRow1);
+//        replyKeyboardMarkup.setKeyboard(keyboardRowList);
+//    }
 
     @Override
     public String getBotUsername() {
@@ -68,13 +106,6 @@ public class Bot extends TelegramLongPollingBot {
 
     @Override
     public String getBotToken() {
-        String token = null;
-        try {
-            token = Files.readAllLines(Paths.get(new Main().getClass().getClassLoader().getResource("token.txt").toURI()),
-                    StandardCharsets.UTF_8).get(0);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return token;
+        return System.getenv("TELEGRAM_TOKEN");
     }
 }
