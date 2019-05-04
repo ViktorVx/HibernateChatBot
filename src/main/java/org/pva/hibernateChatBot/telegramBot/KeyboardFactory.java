@@ -13,8 +13,8 @@ public class KeyboardFactory {
         InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
         List<InlineKeyboardButton> rowInline = new ArrayList<>();
-        rowInline.add(new InlineKeyboardButton().setText("Старт").setCallbackData("/start"));
-        rowInline.add(new InlineKeyboardButton().setText("i++").setCallbackData("/count"));
+        rowInline.add(new InlineKeyboardButton().setText("start").setCallbackData("start"));
+        rowInline.add(new InlineKeyboardButton().setText("count").setCallbackData("count"));
         rowsInline.add(rowInline);
         inlineKeyboard.setKeyboard(rowsInline);
         return inlineKeyboard;

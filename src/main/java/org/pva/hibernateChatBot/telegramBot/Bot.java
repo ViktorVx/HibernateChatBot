@@ -2,20 +2,27 @@ package org.pva.hibernateChatBot.telegramBot;
 
 import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.api.objects.Ability;
+import org.telegram.abilitybots.api.objects.Flag;
+import org.telegram.abilitybots.api.objects.Reply;
+import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static org.telegram.abilitybots.api.objects.Locality.ALL;
 import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
+import static org.telegram.abilitybots.api.util.AbilityUtils.getChatId;
 
 public class Bot extends AbilityBot {
 
     private static final String BOT_TOKEN = System.getenv("TELEGRAM_TOKEN");
     private static final String BOT_USERNAME = "ReminderVxBot";
     private static final Integer BOT_CREATOR_ID = 127155577;
+    private final ResponseHandler responseHandler;
 
     public Bot() {
         super(BOT_TOKEN, BOT_USERNAME);
+        responseHandler = new ResponseHandler(sender, db);
     }
 
     @Override
@@ -24,36 +31,13 @@ public class Bot extends AbilityBot {
     }
 
     public Ability replyToStart() {
-        String MESSAGE = "Привет, username!\n" +
-                "Ты зашет в бот-напоминайку!\n" +
-                "Очем напомнить?\n" +
-                "/addSimpleReminder - добавить простое напоминание\n" +
-                "/addCircleReminder - добавить циклическое напоминание\n" +
-                "/viewActiveReminders - показать активные напоминания\n" +
-                "/viewCircleReminders - показать все циклические напоминания\n" +
-                "/viewClosestReminders - показать ближайшие напоминания\n" +
-                "Настройки:\n" +
-                "/start - начало работы\n" +
-                "/settings - настройки пользователя\n" +
-                "/help - помощь";
         return Ability
                 .builder()
                 .name("start")
                 .info("Starts the bot!")
                 .locality(ALL)
                 .privacy(PUBLIC)
-                .action(ctx -> silent.send(MESSAGE, ctx.chatId()))
-                .build();
-    }
-
-    public Ability sayHelloWorld() {
-        return Ability
-                .builder()
-                .name("hello")
-                .info("says hello world!")
-                .locality(ALL)
-                .privacy(PUBLIC)
-                .action(ctx -> silent.send("Hello world!!!!!!!!!!!!!", ctx.chatId()))
+                .action(ctx ->  responseHandler.replyToStart(ctx.chatId()))
                 .build();
     }
 
@@ -74,6 +58,11 @@ public class Bot extends AbilityBot {
                     silent.send(message, ctx.chatId());
                 })
                 .build();
+    }
+
+    public Reply replyToButtons() {
+        Consumer<Update> action = upd -> responseHandler.replyToButtons(getChatId(upd), upd.getCallbackQuery().getData());
+        return Reply.of(action, Flag.CALLBACK_QUERY);
     }
 
 //    @Override
