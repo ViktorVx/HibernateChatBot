@@ -22,8 +22,8 @@ public class Main {
     private static final Integer RANDOM_FROM = 1;
     private static final Integer RANDOM_TO = 100000;
     private static PersonDao personDao;
-//    private static Communication agent;
-//    private static Person person;
+    private static final String BOT_TOKEN = System.getenv("TELEGRAM_TOKEN");
+    private static final String BOT_USERNAME = "ReminderVxBot";
 
     static {
         try {
@@ -35,8 +35,6 @@ public class Main {
             throw new ExceptionInInitializerError(ex);
         }
         personDao = new PersonDao(ourSessionFactory);
-//        agent =  new TerminalCommunication(personDao);
-//        agent =  new TelegramCommunication(personDao);
     }
 
     public static Session getSession() throws HibernateException {
@@ -48,7 +46,7 @@ public class Main {
         ApiContextInitializer.init();
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi();
         try {
-            telegramBotsApi.registerBot(new Bot());
+            telegramBotsApi.registerBot(new Bot(BOT_TOKEN, BOT_USERNAME));
         } catch (TelegramApiRequestException e) {
             e.printStackTrace();
         }
