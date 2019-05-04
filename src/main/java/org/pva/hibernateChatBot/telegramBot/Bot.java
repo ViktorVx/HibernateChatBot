@@ -4,11 +4,16 @@ import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.api.objects.Ability;
 import org.telegram.abilitybots.api.objects.Flag;
 import org.telegram.abilitybots.api.objects.Reply;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
+import static org.telegram.abilitybots.api.objects.Flag.MESSAGE;
+import static org.telegram.abilitybots.api.objects.Flag.REPLY;
 import static org.telegram.abilitybots.api.objects.Locality.ALL;
 import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
 import static org.telegram.abilitybots.api.util.AbilityUtils.getChatId;
@@ -30,6 +35,51 @@ public class Bot extends AbilityBot {
         return BOT_CREATOR_ID;
     }
 
+    public Ability replyToEnterLogin() {
+        String msg = "Введите логин:";
+        return Ability.
+                builder().
+                name("enterlogin").
+                info("введите логин").
+                privacy(PUBLIC).
+                locality(ALL).
+                input(0).
+                action(ctx -> {
+                    try {
+                        sender.execute(new SendMessage()
+                                .setText(msg).setChatId(ctx.chatId()));
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                }).
+                reply(upd -> {
+                            System.out.println("I'm in a reply!");
+                            try {
+                                sender.execute(new SendMessage()
+                                        .setText(upd.getMessage().getText()).setChatId(upd.getMessage().getChatId()));
+                            } catch (TelegramApiException e) {
+                                e.printStackTrace();
+                            }
+                        },
+                        //MESSAGE,
+                        REPLY/*,
+                        isReplyToBot(),
+                        isReplyToMessage(msg)*/).
+                build();
+    }
+
+    private Predicate<Update> isReplyToMessage(String message) {
+        return upd -> {
+            Message reply = upd.getMessage().getReplyToMessage();
+            System.out.println(reply.getReplyToMessage());
+            return reply.hasText() && reply.getText().equalsIgnoreCase(message);
+        };
+    }
+
+    private Predicate<Update> isReplyToBot() {
+        return upd -> upd.getMessage().getReplyToMessage().getFrom().getUserName().equalsIgnoreCase(getBotUsername());
+    }
+
     public Ability replyToStart() {
         return Ability
                 .builder()
@@ -45,17 +95,11 @@ public class Bot extends AbilityBot {
         return Ability.builder()
                 .name("count")
                 .info("Increments a counter per user")
-                .privacy(PUBLIC)
                 .locality(ALL)
+                .privacy(PUBLIC)
                 .input(0)
                 .action(ctx -> {
-                    Map<String, Integer> countMap = db.getMap("COUNTERS");
-                    int userId = ctx.user().getId();
-
-                    Integer counter = countMap.compute(String.valueOf(userId), (id, count) -> count == null ? 1 : ++count);
-
-                    String message = String.format("%s, your count is now *%d*!", ctx.user().getLastName(), counter);
-                    silent.send(message, ctx.chatId());
+                    responseHandler.replyToCount(ctx.chatId());
                 })
                 .build();
     }

@@ -17,10 +17,36 @@ public class ResponseHandler {
         countMap = db.getMap("COUNTERS");
     }
 
+    public void replyToEnterLogin(long chatId) {
+        try {
+            sender.execute(new SendMessage()
+                    .setText("Введите Ваш уникальный логин:")
+                    .setChatId(chatId)
+                    .setReplyMarkup(KeyboardFactory.getStartCountKeyboard()));
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void replyToCount(long chatId) {
+        try {
+            Integer counter = countMap.compute(String.valueOf(sender.getMe().getId()), (id, count) -> count == null ? 1 : ++count);
+            String message = String.format("Your count is now *%d*!", counter);
+
+            sender.execute(new SendMessage()
+                    .setText(message)
+                    .setChatId(chatId)
+                    .setReplyMarkup(KeyboardFactory.getStartCountKeyboard()));
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void replyToStart(long chatId) {
         String MESSAGE = "Привет, username!\n" +
                 "Ты зашет в бот-напоминайку!\n" +
                 "О чем напомнить?\n" +
+                "/enterlogin - ввести логин \n" +
                 "/addSimpleReminder - добавить простое напоминание\n" +
                 "/addCircleReminder - добавить циклическое напоминание\n" +
                 "/viewActiveReminders - показать активные напоминания\n" +
@@ -33,20 +59,6 @@ public class ResponseHandler {
         try {
             sender.execute(new SendMessage()
                     .setText(MESSAGE)
-                    .setChatId(chatId)
-                    .setReplyMarkup(KeyboardFactory.getStartCountKeyboard()));
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void replyToCount(long chatId) {
-        try {
-            Integer counter = countMap.compute(String.valueOf(sender.getMe().getId()), (id, count) -> count == null ? 1 : ++count);
-            String message = String.format("%s, your count is now *%d*!", sender.getMe().getLastName(), counter);
-
-            sender.execute(new SendMessage()
-                    .setText(message)
                     .setChatId(chatId)
                     .setReplyMarkup(KeyboardFactory.getStartCountKeyboard()));
         } catch (TelegramApiException e) {
