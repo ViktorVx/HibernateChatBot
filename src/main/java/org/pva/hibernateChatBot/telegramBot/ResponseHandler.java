@@ -4,11 +4,14 @@ import org.pva.hibernateChatBot.reminder.SimpleReminder;
 import org.telegram.abilitybots.api.db.DBContext;
 import org.telegram.abilitybots.api.sender.MessageSender;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.Map;
+
+import static java.lang.Math.toIntExact;
 
 public class ResponseHandler {
 
@@ -67,12 +70,24 @@ public class ResponseHandler {
                 "/viewreminders - показать ближайшие напоминания\n" +
                 "Настройки:\n" +
                 "/start - начало работы\n" +
+                "/info - информация о пользователе\n" +
                 "/help - помощь", user.getUserName());
         try {
             sender.execute(new SendMessage()
                     .setText(MESSAGE)
                     .setChatId(chatId));
 //                    .setReplyMarkup(KeyboardFactory.getStartCountKeyboard()));
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void replyToInfo(long chatId, User user) throws TelegramApiException {
+        String MESSAGE = String.format("%s, заполните данные о себе!\n", user.getUserName());
+        try {
+            sender.execute(new SendMessage()
+                    .setText(MESSAGE)
+                    .setChatId(chatId).setReplyMarkup(KeyboardFactory.getInfoEditKeyboard()));
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
@@ -94,7 +109,7 @@ public class ResponseHandler {
         }
     }
 
-    public void replyToButtons(long chatId, User user, String buttonId) throws TelegramApiException {
+    public void replyToButtons(long chatId, User user, String buttonId, Update upd) throws TelegramApiException {
         switch (buttonId) {
             case "start":
                 replyToStart(chatId, user);
@@ -102,6 +117,70 @@ public class ResponseHandler {
             case "count":
                 replyToCount(chatId);
                 break;
+            case "edit_person_data":
+                replyToNext(chatId, user, upd);
+                break;
+            case "edit_register_name":
+                System.out.println("register");
+                break;
         }
     }
-}
+
+    public void replyToNext(long chatId, User user, Update upd) throws TelegramApiException {
+
+        if (upd.hasCallbackQuery()) {
+            String call_data = upd.getCallbackQuery().getData();
+            long message_id = upd.getCallbackQuery().getMessage().getMessageId();
+            long chat_id = upd.getCallbackQuery().getMessage().getChatId();
+            String inline_message_id = upd.getCallbackQuery().getInlineMessageId();
+
+            EditMessageReplyMarkup new_message = new EditMessageReplyMarkup().setChatId(chat_id).setMessageId(toIntExact(message_id)).setInlineMessageId(inline_message_id);
+            new_message.setReplyMarkup(KeyboardFactory.getInfoPersonEditKeyboard());
+            try {
+                sender.execute(new_message);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+//            try {
+//                editMessageReplyMarkup(new_message);
+//            } catch (TelegramApiException e) {
+//                e.printStackTrace();
+//            }
+//            EditMessageReplyMarkup editMessageReplyMarkup = new EditMessageReplyMarkup();
+//            editMessageReplyMarkup.setMessageId((int) message_id);
+        }
+
+            /*if (update.hasCallbackQuery()) {
+            String call_data = update.getCallbackQuery().getData();
+            long message_id = update.getCallbackQuery().getMessage().getMessageId();
+            long chat_id = update.getCallbackQuery().getMessage().getChatId();
+            String inline_message_id = update.getCallbackQuery().getInlineMessageId();
+            if (call_data.equals(i + "up")) {
+                EditMessageReplyMarkup new_message = new EditMessageReplyMarkup().setChatId(chat_id).setMessageId(toIntExact(message_id)).setInlineMessageId(inline_message_id);
+                InlineKeyboardButton dk1 = new InlineKeyboardButton();
+                dk1.setText(i + "up");
+                ;
+                dk1.setCallbackData(k + "up");
+                InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+                List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+                List<InlineKeyboardButton> rowInline = new ArrayList<>();
+                rowInline.add(dk1);
+                rowsInline.add(rowInline);
+                markupInline.setKeyboard(rowsInline);
+                new_message.setReplyMarkup(markupInline);
+                try {
+                    editMessageReplyMarkup(new_message);
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
+                }*/
+
+//        String MESSAGE = "Персональные данные";
+//                try {
+//                    sender.execute(new SendMessage()
+//                            .setText(MESSAGE)
+//                            .setChatId(chatId).setReplyMarkup(KeyboardFactory.getInfoPersonEditKeyboard()));
+//                } catch (TelegramApiException e) {
+//                    e.printStackTrace();
+//                }
+            }
+        }

@@ -91,8 +91,6 @@ public class Bot extends AbilityBot {
                 reply(upd -> {
                             String text = upd.getMessage().getText();
                             System.out.println(text);
-//                            responseHandler.replyToEnterReminderDate(upd.getMessage().getChatId(), simpleReminder);
-//                            System.out.println(dateText);
                         },
                         MESSAGE,
                         REPLY,
@@ -131,6 +129,23 @@ public class Bot extends AbilityBot {
                         isReplyToBot(),
                         isReplyToMessage(msg)).
                 build();
+    }
+
+    public Ability replyToInfo() {
+        return Ability
+                .builder()
+                .name("info")
+                .info("Edit user's info!")
+                .locality(ALL)
+                .privacy(PUBLIC)
+                .action(ctx -> {
+                    try {
+                        responseHandler.replyToInfo(ctx.chatId(), ctx.user());
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                })
+                .build();
     }
 
     private Predicate<Update> isReplyToMessage(String message) {
@@ -195,7 +210,7 @@ public class Bot extends AbilityBot {
     public Reply replyToButtons() {
         Consumer<Update> action = upd -> {
             try {
-                responseHandler.replyToButtons(getChatId(upd), upd.getCallbackQuery().getFrom(),upd.getCallbackQuery().getData());
+                responseHandler.replyToButtons(getChatId(upd), upd.getCallbackQuery().getFrom(),upd.getCallbackQuery().getData(), upd);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }

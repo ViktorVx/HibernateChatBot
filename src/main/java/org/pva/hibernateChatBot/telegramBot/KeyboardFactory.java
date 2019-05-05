@@ -38,6 +38,42 @@ public class KeyboardFactory {
 //        return replyKeyboardMarkup;
     }
 
+    public static InlineKeyboardMarkup getInfoPersonEditKeyboard() {
+        InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+
+        List<InlineKeyboardButton> rowInline = new ArrayList<>();
+        rowInline.add(new InlineKeyboardButton().setText("Изменить фамилию").setCallbackData("edit_last_name"));
+        rowsInline.add(rowInline);
+
+        rowInline = new ArrayList<>();
+        rowInline.add(new InlineKeyboardButton().setText("Изменить имя").setCallbackData("edit_first_name"));
+        rowsInline.add(rowInline);
+
+        rowInline = new ArrayList<>();
+        rowInline.add(new InlineKeyboardButton().setText("Изменить отчество").setCallbackData("edit_middle_anme"));
+        rowsInline.add(rowInline);
+
+        inlineKeyboard.setKeyboard(rowsInline);
+        return inlineKeyboard;
+    }
+
+    public static InlineKeyboardMarkup getInfoEditKeyboard() {
+        InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+
+        List<InlineKeyboardButton> rowInline = new ArrayList<>();
+        rowInline.add(new InlineKeyboardButton().setText("Персональные данные").setCallbackData("edit_person_data"));
+        rowsInline.add(rowInline);
+
+        rowInline = new ArrayList<>();
+        rowInline.add(new InlineKeyboardButton().setText("Регистрационные данные").setCallbackData("edit_register_name"));
+        rowsInline.add(rowInline);
+
+        inlineKeyboard.setKeyboard(rowsInline);
+        return inlineKeyboard;
+    }
+
     public static ForceReplyKeyboard getForceReplyKeyboard() {
         ForceReplyKeyboard forceReplyKeyboard = new ForceReplyKeyboard();
         return forceReplyKeyboard;
