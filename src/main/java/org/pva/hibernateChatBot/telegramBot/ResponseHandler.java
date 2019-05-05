@@ -128,7 +128,6 @@ public class ResponseHandler {
     }
 
     public void replyToEditPersonalData(long chatId, User user, Update upd) throws TelegramApiException {
-
         if (upd.hasCallbackQuery()) {
             long message_id = upd.getCallbackQuery().getMessage().getMessageId();
             long chat_id = upd.getCallbackQuery().getMessage().getChatId();

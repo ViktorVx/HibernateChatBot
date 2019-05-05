@@ -4,26 +4,20 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-import org.pva.hibernateChatBot.enums.Gender;
 import org.pva.hibernateChatBot.person.Person;
 import org.pva.hibernateChatBot.person.PersonDao;
 import org.pva.hibernateChatBot.person.PersonService;
-import org.pva.hibernateChatBot.reminder.SimpleReminder;
 import org.pva.hibernateChatBot.telegramBot.Bot;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
-import java.util.Date;
 import java.util.List;
 
 public class Main {
+
     private static final SessionFactory ourSessionFactory;
-    private static final Integer RANDOM_FROM = 1;
-    private static final Integer RANDOM_TO = 100000;
     private static PersonDao personDao;
-    private static final String BOT_TOKEN = System.getenv("TELEGRAM_TOKEN");
-    private static final String BOT_USERNAME = "ReminderVxBot";
 
     static {
         try {
@@ -66,39 +60,4 @@ public class Main {
         System.out.println("**************************************");
         System.out.println(PersonService.getFullName(singlePerson));
     }
-
-
-    private static void fulfillDatabase() {
-//        PersonDao personDao = new PersonDao(ourSessionFactory);
-        Person person = new Person(getRandom("Иванов"), getRandom("Иван"), getRandom("Иванович"));
-        person.setLogin(getRandom("login"));
-        person.setBirthDate(new Date());
-        person.setGender(Gender.MALE);
-        SimpleReminder simpleReminder = new SimpleReminder(person, new Date(), getRandom("Простое напоминание"), new Date());
-        person.getReminderList().add(simpleReminder);
-        personDao.save(person);
-
-        person = new Person(getRandom("Петров"), getRandom("Петр"), getRandom("Петрович"));
-        person.setLogin(getRandom("login"));
-        person.setBirthDate(new Date());
-        person.setGender(Gender.MALE);
-        simpleReminder = new SimpleReminder(person, new Date(), getRandom("Простое напоминание"), new Date());
-        person.getReminderList().add(simpleReminder);
-        personDao.save(person);
-
-        person = new Person(getRandom("Соколова"), getRandom("Наталья"), getRandom("Павловна"));
-        person.setLogin(getRandom("login"));
-        person.setBirthDate(new Date());
-        person.setGender(Gender.FEMALE);
-        simpleReminder = new SimpleReminder(person, new Date(), getRandom("Простое напоминание"), new Date());
-        person.getReminderList().add(simpleReminder);
-        simpleReminder = new SimpleReminder(person, new Date(), getRandom("Простое напоминание"), new Date());
-        person.getReminderList().add(simpleReminder);
-        personDao.save(person);
-    }
-
-    private static String getRandom(String str) {
-        return str.concat("(").concat(String.valueOf(RANDOM_FROM + (int) (Math.random() * RANDOM_TO))).concat(")");
-    }
-
 }
