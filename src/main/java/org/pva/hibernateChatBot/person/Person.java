@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
+@Table(indexes = {@Index(columnList = "userid", name = "user_id_hidx")})
 public class Person {
 
     @Id
@@ -45,6 +46,14 @@ public class Person {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reminder> reminderList = new ArrayList<Reminder>();
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 
     public List<Reminder> getReminderList() {
         return reminderList;
