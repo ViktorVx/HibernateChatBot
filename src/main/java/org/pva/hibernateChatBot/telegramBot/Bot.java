@@ -90,7 +90,13 @@ public class Bot extends AbilityBot {
                 .info("Starts the bot!")
                 .locality(ALL)
                 .privacy(PUBLIC)
-                .action(ctx -> responseHandler.replyToStart(ctx.chatId()))
+                .action(ctx -> {
+                    try {
+                        responseHandler.replyToStart(ctx.chatId(), ctx.user());
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                })
                 .build();
     }
 
@@ -108,7 +114,13 @@ public class Bot extends AbilityBot {
     }
 
     public Reply replyToButtons() {
-        Consumer<Update> action = upd -> responseHandler.replyToButtons(getChatId(upd), upd.getCallbackQuery().getData());
+        Consumer<Update> action = upd -> {
+            try {
+                responseHandler.replyToButtons(getChatId(upd), upd.getCallbackQuery().getFrom(),upd.getCallbackQuery().getData());
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        };
         return Reply.of(action, Flag.CALLBACK_QUERY);
     }
 

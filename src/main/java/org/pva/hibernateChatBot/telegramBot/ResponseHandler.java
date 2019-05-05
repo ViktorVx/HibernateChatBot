@@ -3,6 +3,7 @@ package org.pva.hibernateChatBot.telegramBot;
 import org.telegram.abilitybots.api.db.DBContext;
 import org.telegram.abilitybots.api.sender.MessageSender;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.Map;
@@ -42,20 +43,20 @@ public class ResponseHandler {
         }
     }
 
-    public void replyToStart(long chatId) {
-        String MESSAGE = "Привет, username!\n" +
-                "Ты зашет в бот-напоминайку!\n" +
+    public void replyToStart(long chatId, User user) throws TelegramApiException {
+        String MESSAGE = String.format("Привет, %s!\n" +
+                "Ты зашел в бот-напоминайку!\n" +
                 "О чем напомнить?\n" +
-                "/enterlogin - ввести логин \n" +
+//                "/enterlogin - ввести логин \n" +
                 "/addSimpleReminder - добавить простое напоминание\n" +
-                "/addCircleReminder - добавить циклическое напоминание\n" +
-                "/viewActiveReminders - показать активные напоминания\n" +
-                "/viewCircleReminders - показать все циклические напоминания\n" +
+//                "/addCircleReminder - добавить циклическое напоминание\n" +
+//                "/viewActiveReminders - показать активные напоминания\n" +
+//                "/viewCircleReminders - показать все циклические напоминания\n" +
                 "/viewClosestReminders - показать ближайшие напоминания\n" +
                 "Настройки:\n" +
                 "/start - начало работы\n" +
-                "/settings - настройки пользователя\n" +
-                "/help - помощь";
+                //"/settings - настройки пользователя\n" +
+                "/help - помощь", user.getUserName());
         try {
             sender.execute(new SendMessage()
                     .setText(MESSAGE)
@@ -66,10 +67,10 @@ public class ResponseHandler {
         }
     }
 
-    public void replyToButtons(long chatId, String buttonId) {
+    public void replyToButtons(long chatId, User user, String buttonId) throws TelegramApiException {
         switch (buttonId) {
             case "start":
-                replyToStart(chatId);
+                replyToStart(chatId, user);
                 break;
             case "count":
                 replyToCount(chatId);
