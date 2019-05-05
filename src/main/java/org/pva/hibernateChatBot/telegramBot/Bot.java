@@ -7,6 +7,7 @@ import org.telegram.abilitybots.api.objects.Reply;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ForceReplyKeyboard;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.function.Consumer;
@@ -47,32 +48,34 @@ public class Bot extends AbilityBot {
                 action(ctx -> {
                     try {
                         sender.execute(new SendMessage()
-                                .setText(msg).setChatId(ctx.chatId()));
+                                .setText(msg).setChatId(ctx.chatId()).setReplyMarkup(KeyboardFactory.getForceReplyKeyboard()));
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
                     }
                 }).
                 reply(upd -> {
                             System.out.println("I'm in a reply!");
-                            try {
-                                sender.execute(new SendMessage()
-                                        .setText(upd.getMessage().getText()).setChatId(upd.getMessage().getChatId()));
-                            } catch (TelegramApiException e) {
-                                e.printStackTrace();
-                            }
+                            System.out.println(upd.getMessage().getText());
+//                            try {
+//                                sender.execute(new SendMessage()
+//                                        .setText(upd.getMessage().getText()).setChatId(upd.getMessage().getChatId()));
+//                            } catch (TelegramApiException e) {
+//                                e.printStackTrace();
+//                            }
                         },
-                        //MESSAGE,
-                        REPLY/*,
+                        MESSAGE,
+                        REPLY,
                         isReplyToBot(),
-                        isReplyToMessage(msg)*/).
+                        isReplyToMessage(msg)).
                 build();
     }
+
+
 
     private Predicate<Update> isReplyToMessage(String message) {
         return upd -> {
             Message reply = upd.getMessage().getReplyToMessage();
-            System.out.println(reply.getReplyToMessage());
-            return reply.hasText() && reply.getText().equalsIgnoreCase(message);
+            return reply!=null && reply.hasText() && reply.getText().equalsIgnoreCase(message);
         };
     }
 
@@ -87,7 +90,7 @@ public class Bot extends AbilityBot {
                 .info("Starts the bot!")
                 .locality(ALL)
                 .privacy(PUBLIC)
-                .action(ctx ->  responseHandler.replyToStart(ctx.chatId()))
+                .action(ctx -> responseHandler.replyToStart(ctx.chatId()))
                 .build();
     }
 
@@ -126,7 +129,6 @@ public class Bot extends AbilityBot {
 //            }
 //        }
 //    }
-
 
 
 //    private void helpHandler(Message message) {

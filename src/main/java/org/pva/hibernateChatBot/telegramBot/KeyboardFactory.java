@@ -1,5 +1,6 @@
 package org.pva.hibernateChatBot.telegramBot;
 
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ForceReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -35,6 +36,11 @@ public class KeyboardFactory {
 //        keyboardRowList.add(keyboardRow1);
 //        replyKeyboardMarkup.setKeyboard(keyboardRowList);
 //        return replyKeyboardMarkup;
+    }
+
+    public static ForceReplyKeyboard getForceReplyKeyboard() {
+        ForceReplyKeyboard forceReplyKeyboard = new ForceReplyKeyboard();
+        return forceReplyKeyboard;
     }
 
 }
