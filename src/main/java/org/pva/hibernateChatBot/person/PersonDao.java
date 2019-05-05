@@ -20,11 +20,6 @@ public class PersonDao implements Dao<Person> {
         this.entityManager = sessionFactory.createEntityManager();
     }
 
-
-
-    public PersonDao() {
-    }
-
     public PersonDao(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
         this.entityManager = sessionFactory.createEntityManager();

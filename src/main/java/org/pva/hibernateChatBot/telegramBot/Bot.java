@@ -1,5 +1,8 @@
 package org.pva.hibernateChatBot.telegramBot;
 
+import org.hibernate.SessionFactory;
+import org.pva.hibernateChatBot.person.Person;
+import org.pva.hibernateChatBot.person.PersonDao;
 import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.api.objects.Ability;
 import org.telegram.abilitybots.api.objects.Flag;
@@ -8,6 +11,7 @@ import org.telegram.abilitybots.api.objects.Reply;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.function.Consumer;
@@ -25,10 +29,12 @@ public class Bot extends AbilityBot {
     private static final String BOT_USERNAME = "ReminderVxBot";
     private static final Integer BOT_CREATOR_ID = Integer.valueOf(System.getenv("BOT_CREATOR_ID"));
     private final ResponseHandler responseHandler;
+    private final PersonDao personDao;
 
-    public Bot() {
+    public Bot(SessionFactory sessionFactory) {
         super(BOT_TOKEN, BOT_USERNAME);
         responseHandler = new ResponseHandler(sender, db);
+        personDao = new PersonDao(sessionFactory);
     }
 
     @Override
@@ -168,6 +174,17 @@ public class Bot extends AbilityBot {
                 .privacy(PUBLIC)
                 .action(ctx -> {
                     try {
+                        Person person = personDao.findByUserId((long) ctx.user().getId());
+                        if (person == null) {
+                            User user = ctx.user();
+                            person = new Person();
+                            person.setUserId((long) user.getId());
+                            person.setFirstName(user.getFirstName());
+                            person.setLastName(user.getLastName());
+                            person.setLogin(user.getUserName().concat("@").concat(String.valueOf(user.getId())));
+                            personDao.save(person);
+                        }
+
                         responseHandler.replyToStart(ctx.chatId(), ctx.user());
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
