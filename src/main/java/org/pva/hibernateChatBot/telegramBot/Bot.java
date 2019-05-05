@@ -3,11 +3,11 @@ package org.pva.hibernateChatBot.telegramBot;
 import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.api.objects.Ability;
 import org.telegram.abilitybots.api.objects.Flag;
+import org.telegram.abilitybots.api.objects.Privacy;
 import org.telegram.abilitybots.api.objects.Reply;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ForceReplyKeyboard;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.function.Consumer;
@@ -23,7 +23,7 @@ public class Bot extends AbilityBot {
 
     private static final String BOT_TOKEN = System.getenv("TELEGRAM_TOKEN");
     private static final String BOT_USERNAME = "ReminderVxBot";
-    private static final Integer BOT_CREATOR_ID = 127155577;
+    private static final Integer BOT_CREATOR_ID = Integer.valueOf(System.getenv("BOT_CREATOR_ID"));
     private final ResponseHandler responseHandler;
 
     public Bot() {
@@ -36,6 +36,7 @@ public class Bot extends AbilityBot {
         return BOT_CREATOR_ID;
     }
 
+    @Deprecated
     public Ability replyToEnterLogin() {
         String msg = "Введите логин:";
         return Ability.
@@ -70,7 +71,67 @@ public class Bot extends AbilityBot {
                 build();
     }
 
+    public Ability replyToEnterReminderText() {
+        String msg = "О чем нужно напомнить?";
+        return Ability.
+                builder().
+                name("addsimplereminder").
+                info("Введите текст напоминания").
+                privacy(PUBLIC).
+                locality(ALL).
+                input(0).
+                action(ctx -> {
+                    try {
+                        sender.execute(new SendMessage()
+                                .setText(msg).setChatId(ctx.chatId()).setReplyMarkup(KeyboardFactory.getForceReplyKeyboard()));
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                }).
+                reply(upd -> {
+                            String text = upd.getMessage().getText();
+                            System.out.println(text);
+//                            responseHandler.replyToEnterReminderDate(upd.getMessage().getChatId(), simpleReminder);
+//                            System.out.println(dateText);
+                        },
+                        MESSAGE,
+                        REPLY,
+                        isReplyToBot(),
+                        isReplyToMessage(msg)).
+                build();
+    }
 
+    public Ability replyToEnterReminderDate(/*SimpleReminder simpleReminder*/) {
+        String msg = "Когда нужно напомнить (дата в формате дд.ММ.гггг)?";
+        return Ability.
+                builder().
+                name("addsimplereminderDate").
+                info("Введите дату напоминания").
+                privacy(Privacy.ADMIN).
+                locality(ALL).
+                input(0).
+                action(ctx -> {
+                    try {
+                        sender.execute(new SendMessage()
+                                .setText(msg).setChatId(ctx.chatId()).setReplyMarkup(KeyboardFactory.getForceReplyKeyboard()));
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                }).
+                reply(upd -> {
+                            try {
+                                /*simpleReminder.setRemindDate(new SimpleDateFormat("dd.MM.yyyy").parse(upd.getMessage().getText()));*/
+                                System.out.println(upd.getMessage().getText());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        },
+                        MESSAGE,
+                        REPLY,
+                        isReplyToBot(),
+                        isReplyToMessage(msg)).
+                build();
+    }
 
     private Predicate<Update> isReplyToMessage(String message) {
         return upd -> {
@@ -100,6 +161,24 @@ public class Bot extends AbilityBot {
                 .build();
     }
 
+    public Ability replyToHelp() {
+        return Ability
+                .builder()
+                .name("help")
+                .info("Help me!!!")
+                .locality(ALL)
+                .privacy(PUBLIC)
+                .action(ctx -> {
+                    try {
+                        responseHandler.replyToHelp(ctx.chatId(), ctx.user());
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                })
+                .build();
+    }
+
+    @Deprecated
     public Ability useDatabaseToCountPerUser() {
         return Ability.builder()
                 .name("count")
@@ -123,100 +202,4 @@ public class Bot extends AbilityBot {
         };
         return Reply.of(action, Flag.CALLBACK_QUERY);
     }
-
-//    @Override
-//    public void onUpdateReceived(Update update) {
-//        Message message = update.getMessage();
-//        String text = message.getText();
-//        if (message != null && message.hasText()) {
-//            switch (text) {
-//                case "/start":
-//                    replyToStart(message);
-//                    break;
-//                case "/help":
-//                    helpHandler(message);
-//                    break;
-//                default:
-//                    break;
-//            }
-//        }
-//    }
-
-
-//    private void helpHandler(Message message) {
-//        String MESSAGE_TEXT = "Доступные команды:\n" +
-//                "/addSimpleReminder - добавить простое напоминание\n" +
-//                "/addCircleReminder - добавить циклическое напоминание\n" +
-//                "/viewActiveReminders - показать активные напоминания\n" +
-//                "/viewCircleReminders - показать все циклические напоминания\n" +
-//                "/viewClosestReminders - показать ближайшие напоминания\n" +
-//                "Настройки:\n" +
-//                "/start - начало работы\n" +
-//                "/settings - настройки пользователя\n" +
-//                "/help - помощь";
-//        SendMessage sendMsg = new SendMessage();
-//        sendMsg.enableMarkdown(true);
-//        sendMsg.setText(MESSAGE_TEXT);
-//        sendMsg.setChatId(message.getChatId());
-//        try {
-//            execute(sendMsg);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    private void replyToStart(Message message) {
-//        String MESSAGE_TEXT = "Привет, %s!\n" +
-//                "Ты зашет в бот-напоминайку!\n" +
-//                "Очем напомнить?\n" +
-//                "/addSimpleReminder - добавить простое напоминание\n" +
-//                "/addCircleReminder - добавить циклическое напоминание\n" +
-//                "/viewActiveReminders - показать активные напоминания\n" +
-//                "/viewCircleReminders - показать все циклические напоминания\n" +
-//                "/viewClosestReminders - показать ближайшие напоминания\n" +
-//                "Настройки:\n" +
-//                "/start - начало работы\n" +
-//                "/settings - настройки пользователя\n" +
-//                "/help - помощь";
-//        String username = message.getChat().getUserName();
-//        SendMessage sendMsg = new SendMessage();
-//        sendMsg.enableMarkdown(true);
-//        sendMsg.setText(String.format(MESSAGE_TEXT, username == null ? "безымянный пользователь" : username));
-//        sendMsg.setChatId(message.getChatId());
-////        setButtons(sendMsg);
-////        sendMsg.setReplyToMessageId(message.getMessageId());
-//        try {
-//            execute(sendMsg);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-//    public void setButtons(SendMessage sendMessage) {
-//        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
-//        sendMessage.setReplyMarkup(replyKeyboardMarkup);
-//        replyKeyboardMarkup.setSelective(true);
-//        replyKeyboardMarkup.setResizeKeyboard(true);
-//        replyKeyboardMarkup.setOneTimeKeyboard(false);
-//
-//        List<KeyboardRow> keyboardRowList = new ArrayList<>();
-//        KeyboardRow keyboardRow1 = new KeyboardRow();
-//        keyboardRow1.add(new KeyboardButton("/start"));
-////        keyboardRow1.add(new KeyboardButton("Пока!"));
-//
-//        keyboardRowList.add(keyboardRow1);
-//        replyKeyboardMarkup.setKeyboard(keyboardRowList);
-//    }
-
-//    @Override
-//    public String getBotUsername() {
-//        return "ReminderVxBot";
-//    }
-//
-//    @Override
-//    public String getBotToken() {
-//        return System.getenv("TELEGRAM_TOKEN");
-//    }
-
-
 }

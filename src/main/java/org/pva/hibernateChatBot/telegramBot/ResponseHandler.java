@@ -1,8 +1,10 @@
 package org.pva.hibernateChatBot.telegramBot;
 
+import org.pva.hibernateChatBot.reminder.SimpleReminder;
 import org.telegram.abilitybots.api.db.DBContext;
 import org.telegram.abilitybots.api.sender.MessageSender;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -18,6 +20,7 @@ public class ResponseHandler {
         countMap = db.getMap("COUNTERS");
     }
 
+    @Deprecated
     public void replyToEnterLogin(long chatId) {
         try {
             sender.execute(new SendMessage()
@@ -29,6 +32,19 @@ public class ResponseHandler {
         }
     }
 
+    public void replyToEnterReminderDate(long chatId, SimpleReminder simpleReminder) {
+        try {
+            sender.execute(new SendMessage()
+                    .setText("Когда нужно напомнить (дата в формате дд.ММ.гггг)?")
+                    .setChatId(chatId)
+                    .setReplyMarkup(KeyboardFactory.getForceReplyKeyboard()));
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    @Deprecated
     public void replyToCount(long chatId) {
         try {
             Integer counter = countMap.compute(String.valueOf(sender.getMe().getId()), (id, count) -> count == null ? 1 : ++count);
@@ -47,21 +63,32 @@ public class ResponseHandler {
         String MESSAGE = String.format("Привет, %s!\n" +
                 "Ты зашел в бот-напоминайку!\n" +
                 "О чем напомнить?\n" +
-//                "/enterlogin - ввести логин \n" +
-                "/addSimpleReminder - добавить простое напоминание\n" +
-//                "/addCircleReminder - добавить циклическое напоминание\n" +
-//                "/viewActiveReminders - показать активные напоминания\n" +
-//                "/viewCircleReminders - показать все циклические напоминания\n" +
-                "/viewClosestReminders - показать ближайшие напоминания\n" +
+                "/addsimplereminder - добавить простое напоминание\n" +
+                "/viewreminders - показать ближайшие напоминания\n" +
                 "Настройки:\n" +
                 "/start - начало работы\n" +
-                //"/settings - настройки пользователя\n" +
                 "/help - помощь", user.getUserName());
         try {
             sender.execute(new SendMessage()
                     .setText(MESSAGE)
-                    .setChatId(chatId)
-                    .setReplyMarkup(KeyboardFactory.getStartCountKeyboard()));
+                    .setChatId(chatId));
+//                    .setReplyMarkup(KeyboardFactory.getStartCountKeyboard()));
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void replyToHelp(long chatId, User user) throws TelegramApiException {
+        String MESSAGE =
+                "Доступны следующие команды:\n" +
+                        "/start - начало работы\n" +
+                        "/help - помощь\n" +
+                        "/addsimplereminder - добавить простое напоминание\n" +
+                        "/viewreminders - показать напоминания";
+        try {
+            sender.execute(new SendMessage()
+                    .setText(MESSAGE)
+                    .setChatId(chatId));
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
