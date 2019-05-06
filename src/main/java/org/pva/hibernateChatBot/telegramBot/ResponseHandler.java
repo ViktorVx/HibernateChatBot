@@ -1,10 +1,13 @@
 package org.pva.hibernateChatBot.telegramBot;
 
+import org.pva.hibernateChatBot.constants.ConstantStorage;
 import org.pva.hibernateChatBot.person.Person;
+import org.pva.hibernateChatBot.person.PersonDao;
 import org.telegram.abilitybots.api.db.DBContext;
 import org.telegram.abilitybots.api.sender.MessageSender;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -22,17 +25,6 @@ public class ResponseHandler {
         this.sender = sender;
         countMap = db.getMap("COUNTERS");
     }
-
-//    public void replyToEnterReminderDate(long chatId, SimpleReminder simpleReminder) {
-//        try {
-//            sender.execute(new SendMessage()
-//                    .setText("Когда нужно напомнить (дата в формате дд.ММ.гггг)?")
-//                    .setChatId(chatId)
-//                    .setReplyMarkup(KeyboardFactory.getForceReplyKeyboard()));
-//        } catch (TelegramApiException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     public void replyToStart(long chatId, User user) throws TelegramApiException {
         String MESSAGE = String.format("Привет, %s!\n" +
@@ -86,12 +78,6 @@ public class ResponseHandler {
 
     public void replyToButtons(long chatId, User user, String buttonId, Update upd, Person person) throws TelegramApiException {
         switch (buttonId) {
-//            case "start":
-//                replyToStart(chatId, user);
-//                break;
-//            case "count":
-//                replyToCount(chatId);
-//                break;
             case "edit_person_data":
                 replyToEditPersonalData(chatId, user, upd, person);
                 break;
@@ -104,6 +90,24 @@ public class ResponseHandler {
         }
     }
 
+    public void replyToMsg(long chatId, Update upd, Person person, PersonDao personDao) throws TelegramApiException {
+        Message message = upd.getMessage();
+        Message reply = upd.getMessage().getReplyToMessage();
+        String msg = "";
+        if (reply != null && reply.hasText()) {
+            msg = reply.getText();
+        }
+
+        switch (msg) {
+            case ConstantStorage.EDIT_PERSON_LAST_NAME_MESSAGE:
+                person.setLastName(message.getText());
+                personDao.update(person);
+                replyToEditPersonalData(chatId, upd.getMessage().getFrom(), upd, person);
+                break;
+        }
+    }
+
+    //*****************************************
     public void replyToEditLastName(long chatId, Person person) {
         String MESSAGE =
                 "Введите фамилию:";
@@ -116,23 +120,43 @@ public class ResponseHandler {
             e.printStackTrace();
         }
     }
+    //********************************************
 
     public void replyToEditPersonalData(long chatId, User user, Update upd, Person person) throws TelegramApiException {
+        StringBuilder msg = new StringBuilder();
+        msg.append("ℹ️Персональная информация:\n");
+        msg.append(String.format("Фамилия: %s\n", person.getLastName() == null ? "-" : person.getLastName()));
+        msg.append(String.format("Имя: %s\n", person.getFirstName() == null ? "-" : person.getFirstName()));
+        msg.append(String.format("Отчество: %s\n", person.getMiddleName() == null ? "-" : person.getMiddleName()));
+
         if (upd.hasCallbackQuery()) {
             long message_id = upd.getCallbackQuery().getMessage().getMessageId();
             long chat_id = upd.getCallbackQuery().getMessage().getChatId();
             String inline_message_id = upd.getCallbackQuery().getInlineMessageId();
 
-            StringBuilder msg = new StringBuilder();
-            msg.append("ℹ️Персональная информация:\n");
-            msg.append(String.format("Фамилия: %s\n", person.getLastName() == null ? "-" : person.getLastName()));
-            msg.append(String.format("Имя: %s\n", person.getFirstName() == null ? "-" : person.getFirstName()));
-            msg.append(String.format("Отчество: %s\n", person.getMiddleName() == null ? "-" : person.getMiddleName()));
-
             EditMessageText new_message = new EditMessageText().
                     setChatId(chat_id).
                     setMessageId(toIntExact(message_id)).
                     setInlineMessageId(inline_message_id).
+                    setText(msg.toString());
+            new_message.setReplyMarkup(KeyboardFactory.getInfoPersonEditKeyboard());
+            try {
+                sender.execute(new_message);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if (upd.hasMessage()) {
+            long message_id = upd.getMessage().getMessageId();
+            long chat_id = upd.getMessage().getChatId();
+//            String inline_message_id = upd.getMessage().getInlineMessageId();
+
+
+
+            SendMessage new_message = new SendMessage().
+                    setChatId(chat_id).
+//                    setMessageId(toIntExact(message_id)).
+//                    setInlineMessageId(inline_message_id).
                     setText(msg.toString());
             new_message.setReplyMarkup(KeyboardFactory.getInfoPersonEditKeyboard());
             try {

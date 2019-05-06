@@ -72,6 +72,7 @@ public class PersonDao implements Dao<Person> {
         Session session = sessionFactory.openSession();
         Transaction tx = session.beginTransaction();
         session.persist(person);
+//        session.saveOrUpdate(person);
         tx.commit();
         session.close();
     }
@@ -80,7 +81,8 @@ public class PersonDao implements Dao<Person> {
     public void update(Person person) {
         Session session = sessionFactory.openSession();
         Transaction tx = session.beginTransaction();
-        session.update(person);
+//        session.update(person);
+        session.merge(person);
         tx.commit();
         session.close();
     }

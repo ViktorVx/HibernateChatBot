@@ -235,4 +235,16 @@ public class Bot extends AbilityBot {
         };
         return Reply.of(action, Flag.CALLBACK_QUERY);
     }
+
+    public Reply replyToEnterLastName() {
+        Consumer<Update> action = upd -> {
+            try {
+                Person person = personDao.findByUserId((long) upd.getMessage().getFrom().getId());
+                responseHandler.replyToMsg(getChatId(upd), upd, person, personDao);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        };
+        return Reply.of(action, Flag.MESSAGE, Flag.REPLY);
+    }
 }
