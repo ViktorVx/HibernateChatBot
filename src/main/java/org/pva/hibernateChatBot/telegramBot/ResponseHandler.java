@@ -1,10 +1,10 @@
 package org.pva.hibernateChatBot.telegramBot;
 
+import org.pva.hibernateChatBot.person.Person;
 import org.pva.hibernateChatBot.reminder.SimpleReminder;
 import org.telegram.abilitybots.api.db.DBContext;
 import org.telegram.abilitybots.api.sender.MessageSender;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
@@ -110,7 +110,7 @@ public class ResponseHandler {
         }
     }
 
-    public void replyToButtons(long chatId, User user, String buttonId, Update upd) throws TelegramApiException {
+    public void replyToButtons(long chatId, User user, String buttonId, Update upd, Person person) throws TelegramApiException {
         switch (buttonId) {
             case "start":
                 replyToStart(chatId, user);
@@ -119,7 +119,7 @@ public class ResponseHandler {
                 replyToCount(chatId);
                 break;
             case "edit_person_data":
-                replyToEditPersonalData(chatId, user, upd);
+                replyToEditPersonalData(chatId, user, upd, person);
                 break;
             case "edit_register_name":
                 System.out.println("register");
@@ -127,17 +127,23 @@ public class ResponseHandler {
         }
     }
 
-    public void replyToEditPersonalData(long chatId, User user, Update upd) throws TelegramApiException {
+    public void replyToEditPersonalData(long chatId, User user, Update upd, Person person) throws TelegramApiException {
         if (upd.hasCallbackQuery()) {
             long message_id = upd.getCallbackQuery().getMessage().getMessageId();
             long chat_id = upd.getCallbackQuery().getMessage().getChatId();
             String inline_message_id = upd.getCallbackQuery().getInlineMessageId();
 
+            StringBuilder msg = new StringBuilder();
+            msg.append("ℹ️Персональная информация:\n");
+            msg.append(String.format("Фамилия: %s\n", person.getLastName()));
+            msg.append(String.format("Имя: %s\n", person.getFirstName()));
+            msg.append(String.format("Отчество: %s\n", person.getMiddleName()));
+
             EditMessageText new_message = new EditMessageText().
                     setChatId(chat_id).
                     setMessageId(toIntExact(message_id)).
                     setInlineMessageId(inline_message_id).
-                    setText("Текст текст текст!");
+                    setText(msg.toString());
             new_message.setReplyMarkup(KeyboardFactory.getInfoPersonEditKeyboard());
             try {
                 sender.execute(new_message);

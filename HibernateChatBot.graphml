@@ -28,8 +28,8 @@ String firstName
 String lastName
 String middleName
 String login
-String password
 String email
+Long userId
 Gender gender
 List&lt;Reminder&gt; remList</y:AttributeLabel>
             <y:MethodLabel xml:space="preserve"/>
@@ -260,7 +260,6 @@ SUNDAY</y:AttributeLabel>
     </edge>
     <edge id="e5" source="n6" target="n3">
       <data key="d8" xml:space="preserve"/>
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="-87.84722222222216" ty="52.378640776699015">
@@ -275,7 +274,6 @@ SUNDAY</y:AttributeLabel>
     </edge>
     <edge id="e6" source="n7" target="n3">
       <data key="d8" xml:space="preserve"/>
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="-71.0" ty="53.64077669902912"/>
@@ -287,7 +285,6 @@ SUNDAY</y:AttributeLabel>
     </edge>
     <edge id="e7" source="n7" target="n8">
       <data key="d8" xml:space="preserve"/>
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="-79.75"/>
@@ -299,7 +296,6 @@ SUNDAY</y:AttributeLabel>
     </edge>
     <edge id="e8" source="n9" target="n3">
       <data key="d8" xml:space="preserve"/>
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="-54.0" sy="0.0" tx="-51.0" ty="60.0">
@@ -314,7 +310,6 @@ SUNDAY</y:AttributeLabel>
     </edge>
     <edge id="e9" source="n10" target="n3">
       <data key="d8" xml:space="preserve"/>
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="-52.625" sy="-34.5" tx="-31.0" ty="60.0">

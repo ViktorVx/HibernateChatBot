@@ -227,7 +227,8 @@ public class Bot extends AbilityBot {
     public Reply replyToButtons() {
         Consumer<Update> action = upd -> {
             try {
-                responseHandler.replyToButtons(getChatId(upd), upd.getCallbackQuery().getFrom(),upd.getCallbackQuery().getData(), upd);
+                Person person = personDao.findByUserId((long) upd.getCallbackQuery().getFrom().getId());
+                responseHandler.replyToButtons(getChatId(upd), upd.getCallbackQuery().getFrom(),upd.getCallbackQuery().getData(), upd, person);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
