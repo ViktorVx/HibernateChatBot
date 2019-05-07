@@ -81,11 +81,14 @@ public class ResponseHandler {
             case "edit_person_data":
                 replyToEditPersonalData(chatId, user, upd, person);
                 break;
-            case "edit_register_name":
-                System.out.println("register");
-                break;
             case "edit_last_name":
                 replyToEditLastName(chatId, person);
+                break;
+            case "edit_first_name":
+                replyToEditFirstName(chatId, person);
+                break;
+            case "edit_middle_name":
+                replyToEditMiddleName(chatId, person);
                 break;
         }
     }
@@ -101,16 +104,48 @@ public class ResponseHandler {
         switch (msg) {
             case ConstantStorage.EDIT_PERSON_LAST_NAME_MESSAGE:
                 person.setLastName(message.getText());
-                personDao.update(person);
-                replyToEditPersonalData(chatId, upd.getMessage().getFrom(), upd, person);
+                break;
+            case ConstantStorage.EDIT_PERSON_FIRST_NAME_MESSAGE:
+                person.setFirstName(message.getText());
+                break;
+            case ConstantStorage.EDIT_PERSON_MIDDLE_NAME_MESSAGE:
+                person.setMiddleName(message.getText());
                 break;
         }
+        personDao.update(person);
+        replyToEditPersonalData(chatId, upd.getMessage().getFrom(), upd, person);
     }
 
     //*****************************************
     public void replyToEditLastName(long chatId, Person person) {
         String MESSAGE =
-                "Введите фамилию:";
+                ConstantStorage.EDIT_PERSON_LAST_NAME_MESSAGE;
+        try {
+            sender.execute(new SendMessage()
+                    .setText(MESSAGE)
+                    .setChatId(chatId).setReplyMarkup(KeyboardFactory.getForceReplyKeyboard()));
+
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void replyToEditFirstName(long chatId, Person person) {
+        String MESSAGE =
+                ConstantStorage.EDIT_PERSON_FIRST_NAME_MESSAGE;
+        try {
+            sender.execute(new SendMessage()
+                    .setText(MESSAGE)
+                    .setChatId(chatId).setReplyMarkup(KeyboardFactory.getForceReplyKeyboard()));
+
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void replyToEditMiddleName(long chatId, Person person) {
+        String MESSAGE =
+                ConstantStorage.EDIT_PERSON_MIDDLE_NAME_MESSAGE;
         try {
             sender.execute(new SendMessage()
                     .setText(MESSAGE)
@@ -147,16 +182,9 @@ public class ResponseHandler {
             }
         }
         if (upd.hasMessage()) {
-            long message_id = upd.getMessage().getMessageId();
             long chat_id = upd.getMessage().getChatId();
-//            String inline_message_id = upd.getMessage().getInlineMessageId();
-
-
-
             SendMessage new_message = new SendMessage().
                     setChatId(chat_id).
-//                    setMessageId(toIntExact(message_id)).
-//                    setInlineMessageId(inline_message_id).
                     setText(msg.toString());
             new_message.setReplyMarkup(KeyboardFactory.getInfoPersonEditKeyboard());
             try {

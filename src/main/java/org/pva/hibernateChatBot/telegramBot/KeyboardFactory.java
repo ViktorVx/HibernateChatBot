@@ -51,7 +51,7 @@ public class KeyboardFactory {
         rowsInline.add(rowInline);
 
         rowInline = new ArrayList<>();
-        rowInline.add(new InlineKeyboardButton().setText("Изменить отчество").setCallbackData("edit_middle_anme"));
+        rowInline.add(new InlineKeyboardButton().setText("Изменить отчество").setCallbackData("edit_middle_name"));
         rowsInline.add(rowInline);
 
         inlineKeyboard.setKeyboard(rowsInline);

@@ -236,7 +236,7 @@ public class Bot extends AbilityBot {
         return Reply.of(action, Flag.CALLBACK_QUERY);
     }
 
-    public Reply replyToEnterLastName() {
+    public Reply replyToMsg() {
         Consumer<Update> action = upd -> {
             try {
                 Person person = personDao.findByUserId((long) upd.getMessage().getFrom().getId());
