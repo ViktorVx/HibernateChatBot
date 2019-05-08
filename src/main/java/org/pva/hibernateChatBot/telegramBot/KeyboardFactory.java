@@ -1,5 +1,6 @@
 package org.pva.hibernateChatBot.telegramBot;
 
+import com.vdurmont.emoji.EmojiParser;
 import org.pva.hibernateChatBot.constants.ConstantStorage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ForceReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -53,7 +54,7 @@ public class KeyboardFactory {
         rowsInline.add(rowInline);
 
         rowInline = new ArrayList<>();
-        rowInline.add(new InlineKeyboardButton().setText("\uD83D\uDC48 Назад").setCallbackData(ConstantStorage.CBD_EDIT_BACK_BUTTON));
+        rowInline.add(new InlineKeyboardButton().setText(EmojiParser.parseToUnicode(":point_left: Назад")).setCallbackData(ConstantStorage.CBD_EDIT_BACK_BUTTON));
         rowsInline.add(rowInline);
 
         inlineKeyboard.setKeyboard(rowsInline);
