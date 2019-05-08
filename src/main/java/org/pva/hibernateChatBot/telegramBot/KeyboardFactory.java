@@ -1,12 +1,10 @@
 package org.pva.hibernateChatBot.telegramBot;
 
+import org.pva.hibernateChatBot.constants.ConstantStorage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ForceReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,15 +41,19 @@ public class KeyboardFactory {
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
 
         List<InlineKeyboardButton> rowInline = new ArrayList<>();
-        rowInline.add(new InlineKeyboardButton().setText("Изменить фамилию").setCallbackData("edit_last_name"));
+        rowInline.add(new InlineKeyboardButton().setText("Изменить фамилию").setCallbackData(ConstantStorage.CBD_EDIT_LAST_NAME));
         rowsInline.add(rowInline);
 
         rowInline = new ArrayList<>();
-        rowInline.add(new InlineKeyboardButton().setText("Изменить имя").setCallbackData("edit_first_name"));
+        rowInline.add(new InlineKeyboardButton().setText("Изменить имя").setCallbackData(ConstantStorage.CBD_EDIT_FIRST_NAME));
         rowsInline.add(rowInline);
 
         rowInline = new ArrayList<>();
-        rowInline.add(new InlineKeyboardButton().setText("Изменить отчество").setCallbackData("edit_middle_name"));
+        rowInline.add(new InlineKeyboardButton().setText("Изменить отчество").setCallbackData(ConstantStorage.CBD_EDIT_MIDDLE_NAME));
+        rowsInline.add(rowInline);
+
+        rowInline = new ArrayList<>();
+        rowInline.add(new InlineKeyboardButton().setText("\uD83D\uDC48 Назад").setCallbackData(ConstantStorage.CBD_EDIT_BACK_BUTTON));
         rowsInline.add(rowInline);
 
         inlineKeyboard.setKeyboard(rowsInline);

@@ -40,7 +40,6 @@ public class ResponseHandler {
             sender.execute(new SendMessage()
                     .setText(MESSAGE)
                     .setChatId(chatId));
-//                    .setReplyMarkup(KeyboardFactory.getStartCountKeyboard()));
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
@@ -78,17 +77,20 @@ public class ResponseHandler {
 
     public void replyToButtons(long chatId, User user, String buttonId, Update upd, Person person) throws TelegramApiException {
         switch (buttonId) {
-            case "edit_person_data":
+            case ConstantStorage.CBD_EDIT_PERSON_DATA:
                 replyToEditPersonalData(chatId, user, upd, person);
                 break;
-            case "edit_last_name":
+            case ConstantStorage.EDIT_PERSON_LAST_NAME_MESSAGE:
                 replyToEditLastName(chatId, person);
                 break;
-            case "edit_first_name":
+            case ConstantStorage.EDIT_PERSON_FIRST_NAME_MESSAGE:
                 replyToEditFirstName(chatId, person);
                 break;
-            case "edit_middle_name":
+            case ConstantStorage.EDIT_PERSON_MIDDLE_NAME_MESSAGE:
                 replyToEditMiddleName(chatId, person);
+                break;
+            case ConstantStorage.CBD_EDIT_BACK_BUTTON:
+                replyToEditInfoBackButton(upd);
                 break;
         }
     }
@@ -117,6 +119,27 @@ public class ResponseHandler {
     }
 
     //*****************************************
+    public void replyToEditInfoBackButton(Update upd) {
+        if (upd.hasCallbackQuery()) {
+            String MESSAGE = String.format("%s, заполните данные о себе!\n", upd.getCallbackQuery().getFrom().getUserName());
+            long message_id = upd.getCallbackQuery().getMessage().getMessageId();
+            long chat_id = upd.getCallbackQuery().getMessage().getChatId();
+            String inline_message_id = upd.getCallbackQuery().getInlineMessageId();
+
+            EditMessageText new_message = new EditMessageText().
+                    setChatId(chat_id).
+                    setMessageId(toIntExact(message_id)).
+                    setInlineMessageId(inline_message_id).
+                    setText(MESSAGE);
+            new_message.setReplyMarkup(KeyboardFactory.getInfoEditKeyboard());
+            try {
+                sender.execute(new_message);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public void replyToEditLastName(long chatId, Person person) {
         String MESSAGE =
                 ConstantStorage.EDIT_PERSON_LAST_NAME_MESSAGE;
@@ -155,6 +178,7 @@ public class ResponseHandler {
             e.printStackTrace();
         }
     }
+
     //********************************************
 
     public void replyToEditPersonalData(long chatId, User user, Update upd, Person person) throws TelegramApiException {
