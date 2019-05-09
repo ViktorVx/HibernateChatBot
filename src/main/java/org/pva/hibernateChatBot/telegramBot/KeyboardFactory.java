@@ -5,6 +5,7 @@ import org.pva.hibernateChatBot.constants.ConstantStorage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ForceReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.util.ArrayList;
@@ -116,6 +117,7 @@ public class KeyboardFactory {
         rowsInline.add(rowInline);
 
         inlineKeyboard.setKeyboard(rowsInline);
+//        new ReplyKeyboardRemove()
         return inlineKeyboard;
     }
 

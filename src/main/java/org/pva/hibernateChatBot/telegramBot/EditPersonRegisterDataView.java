@@ -34,13 +34,13 @@ public class EditPersonRegisterDataView {
         if (person.getGender() != null) {
             switch (person.getGender()) {
                 case MALE:
-                    gender = "Мужской";
+                    gender = "мужской";
                     break;
                 case FEMALE:
-                    gender = "Женский";
+                    gender = "женский";
                     break;
                 default:
-                    gender = "Экзотический";
+                    gender = "экзотический";
             }
         }
         msg.append(String.format("Пол: %s\n", gender));
@@ -114,7 +114,23 @@ public class EditPersonRegisterDataView {
                 e.printStackTrace();
             }
         }
+    }
 
+    public static void replyToMaleGenderButton(long chatId, Update upd, MessageSender sender) {
+        if (upd.hasCallbackQuery()) {
+            String MESSAGE = ConstantStorage.EDIT_PERSON_GENDER_MESSAGE;
+            long message_id = upd.getCallbackQuery().getMessage().getMessageId();
+            String inline_message_id = upd.getCallbackQuery().getInlineMessageId();
+
+            try {
+                sender.execute(new EditMessageText()
+                        .setText(MESSAGE).setMessageId(toIntExact(message_id)).setInlineMessageId(inline_message_id)
+                        .setChatId(chatId).setReplyMarkup(KeyboardFactory.getGenderSelectKeyboard()));
+
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public static void replyToRegisterBackButton(Update upd, Person person, MessageSender sender) {
@@ -128,13 +144,13 @@ public class EditPersonRegisterDataView {
             if (person.getGender() != null) {
                 switch (person.getGender()) {
                     case MALE:
-                        gender = "Мужской";
+                        gender = "мужской";
                         break;
                     case FEMALE:
-                        gender = "Женский";
+                        gender = "женский";
                         break;
                     default:
-                        gender = "Экзотический";
+                        gender = "экзотический";
                 }
             }
             msg.append(String.format("Пол: %s\n", gender));

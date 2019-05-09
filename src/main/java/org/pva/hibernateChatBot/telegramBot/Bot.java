@@ -3,6 +3,7 @@ package org.pva.hibernateChatBot.telegramBot;
 import com.vdurmont.emoji.EmojiParser;
 import org.hibernate.SessionFactory;
 import org.pva.hibernateChatBot.constants.ConstantStorage;
+import org.pva.hibernateChatBot.enums.Gender;
 import org.pva.hibernateChatBot.person.Person;
 import org.pva.hibernateChatBot.person.PersonDao;
 import org.telegram.abilitybots.api.bot.AbilityBot;
@@ -131,6 +132,32 @@ public class Bot extends AbilityBot {
                 .build();
     }
 
+    public Ability replyToAddSimpleReminder() {
+        return Ability
+                .builder()
+                .name("addsimplereminder")
+                .info("Add simple reminder")
+                .locality(ALL)
+                .privacy(PUBLIC)
+                .action(ctx -> {
+                    String MESSAGE =
+                            "Доступны следующие команды:\n" +
+                                    "/start - начало работы\n" +
+                                    "/info - информация о пользователе\n" +
+                                    "/help - помощь\n" +
+                                    "/addsimplereminder - добавить простое напоминание\n" +
+                                    "/viewreminders - показать напоминания";
+                    try {
+                        sender.execute(new SendMessage()
+                                .setText(MESSAGE)
+                                .setChatId(ctx.chatId()));
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                })
+                .build();
+    }
+
     //*** REPLYES TO BUTTONS AND MESSAGES ******************************************************************************
 
     public Reply replyToButtons() {
@@ -171,6 +198,21 @@ public class Bot extends AbilityBot {
                     break;
                 case ConstantStorage.CBD_GENDER_SELECTOR_BACK_BUTTON:
                     EditPersonRegisterDataView.replyToRegisterBackButton(upd, person, sender);
+                    break;
+                case ConstantStorage.CBD_MALE_GENDER_SELECT:
+                    person.setGender(Gender.MALE);
+                    personDao.update(person);
+                    EditPersonRegisterDataView.replyToEditRegisterData(upd, person, sender);
+                    break;
+                case ConstantStorage.CBD_FEMALE_GENDER_SELECT:
+                    person.setGender(Gender.FEMALE);
+                    personDao.update(person);
+                    EditPersonRegisterDataView.replyToEditRegisterData(upd, person, sender);
+                    break;
+                case ConstantStorage.CBD_OTHER_GENDER_SELECT:
+                    person.setGender(Gender.UNKNOWN);
+                    personDao.update(person);
+                    EditPersonRegisterDataView.replyToEditRegisterData(upd, person, sender);
                     break;
 
 
@@ -247,7 +289,7 @@ public class Bot extends AbilityBot {
     private Predicate<Update> isReplyToMessage(String message) {
         return upd -> {
             Message reply = upd.getMessage().getReplyToMessage();
-            return reply!=null && reply.hasText() && reply.getText().equalsIgnoreCase(message);
+            return reply != null && reply.hasText() && reply.getText().equalsIgnoreCase(message);
         };
     }
 
