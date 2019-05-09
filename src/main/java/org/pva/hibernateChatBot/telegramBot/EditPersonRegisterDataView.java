@@ -99,18 +99,22 @@ public class EditPersonRegisterDataView {
         }
     }
 
-    public static void replyToGender(long chatId, MessageSender sender) {
-        //todo сделать здесть изменение предыдущего сообщения, а не создание нового!!!
-        String MESSAGE =
-                ConstantStorage.EDIT_PERSON_GENDER_MESSAGE;
-        try {
-            sender.execute(new SendMessage()
-                    .setText(MESSAGE)
-                    .setChatId(chatId).setReplyMarkup(KeyboardFactory.getGenderSelectKeyboard()));
+    public static void replyToGender(long chatId, Update upd, MessageSender sender) {
+        if (upd.hasCallbackQuery()) {
+            String MESSAGE = ConstantStorage.EDIT_PERSON_GENDER_MESSAGE;
+            long message_id = upd.getCallbackQuery().getMessage().getMessageId();
+            String inline_message_id = upd.getCallbackQuery().getInlineMessageId();
 
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
+            try {
+                sender.execute(new EditMessageText()
+                        .setText(MESSAGE).setMessageId(toIntExact(message_id)).setInlineMessageId(inline_message_id)
+                        .setChatId(chatId).setReplyMarkup(KeyboardFactory.getGenderSelectKeyboard()));
+
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
         }
+
     }
 
     public static void replyToRegisterBackButton(Update upd, Person person, MessageSender sender) {

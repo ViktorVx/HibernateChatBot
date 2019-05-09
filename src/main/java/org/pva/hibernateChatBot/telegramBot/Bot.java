@@ -164,7 +164,7 @@ public class Bot extends AbilityBot {
                     EditPersonRegisterDataView.replyToBirthDate(chatId, sender);
                     break;
                 case ConstantStorage.CBD_EDIT_GENDER:
-                    EditPersonRegisterDataView.replyToGender(chatId, sender);
+                    EditPersonRegisterDataView.replyToGender(chatId, upd, sender);
                     break;
                 case ConstantStorage.CBD_EDIT_REGISTER_DATA_BACK_BUTTON:
                     EditPersonalDataView.replyToEditInfoBackButton(upd, sender);
