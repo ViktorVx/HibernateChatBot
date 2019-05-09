@@ -42,40 +42,120 @@ public class Bot extends AbilityBot {
         return BOT_CREATOR_ID;
     }
 
-    @Deprecated
-    public Ability replyToEnterLogin() {
-        String msg = "Введите логин:";
-        return Ability.
-                builder().
-                name("enterlogin").
-                info("введите логин").
-                privacy(PUBLIC).
-                locality(ALL).
-                input(0).
-                action(ctx -> {
+    //*** COMMAND ABILITIES ********************************************************************************************
+
+    public Ability replyToStart() {
+        return Ability
+                .builder()
+                .name("start")
+                .info("Starts the bot!")
+                .locality(ALL)
+                .privacy(PUBLIC)
+                .action(ctx -> {
+                    Person person = personDao.findByUserId((long) ctx.user().getId());
+                    if (person == null) {
+                        User user = ctx.user();
+                        person = new Person();
+                        person.setUserId((long) user.getId());
+                        person.setFirstName(user.getFirstName());
+                        person.setLastName(user.getLastName());
+                        person.setLogin(user.getUserName().concat("@").concat(String.valueOf(user.getId())));
+                        personDao.save(person);
+                    }
+
+                    String MESSAGE = String.format("Привет, %s!\n" +
+                            "Ты зашел в бот-напоминайку!\n" +
+                            "О чем напомнить?\n" +
+                            "/addsimplereminder - добавить простое напоминание\n" +
+                            "/viewreminders - показать ближайшие напоминания\n" +
+                            "Настройки:\n" +
+                            "/start - начало работы\n" +
+                            "/info - информация о пользователе\n" +
+                            "/help - помощь", ctx.user().getUserName());
                     try {
                         sender.execute(new SendMessage()
-                                .setText(msg).setChatId(ctx.chatId()).setReplyMarkup(KeyboardFactory.getForceReplyKeyboard()));
+                                .setText(MESSAGE)
+                                .setChatId(ctx.chatId()));
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
                     }
-                }).
-                reply(upd -> {
-                            System.out.println("I'm in a reply!");
-                            System.out.println(upd.getMessage().getText());
-//                            try {
-//                                sender.execute(new SendMessage()
-//                                        .setText(upd.getMessage().getText()).setChatId(upd.getMessage().getChatId()));
-//                            } catch (TelegramApiException e) {
-//                                e.printStackTrace();
-//                            }
-                        },
-                        MESSAGE,
-                        REPLY,
-                        isReplyToBot(),
-                        isReplyToMessage(msg)).
-                build();
+                })
+                .build();
     }
+
+    public Ability replyToInfo() {
+        return Ability
+                .builder()
+                .name("info")
+                .info("Edit user's info!")
+                .locality(ALL)
+                .privacy(PUBLIC)
+                .action(ctx -> {
+                    String MESSAGE = String.format("%s, заполните данные о себе!\n", ctx.user().getUserName());
+                    try {
+                        sender.execute(new SendMessage()
+                                .setText(MESSAGE)
+                                .setChatId(ctx.chatId()).setReplyMarkup(KeyboardFactory.getInfoEditKeyboard()));
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                })
+                .build();
+    }
+
+    public Ability replyToHelp() {
+        return Ability
+                .builder()
+                .name("help")
+                .info("Help me!!!")
+                .locality(ALL)
+                .privacy(PUBLIC)
+                .action(ctx -> {
+                    String MESSAGE =
+                            "Доступны следующие команды:\n" +
+                                    "/start - начало работы\n" +
+                                    "/info - информация о пользователе\n" +
+                                    "/help - помощь\n" +
+                                    "/addsimplereminder - добавить простое напоминание\n" +
+                                    "/viewreminders - показать напоминания";
+                    try {
+                        sender.execute(new SendMessage()
+                                .setText(MESSAGE)
+                                .setChatId(ctx.chatId()));
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                })
+                .build();
+    }
+
+    //*** REPLYES TO BUTTONS AND MESSAGES ******************************************************************************
+
+    public Reply replyToButtons() {
+        Consumer<Update> action = upd -> {
+            try {
+                Person person = personDao.findByUserId((long) upd.getCallbackQuery().getFrom().getId());
+                responseHandler.replyToButtons(getChatId(upd), upd.getCallbackQuery().getData(), upd, person);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        };
+        return Reply.of(action, Flag.CALLBACK_QUERY);
+    }
+
+    public Reply replyToMsg() {
+        Consumer<Update> action = upd -> {
+            try {
+                Person person = personDao.findByUserId((long) upd.getMessage().getFrom().getId());
+                responseHandler.replyToMsg(upd, person, personDao);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        };
+        return Reply.of(action, Flag.MESSAGE, Flag.REPLY);
+    }
+
+    //******************************************************************************************************************
 
     public Ability replyToEnterReminderText() {
         String msg = "О чем нужно напомнить?";
@@ -105,7 +185,7 @@ public class Bot extends AbilityBot {
                 build();
     }
 
-    public Ability replyToEnterReminderDate(/*SimpleReminder simpleReminder*/) {
+    public Ability replyToEnterReminderDate() {
         String msg = "Когда нужно напомнить (дата в формате дд.ММ.гггг)?";
         return Ability.
                 builder().
@@ -137,23 +217,6 @@ public class Bot extends AbilityBot {
                 build();
     }
 
-    public Ability replyToInfo() {
-        return Ability
-                .builder()
-                .name("info")
-                .info("Edit user's info!")
-                .locality(ALL)
-                .privacy(PUBLIC)
-                .action(ctx -> {
-                    try {
-                        responseHandler.replyToInfo(ctx.chatId(), ctx.user());
-                    } catch (TelegramApiException e) {
-                        e.printStackTrace();
-                    }
-                })
-                .build();
-    }
-
     private Predicate<Update> isReplyToMessage(String message) {
         return upd -> {
             Message reply = upd.getMessage().getReplyToMessage();
@@ -163,51 +226,6 @@ public class Bot extends AbilityBot {
 
     private Predicate<Update> isReplyToBot() {
         return upd -> upd.getMessage().getReplyToMessage().getFrom().getUserName().equalsIgnoreCase(getBotUsername());
-    }
-
-    public Ability replyToStart() {
-        return Ability
-                .builder()
-                .name("start")
-                .info("Starts the bot!")
-                .locality(ALL)
-                .privacy(PUBLIC)
-                .action(ctx -> {
-                    try {
-                        Person person = personDao.findByUserId((long) ctx.user().getId());
-                        if (person == null) {
-                            User user = ctx.user();
-                            person = new Person();
-                            person.setUserId((long) user.getId());
-                            person.setFirstName(user.getFirstName());
-                            person.setLastName(user.getLastName());
-                            person.setLogin(user.getUserName().concat("@").concat(String.valueOf(user.getId())));
-                            personDao.save(person);
-                        }
-
-                        responseHandler.replyToStart(ctx.chatId(), ctx.user());
-                    } catch (TelegramApiException e) {
-                        e.printStackTrace();
-                    }
-                })
-                .build();
-    }
-
-    public Ability replyToHelp() {
-        return Ability
-                .builder()
-                .name("help")
-                .info("Help me!!!")
-                .locality(ALL)
-                .privacy(PUBLIC)
-                .action(ctx -> {
-                    try {
-                        responseHandler.replyToHelp(ctx.chatId(), ctx.user());
-                    } catch (TelegramApiException e) {
-                        e.printStackTrace();
-                    }
-                })
-                .build();
     }
 
     @Deprecated
@@ -224,27 +242,5 @@ public class Bot extends AbilityBot {
                 .build();
     }
 
-    public Reply replyToButtons() {
-        Consumer<Update> action = upd -> {
-            try {
-                Person person = personDao.findByUserId((long) upd.getCallbackQuery().getFrom().getId());
-                responseHandler.replyToButtons(getChatId(upd), upd.getCallbackQuery().getFrom(),upd.getCallbackQuery().getData(), upd, person);
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
-        };
-        return Reply.of(action, Flag.CALLBACK_QUERY);
-    }
 
-    public Reply replyToMsg() {
-        Consumer<Update> action = upd -> {
-            try {
-                Person person = personDao.findByUserId((long) upd.getMessage().getFrom().getId());
-                responseHandler.replyToMsg(getChatId(upd), upd, person, personDao);
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
-        };
-        return Reply.of(action, Flag.MESSAGE, Flag.REPLY);
-    }
 }
