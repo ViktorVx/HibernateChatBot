@@ -13,6 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.text.SimpleDateFormat;
 import java.util.Map;
 
 import static java.lang.Math.toIntExact;
@@ -81,14 +82,17 @@ public class ResponseHandler {
             case ConstantStorage.CBD_EDIT_PERSON_DATA:
                 replyToEditPersonalData(chatId, user, upd, person);
                 break;
+            case ConstantStorage.CBD_EDIT_REGISTER_DATA:
+                replyToEditRegisterData(upd, person);
+                break;
             case ConstantStorage.EDIT_PERSON_LAST_NAME_MESSAGE:
-                replyToEditLastName(chatId, person);
+                replyToEditLastName(chatId);
                 break;
             case ConstantStorage.EDIT_PERSON_FIRST_NAME_MESSAGE:
-                replyToEditFirstName(chatId, person);
+                replyToEditFirstName(chatId);
                 break;
             case ConstantStorage.EDIT_PERSON_MIDDLE_NAME_MESSAGE:
-                replyToEditMiddleName(chatId, person);
+                replyToEditMiddleName(chatId);
                 break;
             case ConstantStorage.CBD_EDIT_PERSONAL_DATA_BACK_BUTTON:
                 replyToEditInfoBackButton(upd);
@@ -107,16 +111,21 @@ public class ResponseHandler {
         switch (msg) {
             case ConstantStorage.EDIT_PERSON_LAST_NAME_MESSAGE:
                 person.setLastName(message.getText());
+                personDao.update(person);
+                replyToEditPersonalData(chatId, upd.getMessage().getFrom(), upd, person);
                 break;
             case ConstantStorage.EDIT_PERSON_FIRST_NAME_MESSAGE:
                 person.setFirstName(message.getText());
+                personDao.update(person);
+                replyToEditPersonalData(chatId, upd.getMessage().getFrom(), upd, person);
                 break;
             case ConstantStorage.EDIT_PERSON_MIDDLE_NAME_MESSAGE:
                 person.setMiddleName(message.getText());
+                personDao.update(person);
+                replyToEditPersonalData(chatId, upd.getMessage().getFrom(), upd, person);
                 break;
         }
-        personDao.update(person);
-        replyToEditPersonalData(chatId, upd.getMessage().getFrom(), upd, person);
+
     }
 
     //*****************************************
@@ -141,7 +150,7 @@ public class ResponseHandler {
         }
     }
 
-    public void replyToEditLastName(long chatId, Person person) {
+    public void replyToEditLastName(long chatId) {
         String MESSAGE =
                 ConstantStorage.EDIT_PERSON_LAST_NAME_MESSAGE;
         try {
@@ -154,7 +163,7 @@ public class ResponseHandler {
         }
     }
 
-    public void replyToEditFirstName(long chatId, Person person) {
+    public void replyToEditFirstName(long chatId) {
         String MESSAGE =
                 ConstantStorage.EDIT_PERSON_FIRST_NAME_MESSAGE;
         try {
@@ -167,7 +176,7 @@ public class ResponseHandler {
         }
     }
 
-    public void replyToEditMiddleName(long chatId, Person person) {
+    public void replyToEditMiddleName(long chatId) {
         String MESSAGE =
                 ConstantStorage.EDIT_PERSON_MIDDLE_NAME_MESSAGE;
         try {
@@ -217,6 +226,51 @@ public class ResponseHandler {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public void replyToEditRegisterData(Update upd, Person person) throws TelegramApiException {
+        StringBuilder msg = new StringBuilder();
+        msg.append(EmojiParser.parseToUnicode(":floppy_disk: Регистрационные данные:\n"));
+        msg.append(String.format("Email: %s\n", person.getEmail() == null ? "-" : person.getEmail()));
+        msg.append(String.format("Дата рождения: %s\n", person.getBirthDate() == null ? "-" : new SimpleDateFormat("dd.MM.yyyy").format(person.getBirthDate())));
+
+        String gender = "-";
+        if (person.getGender() != null) {
+            switch (person.getGender()) {
+                case MALE:
+                    gender = "Мужской";
+                    break;
+                case FEMALE:
+                    gender = "Женский";
+                    break;
+                default:
+                    gender = "Экзотический";
+            }
+        }
+        msg.append(String.format("Пол: %s\n", gender));
+
+        EditMessageText new_message = new EditMessageText();
+        if (upd.hasCallbackQuery()) {
+            long message_id = upd.getCallbackQuery().getMessage().getMessageId();
+            long chat_id = upd.getCallbackQuery().getMessage().getChatId();
+            String inline_message_id = upd.getCallbackQuery().getInlineMessageId();
+
+            new_message.setChatId(chat_id).
+                    setMessageId(toIntExact(message_id)).
+                    setInlineMessageId(inline_message_id).
+                    setText(msg.toString());
+        }
+        if (upd.hasMessage()) {
+            long chat_id = upd.getMessage().getChatId();
+            new_message.setChatId(chat_id).setText(msg.toString());
+        }
+
+        new_message.setReplyMarkup(KeyboardFactory.getRegisterDataEditKeyboard());
+        try {
+            sender.execute(new_message);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
