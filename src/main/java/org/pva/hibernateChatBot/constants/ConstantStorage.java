@@ -7,7 +7,7 @@ public class ConstantStorage {
     public static final String EDIT_PERSON_MIDDLE_NAME_MESSAGE = "Введите отчество:";
 
     public static final String EDIT_PERSON_EMAIL_MESSAGE = "Введите email:";
-    public static final String EDIT_PERSON_BIRTH_DATE_MESSAGE = "Введите дату рождения:";
+    public static final String EDIT_PERSON_BIRTH_DATE_MESSAGE = "Введите дату рождения (в формате дд.мм.гггг):";
 
     public static final String CBD_EDIT_PERSON_DATA = "edit_person_data";
     public static final String CBD_EDIT_REGISTER_DATA = "edit_register_data";

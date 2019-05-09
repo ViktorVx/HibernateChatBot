@@ -17,6 +17,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.Date;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -159,6 +160,9 @@ public class Bot extends AbilityBot {
                 case ConstantStorage.CBD_EDIT_EMAIL:
                     EditPersonRegisterDataView.replyToEmail(chatId, sender);
                     break;
+                case ConstantStorage.CBD_EDIT_BIRTH_DATE:
+                    EditPersonRegisterDataView.replyToBirthDate(chatId, sender);
+                    break;
             }
             //****************************************************
         };
@@ -199,6 +203,21 @@ public class Bot extends AbilityBot {
                         try {
                             sender.execute(new SendMessage().setChatId(upd.getMessage().getChatId()).
                                     setText(EmojiParser.parseToUnicode(":x::x::x: Не верный формат email :x::x::x:")));
+                        } catch (TelegramApiException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    personDao.update(person);
+                    EditPersonRegisterDataView.replyToEditRegisterData(upd, person, sender);
+                    break;
+                case ConstantStorage.EDIT_PERSON_BIRTH_DATE_MESSAGE:
+                    Date birthDate = EditPersonRegisterDataView.isValidBirthDate(message.getText());
+                    if (birthDate != null) {
+                        person.setBirthDate(birthDate);
+                    } else {
+                        try {
+                            sender.execute(new SendMessage().setChatId(upd.getMessage().getChatId()).
+                                    setText(EmojiParser.parseToUnicode(":x::x::x: Не верный формат даты рождения :x::x::x:")));
                         } catch (TelegramApiException e) {
                             e.printStackTrace();
                         }

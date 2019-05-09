@@ -70,11 +70,11 @@ public class KeyboardFactory {
         rowsInline.add(rowInline);
 
         rowInline = new ArrayList<>();
-        rowInline.add(new InlineKeyboardButton().setText("Изменить пол").setCallbackData(ConstantStorage.CBD_EDIT_GENDER));
+        rowInline.add(new InlineKeyboardButton().setText("Изменить дату рождения").setCallbackData(ConstantStorage.CBD_EDIT_BIRTH_DATE));
         rowsInline.add(rowInline);
 
         rowInline = new ArrayList<>();
-        rowInline.add(new InlineKeyboardButton().setText("Изменить дату рождения").setCallbackData(ConstantStorage.CBD_EDIT_BIRTH_DATE));
+        rowInline.add(new InlineKeyboardButton().setText("Изменить пол").setCallbackData(ConstantStorage.CBD_EDIT_GENDER));
         rowsInline.add(rowInline);
 
         rowInline = new ArrayList<>();
