@@ -1,6 +1,8 @@
 package org.pva.hibernateChatBot.telegramBot;
 
+import com.vdurmont.emoji.EmojiParser;
 import org.hibernate.SessionFactory;
+import org.pva.hibernateChatBot.constants.ConstantStorage;
 import org.pva.hibernateChatBot.person.Person;
 import org.pva.hibernateChatBot.person.PersonDao;
 import org.telegram.abilitybots.api.bot.AbilityBot;
@@ -8,6 +10,7 @@ import org.telegram.abilitybots.api.objects.Ability;
 import org.telegram.abilitybots.api.objects.Flag;
 import org.telegram.abilitybots.api.objects.Privacy;
 import org.telegram.abilitybots.api.objects.Reply;
+import org.telegram.abilitybots.api.sender.MessageSender;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -28,12 +31,10 @@ public class Bot extends AbilityBot {
     private static final String BOT_TOKEN = System.getenv("TELEGRAM_TOKEN");
     private static final String BOT_USERNAME = "ReminderVxBot";
     private static final Integer BOT_CREATOR_ID = Integer.valueOf(System.getenv("BOT_CREATOR_ID"));
-    private final ResponseHandler responseHandler;
     private final PersonDao personDao;
 
     public Bot(SessionFactory sessionFactory) {
         super(BOT_TOKEN, BOT_USERNAME);
-        responseHandler = new ResponseHandler(sender, db);
         personDao = new PersonDao(sessionFactory);
     }
 
@@ -133,89 +134,85 @@ public class Bot extends AbilityBot {
 
     public Reply replyToButtons() {
         Consumer<Update> action = upd -> {
-            try {
-                Person person = personDao.findByUserId((long) upd.getCallbackQuery().getFrom().getId());
-                responseHandler.replyToButtons(getChatId(upd), upd.getCallbackQuery().getData(), upd, person);
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
+            Person person = personDao.findByUserId((long) upd.getCallbackQuery().getFrom().getId());
+            //****************************************************
+            long chatId = getChatId(upd);
+            switch (upd.getCallbackQuery().getData()) {
+                case ConstantStorage.CBD_EDIT_PERSON_DATA:
+                    EditPersonalDataView.replyToEditPersonalData(upd, person, sender);
+                    break;
+                case ConstantStorage.CBD_EDIT_REGISTER_DATA:
+                    EditPersonRegisterDataView.replyToEditRegisterData(upd, person, sender);
+                    break;
+                case ConstantStorage.EDIT_PERSON_LAST_NAME_MESSAGE:
+                    EditPersonalDataView.replyToEditLastName(chatId, sender);
+                    break;
+                case ConstantStorage.EDIT_PERSON_FIRST_NAME_MESSAGE:
+                    EditPersonalDataView.replyToEditFirstName(chatId, sender);
+                    break;
+                case ConstantStorage.EDIT_PERSON_MIDDLE_NAME_MESSAGE:
+                    EditPersonalDataView.replyToEditMiddleName(chatId, sender);
+                    break;
+                case ConstantStorage.CBD_EDIT_PERSONAL_DATA_BACK_BUTTON:
+                    EditPersonalDataView.replyToEditInfoBackButton(upd, sender);
+                    break;
+                case ConstantStorage.CBD_EDIT_EMAIL:
+                    EditPersonRegisterDataView.replyToEmail(chatId, sender);
+                    break;
             }
+            //****************************************************
         };
         return Reply.of(action, Flag.CALLBACK_QUERY);
     }
 
     public Reply replyToMsg() {
         Consumer<Update> action = upd -> {
-            try {
-                Person person = personDao.findByUserId((long) upd.getMessage().getFrom().getId());
-                responseHandler.replyToMsg(upd, person, personDao);
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
+            Person person = personDao.findByUserId((long) upd.getMessage().getFrom().getId());
+            //*********************************************************
+            Message message = upd.getMessage();
+            Message reply = upd.getMessage().getReplyToMessage();
+            String msg = "";
+            if (reply != null && reply.hasText()) {
+                msg = reply.getText();
             }
+
+            switch (msg) {
+                case ConstantStorage.EDIT_PERSON_LAST_NAME_MESSAGE:
+                    person.setLastName(message.getText());
+                    personDao.update(person);
+                    EditPersonalDataView.replyToEditPersonalData(upd, person, sender);
+                    break;
+                case ConstantStorage.EDIT_PERSON_FIRST_NAME_MESSAGE:
+                    person.setFirstName(message.getText());
+                    personDao.update(person);
+                    EditPersonalDataView.replyToEditPersonalData(upd, person, sender);
+                    break;
+                case ConstantStorage.EDIT_PERSON_MIDDLE_NAME_MESSAGE:
+                    person.setMiddleName(message.getText());
+                    personDao.update(person);
+                    EditPersonalDataView.replyToEditPersonalData(upd, person, sender);
+                    break;
+                case ConstantStorage.EDIT_PERSON_EMAIL_MESSAGE:
+                    if (EditPersonRegisterDataView.isValidEmail(message.getText())) {
+                        person.setEmail(message.getText());
+                    } else {
+                        try {
+                            sender.execute(new SendMessage().setChatId(upd.getMessage().getChatId()).
+                                    setText(EmojiParser.parseToUnicode(":x::x::x: Не верный формат email :x::x::x:")));
+                        } catch (TelegramApiException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    personDao.update(person);
+                    EditPersonRegisterDataView.replyToEditRegisterData(upd, person, sender);
+                    break;
+            }
+            //*********************************************************
         };
         return Reply.of(action, Flag.MESSAGE, Flag.REPLY);
     }
 
-    //******************************************************************************************************************
-
-    public Ability replyToEnterReminderText() {
-        String msg = "О чем нужно напомнить?";
-        return Ability.
-                builder().
-                name("addsimplereminder").
-                info("Введите текст напоминания").
-                privacy(PUBLIC).
-                locality(ALL).
-                input(0).
-                action(ctx -> {
-                    try {
-                        sender.execute(new SendMessage()
-                                .setText(msg).setChatId(ctx.chatId()).setReplyMarkup(KeyboardFactory.getForceReplyKeyboard()));
-                    } catch (TelegramApiException e) {
-                        e.printStackTrace();
-                    }
-                }).
-                reply(upd -> {
-                            String text = upd.getMessage().getText();
-                            System.out.println(text);
-                        },
-                        MESSAGE,
-                        REPLY,
-                        isReplyToBot(),
-                        isReplyToMessage(msg)).
-                build();
-    }
-
-    public Ability replyToEnterReminderDate() {
-        String msg = "Когда нужно напомнить (дата в формате дд.ММ.гггг)?";
-        return Ability.
-                builder().
-                name("addsimplereminderDate").
-                info("Введите дату напоминания").
-                privacy(Privacy.ADMIN).
-                locality(ALL).
-                input(0).
-                action(ctx -> {
-                    try {
-                        sender.execute(new SendMessage()
-                                .setText(msg).setChatId(ctx.chatId()).setReplyMarkup(KeyboardFactory.getForceReplyKeyboard()));
-                    } catch (TelegramApiException e) {
-                        e.printStackTrace();
-                    }
-                }).
-                reply(upd -> {
-                            try {
-                                /*simpleReminder.setRemindDate(new SimpleDateFormat("dd.MM.yyyy").parse(upd.getMessage().getText()));*/
-                                System.out.println(upd.getMessage().getText());
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        },
-                        MESSAGE,
-                        REPLY,
-                        isReplyToBot(),
-                        isReplyToMessage(msg)).
-                build();
-    }
+    //*** ADDITIONAL PREDICATES ****************************************************************************************
 
     private Predicate<Update> isReplyToMessage(String message) {
         return upd -> {
@@ -228,19 +225,96 @@ public class Bot extends AbilityBot {
         return upd -> upd.getMessage().getReplyToMessage().getFrom().getUserName().equalsIgnoreCase(getBotUsername());
     }
 
-    @Deprecated
-    public Ability useDatabaseToCountPerUser() {
-        return Ability.builder()
-                .name("count")
-                .info("Increments a counter per user")
-                .locality(ALL)
-                .privacy(PUBLIC)
-                .input(0)
-                .action(ctx -> {
-                    responseHandler.replyToCount(ctx.chatId());
-                })
-                .build();
-    }
+    //******************************************************************************************************************
+
+//    public Ability replyToEnterReminderText() {
+//        String msg = "О чем нужно напомнить?";
+//        return Ability.
+//                builder().
+//                name("addsimplereminder").
+//                info("Введите текст напоминания").
+//                privacy(PUBLIC).
+//                locality(ALL).
+//                input(0).
+//                action(ctx -> {
+//                    try {
+//                        sender.execute(new SendMessage()
+//                                .setText(msg).setChatId(ctx.chatId()).setReplyMarkup(KeyboardFactory.getForceReplyKeyboard()));
+//                    } catch (TelegramApiException e) {
+//                        e.printStackTrace();
+//                    }
+//                }).
+//                reply(upd -> {
+//                            String text = upd.getMessage().getText();
+//                            System.out.println(text);
+//                        },
+//                        MESSAGE,
+//                        REPLY,
+//                        isReplyToBot(),
+//                        isReplyToMessage(msg)).
+//                build();
+//    }
+//
+//    public Ability replyToEnterReminderDate() {
+//        String msg = "Когда нужно напомнить (дата в формате дд.ММ.гггг)?";
+//        return Ability.
+//                builder().
+//                name("addsimplereminderDate").
+//                info("Введите дату напоминания").
+//                privacy(Privacy.ADMIN).
+//                locality(ALL).
+//                input(0).
+//                action(ctx -> {
+//                    try {
+//                        sender.execute(new SendMessage()
+//                                .setText(msg).setChatId(ctx.chatId()).setReplyMarkup(KeyboardFactory.getForceReplyKeyboard()));
+//                    } catch (TelegramApiException e) {
+//                        e.printStackTrace();
+//                    }
+//                }).
+//                reply(upd -> {
+//                            try {
+//                                /*simpleReminder.setRemindDate(new SimpleDateFormat("dd.MM.yyyy").parse(upd.getMessage().getText()));*/
+//                                System.out.println(upd.getMessage().getText());
+//                            } catch (Exception e) {
+//                                e.printStackTrace();
+//                            }
+//                        },
+//                        MESSAGE,
+//                        REPLY,
+//                        isReplyToBot(),
+//                        isReplyToMessage(msg)).
+//                build();
+//    }
+
+//    @Deprecated
+//    public Ability useDatabaseToCountPerUser() {
+//        return Ability.builder()
+//                .name("count")
+//                .info("Increments a counter per user")
+//                .locality(ALL)
+//                .privacy(PUBLIC)
+//                .input(0)
+//                .action(ctx -> {
+//                    responseHandler.replyToCount(ctx.chatId());
+//                })
+//                .build();
+//    }
+//
+//    @Deprecated
+//    public void replyToCount(long chatId) {
+//        try {
+//            Integer counter = countMap.compute(String.valueOf(sender.getMe().getId()), (id, count) -> count == null ? 1 : ++count);
+//            String message = String.format("Your count is now *%d*!", counter);
+//
+//            sender.execute(new SendMessage()
+//                    .setText(message)
+//                    .setChatId(chatId)
+//                    .setReplyMarkup(KeyboardFactory.getStartCountKeyboard()));
+//        } catch (TelegramApiException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 
 }
