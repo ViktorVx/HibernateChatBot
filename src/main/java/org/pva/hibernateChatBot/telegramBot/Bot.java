@@ -6,6 +6,7 @@ import org.pva.hibernateChatBot.constants.ConstantStorage;
 import org.pva.hibernateChatBot.enums.Gender;
 import org.pva.hibernateChatBot.person.Person;
 import org.pva.hibernateChatBot.person.PersonDao;
+import org.pva.hibernateChatBot.utils.BotUtils;
 import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.api.objects.Ability;
 import org.telegram.abilitybots.api.objects.Flag;
@@ -19,6 +20,8 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -34,6 +37,7 @@ public class Bot extends AbilityBot {
     private static final String BOT_USERNAME = "ReminderVxBot";
     private static final Integer BOT_CREATOR_ID = Integer.valueOf(System.getenv("BOT_CREATOR_ID"));
     private final PersonDao personDao;
+    private  final Map<String, Map<String, String>> reminderMap = db.getMap(ConstantStorage.DBNS_SIMPLE_REMINDERS);
 
     public Bot(SessionFactory sessionFactory) {
         super(BOT_TOKEN, BOT_USERNAME);
@@ -140,17 +144,11 @@ public class Bot extends AbilityBot {
                 .locality(ALL)
                 .privacy(PUBLIC)
                 .action(ctx -> {
-                    String MESSAGE =
-                            "Доступны следующие команды:\n" +
-                                    "/start - начало работы\n" +
-                                    "/info - информация о пользователе\n" +
-                                    "/help - помощь\n" +
-                                    "/addsimplereminder - добавить простое напоминание\n" +
-                                    "/viewreminders - показать напоминания";
+                    String MESSAGE = ConstantStorage.EDIT_REMINDER_TEXT_MESSAGE;
                     try {
                         sender.execute(new SendMessage()
                                 .setText(MESSAGE)
-                                .setChatId(ctx.chatId()));
+                                .setChatId(ctx.chatId()).setReplyMarkup(KeyboardFactory.getForceReplyKeyboard()));
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
                     }
@@ -225,6 +223,7 @@ public class Bot extends AbilityBot {
     public Reply replyToMsg() {
         Consumer<Update> action = upd -> {
             Person person = personDao.findByUserId((long) upd.getMessage().getFrom().getId());
+            long userId = upd.getMessage().getFrom().getId();
             //*********************************************************
             Message message = upd.getMessage();
             Message reply = upd.getMessage().getReplyToMessage();
@@ -250,7 +249,7 @@ public class Bot extends AbilityBot {
                     EditPersonalDataView.replyToEditPersonalData(upd, person, sender);
                     break;
                 case ConstantStorage.EDIT_PERSON_EMAIL_MESSAGE:
-                    if (EditPersonRegisterDataView.isValidEmail(message.getText())) {
+                    if (BotUtils.isValidEmail(message.getText())) {
                         person.setEmail(message.getText());
                     } else {
                         try {
@@ -264,7 +263,7 @@ public class Bot extends AbilityBot {
                     EditPersonRegisterDataView.replyToEditRegisterData(upd, person, sender);
                     break;
                 case ConstantStorage.EDIT_PERSON_BIRTH_DATE_MESSAGE:
-                    Date birthDate = EditPersonRegisterDataView.isValidBirthDate(message.getText());
+                    Date birthDate = BotUtils.isValidBirthDate(message.getText());
                     if (birthDate != null) {
                         person.setBirthDate(birthDate);
                     } else {
@@ -277,6 +276,44 @@ public class Bot extends AbilityBot {
                     }
                     personDao.update(person);
                     EditPersonRegisterDataView.replyToEditRegisterData(upd, person, sender);
+                    break;
+                case ConstantStorage.EDIT_REMINDER_TEXT_MESSAGE:
+                    String reminderText = message.getText();
+                    reminderMap.compute(String.valueOf(userId), (id, map) -> {
+                        if (map == null) map = new HashMap<>();
+                        map.put("text", reminderText);
+                        return map;
+                    });
+                    try {
+                        sender.execute(new SendMessage().setChatId(upd.getMessage().getChatId()).
+                                setText(ConstantStorage.EDIT_REMINDER_DATE_MESSAGE).
+                                setReplyMarkup(KeyboardFactory.getForceReplyKeyboard()));
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case ConstantStorage.EDIT_REMINDER_DATE_MESSAGE:
+                    //todo остановился здесь!
+//                    String reminderDateText = message.getText();
+//                    Date reminderDate = BotUtils.isValidBirthDate(reminderDateText);
+//                    if (reminderDate == null) {
+//                        sender.
+//                    } else {
+//
+//                    }
+//                    reminderMap.compute(String.valueOf(userId), (id, map) -> {
+//                        if (map == null) map = new HashMap<>();
+//                        map.put("text", reminderText);
+//                        return map;
+//                    });
+//
+//                    try {
+//                        sender.execute(new SendMessage().setChatId(upd.getMessage().getChatId()).
+//                                setText(ConstantStorage.EDIT_REMINDER_DATE_MESSAGE).
+//                                setReplyMarkup(KeyboardFactory.getForceReplyKeyboard()));
+//                    } catch (TelegramApiException e) {
+//                        e.printStackTrace();
+//                    }
                     break;
             }
             //*********************************************************

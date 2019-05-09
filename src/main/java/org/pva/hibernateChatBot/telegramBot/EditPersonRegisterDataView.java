@@ -19,11 +19,6 @@ import static java.lang.Math.toIntExact;
 
 public class EditPersonRegisterDataView {
 
-    private static final String EMAIL_PATTERN =
-            "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" +
-                    "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
-    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy");
-
     public static void replyToEditRegisterData(Update upd, Person person, MessageSender sender) {
         StringBuilder msg = new StringBuilder();
         msg.append(EmojiParser.parseToUnicode(":floppy_disk: Регистрационные данные:\n"));
@@ -116,23 +111,6 @@ public class EditPersonRegisterDataView {
         }
     }
 
-    public static void replyToMaleGenderButton(long chatId, Update upd, MessageSender sender) {
-        if (upd.hasCallbackQuery()) {
-            String MESSAGE = ConstantStorage.EDIT_PERSON_GENDER_MESSAGE;
-            long message_id = upd.getCallbackQuery().getMessage().getMessageId();
-            String inline_message_id = upd.getCallbackQuery().getInlineMessageId();
-
-            try {
-                sender.execute(new EditMessageText()
-                        .setText(MESSAGE).setMessageId(toIntExact(message_id)).setInlineMessageId(inline_message_id)
-                        .setChatId(chatId).setReplyMarkup(KeyboardFactory.getGenderSelectKeyboard()));
-
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     public static void replyToRegisterBackButton(Update upd, Person person, MessageSender sender) {
         if (upd.hasCallbackQuery()) {
             StringBuilder msg = new StringBuilder();
@@ -171,22 +149,6 @@ public class EditPersonRegisterDataView {
                 e.printStackTrace();
             }
         }
-    }
-
-    public static Boolean isValidEmail(String email) {
-        Pattern pattern = Pattern.compile(EMAIL_PATTERN);
-        Matcher matcher = pattern.matcher(email);
-        return matcher.matches();
-    }
-
-    public static Date isValidBirthDate(String birthDate) {
-        Date date;
-        try {
-            date = SIMPLE_DATE_FORMAT.parse(birthDate);
-        } catch (ParseException e) {
-            return null;
-        }
-        return date;
     }
 
 }

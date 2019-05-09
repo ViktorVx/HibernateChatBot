@@ -6,6 +6,10 @@ public class ConstantStorage {
     public static final String EDIT_PERSON_FIRST_NAME_MESSAGE = "Введите имя:";
     public static final String EDIT_PERSON_MIDDLE_NAME_MESSAGE = "Введите отчество:";
 
+    public static final String EDIT_REMINDER_TEXT_MESSAGE = "Введите текст напоминания:";
+    public static final String EDIT_REMINDER_DATE_MESSAGE = "Введите дату напоминания:";
+    public static final String EDIT_REMINDER_TIME_MESSAGE = "Введите время напоминания:";
+
     public static final String EDIT_PERSON_EMAIL_MESSAGE = "Введите email:";
     public static final String EDIT_PERSON_BIRTH_DATE_MESSAGE = "Введите дату рождения (в формате дд.мм.гггг):";
     public static final String EDIT_PERSON_GENDER_MESSAGE = "Выберите пол:";
@@ -27,4 +31,7 @@ public class ConstantStorage {
     public static final String CBD_FEMALE_GENDER_SELECT = "cbd_female_gender_select";
     public static final String CBD_OTHER_GENDER_SELECT = "cbd_other_gender_select";
     public static final String CBD_GENDER_SELECTOR_BACK_BUTTON = "cbd_gender_selector_back_button";
+
+    public static final String DBNS_SIMPLE_REMINDERS= "DBNS_SIMPLE_REMINDERS";
+
 }
