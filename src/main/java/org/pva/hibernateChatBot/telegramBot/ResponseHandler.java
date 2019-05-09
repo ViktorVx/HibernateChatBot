@@ -90,7 +90,7 @@ public class ResponseHandler {
             case ConstantStorage.EDIT_PERSON_MIDDLE_NAME_MESSAGE:
                 replyToEditMiddleName(chatId, person);
                 break;
-            case ConstantStorage.CBD_EDIT_BACK_BUTTON:
+            case ConstantStorage.CBD_EDIT_PERSONAL_DATA_BACK_BUTTON:
                 replyToEditInfoBackButton(upd);
                 break;
         }

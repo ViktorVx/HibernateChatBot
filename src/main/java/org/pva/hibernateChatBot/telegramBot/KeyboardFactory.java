@@ -54,7 +54,31 @@ public class KeyboardFactory {
         rowsInline.add(rowInline);
 
         rowInline = new ArrayList<>();
-        rowInline.add(new InlineKeyboardButton().setText(EmojiParser.parseToUnicode(":point_left: Назад")).setCallbackData(ConstantStorage.CBD_EDIT_BACK_BUTTON));
+        rowInline.add(new InlineKeyboardButton().setText(EmojiParser.parseToUnicode(":point_left: Назад")).setCallbackData(ConstantStorage.CBD_EDIT_PERSONAL_DATA_BACK_BUTTON));
+        rowsInline.add(rowInline);
+
+        inlineKeyboard.setKeyboard(rowsInline);
+        return inlineKeyboard;
+    }
+
+    public static InlineKeyboardMarkup getRegisterDataEditKeyboard() {
+        InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+
+        List<InlineKeyboardButton> rowInline = new ArrayList<>();
+        rowInline.add(new InlineKeyboardButton().setText("Изменить email").setCallbackData(ConstantStorage.CBD_EDIT_EMAIL));
+        rowsInline.add(rowInline);
+
+        rowInline = new ArrayList<>();
+        rowInline.add(new InlineKeyboardButton().setText("Изменить пол").setCallbackData(ConstantStorage.CBD_EDIT_GENDER));
+        rowsInline.add(rowInline);
+
+        rowInline = new ArrayList<>();
+        rowInline.add(new InlineKeyboardButton().setText("Изменить дату рождения").setCallbackData(ConstantStorage.CBD_EDIT_BIRTH_DATE));
+        rowsInline.add(rowInline);
+
+        rowInline = new ArrayList<>();
+        rowInline.add(new InlineKeyboardButton().setText(EmojiParser.parseToUnicode(":point_left: Назад")).setCallbackData(ConstantStorage.CBD_EDIT_REGISTER_DATA_BACK_BUTTON));
         rowsInline.add(rowInline);
 
         inlineKeyboard.setKeyboard(rowsInline);
@@ -66,11 +90,11 @@ public class KeyboardFactory {
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
 
         List<InlineKeyboardButton> rowInline = new ArrayList<>();
-        rowInline.add(new InlineKeyboardButton().setText("Персональные данные").setCallbackData("edit_person_data"));
+        rowInline.add(new InlineKeyboardButton().setText("Персональные данные").setCallbackData(ConstantStorage.CBD_EDIT_PERSON_DATA));
         rowsInline.add(rowInline);
 
         rowInline = new ArrayList<>();
-        rowInline.add(new InlineKeyboardButton().setText("Регистрационные данные").setCallbackData("edit_register_name"));
+        rowInline.add(new InlineKeyboardButton().setText("Регистрационные данные").setCallbackData(ConstantStorage.CBD_EDIT_REGISTER_DATA));
         rowsInline.add(rowInline);
 
         inlineKeyboard.setKeyboard(rowsInline);
