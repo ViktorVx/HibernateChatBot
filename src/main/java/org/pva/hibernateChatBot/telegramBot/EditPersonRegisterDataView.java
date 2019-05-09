@@ -99,6 +99,60 @@ public class EditPersonRegisterDataView {
         }
     }
 
+    public static void replyToGender(long chatId, MessageSender sender) {
+        //todo сделать здесть изменение предыдущего сообщения, а не создание нового!!!
+        String MESSAGE =
+                ConstantStorage.EDIT_PERSON_GENDER_MESSAGE;
+        try {
+            sender.execute(new SendMessage()
+                    .setText(MESSAGE)
+                    .setChatId(chatId).setReplyMarkup(KeyboardFactory.getGenderSelectKeyboard()));
+
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void replyToRegisterBackButton(Update upd, Person person, MessageSender sender) {
+        if (upd.hasCallbackQuery()) {
+            StringBuilder msg = new StringBuilder();
+            msg.append(EmojiParser.parseToUnicode(":floppy_disk: Регистрационные данные:\n"));
+            msg.append(String.format("Email: %s\n", person.getEmail() == null ? "-" : person.getEmail()));
+            msg.append(String.format("Дата рождения: %s\n", person.getBirthDate() == null ? "-" : new SimpleDateFormat("dd.MM.yyyy").format(person.getBirthDate())));
+
+            String gender = "-";
+            if (person.getGender() != null) {
+                switch (person.getGender()) {
+                    case MALE:
+                        gender = "Мужской";
+                        break;
+                    case FEMALE:
+                        gender = "Женский";
+                        break;
+                    default:
+                        gender = "Экзотический";
+                }
+            }
+            msg.append(String.format("Пол: %s\n", gender));
+
+            long message_id = upd.getCallbackQuery().getMessage().getMessageId();
+            long chat_id = upd.getCallbackQuery().getMessage().getChatId();
+            String inline_message_id = upd.getCallbackQuery().getInlineMessageId();
+
+            EditMessageText new_message = new EditMessageText().
+                    setChatId(chat_id).
+                    setMessageId(toIntExact(message_id)).
+                    setInlineMessageId(inline_message_id).
+                    setText(msg.toString());
+            new_message.setReplyMarkup(KeyboardFactory.getRegisterDataEditKeyboard());
+            try {
+                sender.execute(new_message);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public static Boolean isValidEmail(String email) {
         Pattern pattern = Pattern.compile(EMAIL_PATTERN);
         Matcher matcher = pattern.matcher(email);

@@ -101,6 +101,24 @@ public class KeyboardFactory {
         return inlineKeyboard;
     }
 
+    public static InlineKeyboardMarkup getGenderSelectKeyboard() {
+        InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+
+        List<InlineKeyboardButton> rowInline = new ArrayList<>();
+        rowInline.add(new InlineKeyboardButton().setText("Мужской").setCallbackData(ConstantStorage.CBD_MALE_GENDER_SELECT));
+        rowInline.add(new InlineKeyboardButton().setText("Женский").setCallbackData(ConstantStorage.CBD_FEMALE_GENDER_SELECT));
+        rowsInline.add(rowInline);
+
+        rowInline = new ArrayList<>();
+        rowInline.add(new InlineKeyboardButton().setText("Другой").setCallbackData(ConstantStorage.CBD_OTHER_GENDER_SELECT));
+        rowInline.add(new InlineKeyboardButton().setText("Назад").setCallbackData(ConstantStorage.CBD_GENDER_SELECTOR_BACK_BUTTON));
+        rowsInline.add(rowInline);
+
+        inlineKeyboard.setKeyboard(rowsInline);
+        return inlineKeyboard;
+    }
+
     public static ForceReplyKeyboard getForceReplyKeyboard() {
         ForceReplyKeyboard forceReplyKeyboard = new ForceReplyKeyboard();
         return forceReplyKeyboard;
