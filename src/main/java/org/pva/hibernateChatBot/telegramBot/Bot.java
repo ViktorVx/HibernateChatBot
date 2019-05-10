@@ -192,6 +192,7 @@ public class Bot extends AbilityBot {
     public Reply replyToButtons() {
         Consumer<Update> action = upd -> {
             Person person = personDao.findByUserId((long) upd.getCallbackQuery().getFrom().getId());
+            SimpleReminder simpleReminder;
             //****************************************************
             long chatId = getChatId(upd);
             switch (upd.getCallbackQuery().getData()) {
@@ -250,20 +251,18 @@ public class Bot extends AbilityBot {
                 case ConstantStorage.CBD_EDIT_REMINDER_TIME:
                     break;
                 case ConstantStorage.CBD_EDIT_REMINDER_CLOSE:
-                    SimpleReminder simpleReminder = EditReminderView.getSimpleReminderFromMessage(person,
+                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(person,
                             upd.getCallbackQuery().getMessage().getText());
                     simpleReminder.setComplete(true);
                     personDao.update(person);
-                    try {
-                        sender.execute(new SendMessage().
-                                setChatId(chatId).
-                                setText(EmojiParser.parseToUnicode(":white_check_mark: Напоминание \"".concat(simpleReminder.getText()).
-                                        concat("\" успешно завершено! Просмотреть список напоминаний - /viewreminders"))));
-                    } catch (TelegramApiException e) {
-                        e.printStackTrace();
-                    }
+                    EditReminderView.successCompleteReminder(chatId, simpleReminder, sender);
                     break;
                 case ConstantStorage.CBD_EDIT_REMINDER_DELETE:
+                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(person,
+                            upd.getCallbackQuery().getMessage().getText());
+                    person.getReminderList().remove(simpleReminder);
+                    personDao.update(person);
+                    EditReminderView.successDeleteReminder(chatId, simpleReminder, sender);
                     break;
                 case ConstantStorage.CBD_EDIT_REMINDER_BACK_BUTTON:
                     break;
