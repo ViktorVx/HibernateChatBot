@@ -43,4 +43,5 @@ public class ConstantStorage {
     public static final String ERR_MSG_WRONG_EMAIL_FORMAT = ":x::x::x: Не верный формат email :x::x::x:";
 
     public static final String FORMAT_DATE = "dd.MM.yyyy";
+    public static final String FORMAT_TIME = "HH.mm";
 }

@@ -11,6 +11,7 @@ import org.pva.hibernateChatBot.constants.ConstantStorage;
 import org.pva.hibernateChatBot.enums.Gender;
 import org.pva.hibernateChatBot.person.Person;
 import org.pva.hibernateChatBot.person.PersonDao;
+import org.pva.hibernateChatBot.reminder.Reminder;
 import org.pva.hibernateChatBot.reminder.SimpleReminder;
 import org.pva.hibernateChatBot.utils.BotUtils;
 import org.telegram.abilitybots.api.bot.AbilityBot;
@@ -25,10 +26,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -154,6 +152,42 @@ public class Bot extends AbilityBot {
                         sender.execute(new SendMessage()
                                 .setText(MESSAGE)
                                 .setChatId(ctx.chatId()).setReplyMarkup(KeyboardFactory.getForceReplyKeyboard()));
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                })
+                .build();
+    }
+
+    public Ability replyToViewReminders() {
+        return Ability
+                .builder()
+                .name("viewreminders")
+                .info("View reminders list")
+                .locality(ALL)
+                .privacy(PUBLIC)
+                .action(ctx -> {
+                    Person person = personDao.findByUserId((long) ctx.user().getId());
+                    String message = EmojiParser.parseToUnicode(":calendar: Список напоминаний (/addsimplereminder):\n");
+                    List<Reminder> reminderList = person.getReminderList();
+                    Collections.sort(reminderList, new Comparator<Reminder>() {
+                        @Override
+                        public int compare(Reminder o1, Reminder o2) {
+                            return ((SimpleReminder) o1).getRemindDate().compareTo(((SimpleReminder) o2).getRemindDate());
+                        }
+                    });
+                    for (Reminder reminder : reminderList) {
+                        SimpleReminder simpleReminder = (SimpleReminder) reminder;
+                        message = message.concat(String.format( "/%d %s %s - %s\n",
+                                reminderList.indexOf(simpleReminder) + 1,
+                                new SimpleDateFormat(ConstantStorage.FORMAT_DATE).format(simpleReminder.getRemindDate()),
+                                new SimpleDateFormat(ConstantStorage.FORMAT_TIME).format(simpleReminder.getRemindDate()),
+                                simpleReminder.getText() ));
+                    }
+                    try {
+                        sender.execute(new SendMessage()
+                                .setText(message)
+                                .setChatId(ctx.chatId()));
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
                     }
