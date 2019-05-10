@@ -53,7 +53,7 @@ public class EditPersonalDataView {
 
     public static void replyToEditLastName(long chatId, MessageSender sender) {
         String MESSAGE =
-                ConstantStorage.EDIT_PERSON_LAST_NAME_MESSAGE;
+                ConstantStorage.MSG_EDIT_PERSON_LAST_NAME;
         try {
             sender.execute(new SendMessage()
                     .setText(MESSAGE)
@@ -66,7 +66,7 @@ public class EditPersonalDataView {
 
     public static void replyToEditFirstName(long chatId, MessageSender sender) {
         String MESSAGE =
-                ConstantStorage.EDIT_PERSON_FIRST_NAME_MESSAGE;
+                ConstantStorage.MSG_EDIT_PERSON_FIRST_NAME;
         try {
             sender.execute(new SendMessage()
                     .setText(MESSAGE)
@@ -79,7 +79,7 @@ public class EditPersonalDataView {
 
     public static void replyToEditMiddleName(long chatId, MessageSender sender) {
         String MESSAGE =
-                ConstantStorage.EDIT_PERSON_MIDDLE_NAME_MESSAGE;
+                ConstantStorage.MSG_EDIT_PERSON_MIDDLE_NAME;
         try {
             sender.execute(new SendMessage()
                     .setText(MESSAGE)

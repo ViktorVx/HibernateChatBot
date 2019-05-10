@@ -2,17 +2,21 @@ package org.pva.hibernateChatBot.constants;
 
 public class ConstantStorage {
 
-    public static final String EDIT_PERSON_LAST_NAME_MESSAGE = "Введите фамилию:";
-    public static final String EDIT_PERSON_FIRST_NAME_MESSAGE = "Введите имя:";
-    public static final String EDIT_PERSON_MIDDLE_NAME_MESSAGE = "Введите отчество:";
+    public static final String MSG_EDIT_PERSON_LAST_NAME = "Введите фамилию:";
+    public static final String MSG_EDIT_PERSON_FIRST_NAME = "Введите имя:";
+    public static final String MSG_EDIT_PERSON_MIDDLE_NAME = "Введите отчество:";
 
-    public static final String EDIT_REMINDER_TEXT_MESSAGE = "Введите текст напоминания:";
-    public static final String EDIT_REMINDER_DATE_MESSAGE = "Введите дату напоминания:";
-    public static final String EDIT_REMINDER_TIME_MESSAGE = "Введите время напоминания:";
+    public static final String MSG_EDIT_REMINDER_TEXT = "Введите текст напоминания:";
+    public static final String MSG_EDIT_REMINDER_DATE = "Введите дату напоминания (в формате дд.мм.гггг):";
+    public static final String MSG_EDIT_REMINDER_TIME = "Введите время напоминания (в формате чч.мм):";
 
-    public static final String EDIT_PERSON_EMAIL_MESSAGE = "Введите email:";
-    public static final String EDIT_PERSON_BIRTH_DATE_MESSAGE = "Введите дату рождения (в формате дд.мм.гггг):";
-    public static final String EDIT_PERSON_GENDER_MESSAGE = "Выберите пол:";
+    public static final String MSG_EDIT_PERSON_EMAIL = "Введите email:";
+    public static final String MSG_EDIT_PERSON_BIRTH_DATE = "Введите дату рождения (в формате дд.мм.гггг):";
+    public static final String MSG_EDIT_PERSON_GENDER = "Выберите пол:";
+
+    public static final String MSG_SUCCESS_REMINDER_ADDITION = ":gift::confetti_ball: Напоминание успешно добавлено! :tada::balloon:\n" +
+            "/start - перейти в главное меню\n" +
+            "/viewreminders - просмотреть список напоминаний";
 
     public static final String CBD_EDIT_PERSON_DATA = "cbd_person_data";
     public static final String CBD_EDIT_REGISTER_DATA = "cbd_register_data";
@@ -34,4 +38,9 @@ public class ConstantStorage {
 
     public static final String DBNS_SIMPLE_REMINDERS= "DBNS_SIMPLE_REMINDERS";
 
+    public static final String ERR_MSG_WRONG_DATE_FORMAT = ":x::x::x: Не верный формат даты :x::x::x:";
+    public static final String ERR_MSG_WRONG_TIME_FORMAT = ":x::x::x: Не верный формат времени :x::x::x:";
+    public static final String ERR_MSG_WRONG_EMAIL_FORMAT = ":x::x::x: Не верный формат email :x::x::x:";
+
+    public static final String FORMAT_DATE = "dd.MM.yyyy";
 }

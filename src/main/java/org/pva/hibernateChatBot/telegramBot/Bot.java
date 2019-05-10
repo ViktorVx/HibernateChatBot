@@ -2,31 +2,36 @@ package org.pva.hibernateChatBot.telegramBot;
 
 import com.vdurmont.emoji.EmojiParser;
 import org.hibernate.SessionFactory;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.pva.hibernateChatBot.constants.ConstantStorage;
 import org.pva.hibernateChatBot.enums.Gender;
 import org.pva.hibernateChatBot.person.Person;
 import org.pva.hibernateChatBot.person.PersonDao;
+import org.pva.hibernateChatBot.reminder.SimpleReminder;
 import org.pva.hibernateChatBot.utils.BotUtils;
 import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.api.objects.Ability;
 import org.telegram.abilitybots.api.objects.Flag;
-import org.telegram.abilitybots.api.objects.Privacy;
 import org.telegram.abilitybots.api.objects.Reply;
-import org.telegram.abilitybots.api.sender.MessageSender;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import static org.telegram.abilitybots.api.objects.Flag.MESSAGE;
-import static org.telegram.abilitybots.api.objects.Flag.REPLY;
 import static org.telegram.abilitybots.api.objects.Locality.ALL;
 import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
 import static org.telegram.abilitybots.api.util.AbilityUtils.getChatId;
@@ -37,7 +42,7 @@ public class Bot extends AbilityBot {
     private static final String BOT_USERNAME = "ReminderVxBot";
     private static final Integer BOT_CREATOR_ID = Integer.valueOf(System.getenv("BOT_CREATOR_ID"));
     private final PersonDao personDao;
-    private  final Map<String, Map<String, String>> reminderMap = db.getMap(ConstantStorage.DBNS_SIMPLE_REMINDERS);
+    private final Map<String, Map<String, String>> reminderMap = db.getMap(ConstantStorage.DBNS_SIMPLE_REMINDERS);
 
     public Bot(SessionFactory sessionFactory) {
         super(BOT_TOKEN, BOT_USERNAME);
@@ -144,7 +149,7 @@ public class Bot extends AbilityBot {
                 .locality(ALL)
                 .privacy(PUBLIC)
                 .action(ctx -> {
-                    String MESSAGE = ConstantStorage.EDIT_REMINDER_TEXT_MESSAGE;
+                    String MESSAGE = ConstantStorage.MSG_EDIT_REMINDER_TEXT;
                     try {
                         sender.execute(new SendMessage()
                                 .setText(MESSAGE)
@@ -170,13 +175,13 @@ public class Bot extends AbilityBot {
                 case ConstantStorage.CBD_EDIT_REGISTER_DATA:
                     EditPersonRegisterDataView.replyToEditRegisterData(upd, person, sender);
                     break;
-                case ConstantStorage.EDIT_PERSON_LAST_NAME_MESSAGE:
+                case ConstantStorage.MSG_EDIT_PERSON_LAST_NAME:
                     EditPersonalDataView.replyToEditLastName(chatId, sender);
                     break;
-                case ConstantStorage.EDIT_PERSON_FIRST_NAME_MESSAGE:
+                case ConstantStorage.MSG_EDIT_PERSON_FIRST_NAME:
                     EditPersonalDataView.replyToEditFirstName(chatId, sender);
                     break;
-                case ConstantStorage.EDIT_PERSON_MIDDLE_NAME_MESSAGE:
+                case ConstantStorage.MSG_EDIT_PERSON_MIDDLE_NAME:
                     EditPersonalDataView.replyToEditMiddleName(chatId, sender);
                     break;
                 case ConstantStorage.CBD_EDIT_PERSONAL_DATA_BACK_BUTTON:
@@ -224,6 +229,8 @@ public class Bot extends AbilityBot {
         Consumer<Update> action = upd -> {
             Person person = personDao.findByUserId((long) upd.getMessage().getFrom().getId());
             long userId = upd.getMessage().getFrom().getId();
+            long chatId = upd.getMessage().getChatId();
+            SendMessage sendMessage = new SendMessage();
             //*********************************************************
             Message message = upd.getMessage();
             Message reply = upd.getMessage().getReplyToMessage();
@@ -233,28 +240,28 @@ public class Bot extends AbilityBot {
             }
 
             switch (msg) {
-                case ConstantStorage.EDIT_PERSON_LAST_NAME_MESSAGE:
+                case ConstantStorage.MSG_EDIT_PERSON_LAST_NAME:
                     person.setLastName(message.getText());
                     personDao.update(person);
                     EditPersonalDataView.replyToEditPersonalData(upd, person, sender);
                     break;
-                case ConstantStorage.EDIT_PERSON_FIRST_NAME_MESSAGE:
+                case ConstantStorage.MSG_EDIT_PERSON_FIRST_NAME:
                     person.setFirstName(message.getText());
                     personDao.update(person);
                     EditPersonalDataView.replyToEditPersonalData(upd, person, sender);
                     break;
-                case ConstantStorage.EDIT_PERSON_MIDDLE_NAME_MESSAGE:
+                case ConstantStorage.MSG_EDIT_PERSON_MIDDLE_NAME:
                     person.setMiddleName(message.getText());
                     personDao.update(person);
                     EditPersonalDataView.replyToEditPersonalData(upd, person, sender);
                     break;
-                case ConstantStorage.EDIT_PERSON_EMAIL_MESSAGE:
+                case ConstantStorage.MSG_EDIT_PERSON_EMAIL:
                     if (BotUtils.isValidEmail(message.getText())) {
                         person.setEmail(message.getText());
                     } else {
                         try {
-                            sender.execute(new SendMessage().setChatId(upd.getMessage().getChatId()).
-                                    setText(EmojiParser.parseToUnicode(":x::x::x: Не верный формат email :x::x::x:")));
+                            sender.execute(new SendMessage().setChatId(chatId).
+                                    setText(EmojiParser.parseToUnicode(ConstantStorage.ERR_MSG_WRONG_EMAIL_FORMAT)));
                         } catch (TelegramApiException e) {
                             e.printStackTrace();
                         }
@@ -262,14 +269,14 @@ public class Bot extends AbilityBot {
                     personDao.update(person);
                     EditPersonRegisterDataView.replyToEditRegisterData(upd, person, sender);
                     break;
-                case ConstantStorage.EDIT_PERSON_BIRTH_DATE_MESSAGE:
-                    Date birthDate = BotUtils.isValidBirthDate(message.getText());
+                case ConstantStorage.MSG_EDIT_PERSON_BIRTH_DATE:
+                    Date birthDate = BotUtils.isValidDate(message.getText());
                     if (birthDate != null) {
                         person.setBirthDate(birthDate);
                     } else {
                         try {
-                            sender.execute(new SendMessage().setChatId(upd.getMessage().getChatId()).
-                                    setText(EmojiParser.parseToUnicode(":x::x::x: Не верный формат даты рождения :x::x::x:")));
+                            sender.execute(new SendMessage().setChatId(chatId).
+                                    setText(EmojiParser.parseToUnicode(ConstantStorage.ERR_MSG_WRONG_DATE_FORMAT)));
                         } catch (TelegramApiException e) {
                             e.printStackTrace();
                         }
@@ -277,43 +284,72 @@ public class Bot extends AbilityBot {
                     personDao.update(person);
                     EditPersonRegisterDataView.replyToEditRegisterData(upd, person, sender);
                     break;
-                case ConstantStorage.EDIT_REMINDER_TEXT_MESSAGE:
+                case ConstantStorage.MSG_EDIT_REMINDER_TEXT:
                     String reminderText = message.getText();
-                    reminderMap.compute(String.valueOf(userId), (id, map) -> {
-                        if (map == null) map = new HashMap<>();
-                        map.put("text", reminderText);
-                        return map;
-                    });
+
+                    Map<String, String> newRemMap = new HashMap<>();
+                    newRemMap.put("text", reminderText);
+                    reminderMap.put(String.valueOf(userId), newRemMap);
+
                     try {
-                        sender.execute(new SendMessage().setChatId(upd.getMessage().getChatId()).
-                                setText(ConstantStorage.EDIT_REMINDER_DATE_MESSAGE).
+                        sender.execute(new SendMessage().setChatId(chatId).
+                                setText(ConstantStorage.MSG_EDIT_REMINDER_DATE).
                                 setReplyMarkup(KeyboardFactory.getForceReplyKeyboard()));
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
                     }
                     break;
-                case ConstantStorage.EDIT_REMINDER_DATE_MESSAGE:
-                    //todo остановился здесь!
-//                    String reminderDateText = message.getText();
-//                    Date reminderDate = BotUtils.isValidBirthDate(reminderDateText);
-//                    if (reminderDate == null) {
-//                        sender.
-//                    } else {
-//
-//                    }
-//                    reminderMap.compute(String.valueOf(userId), (id, map) -> {
-//                        if (map == null) map = new HashMap<>();
-//                        map.put("text", reminderText);
-//                        return map;
-//                    });
-//
-//                    try {
-//                        sender.execute(new SendMessage().setChatId(upd.getMessage().getChatId()).
-//                                setText(ConstantStorage.EDIT_REMINDER_DATE_MESSAGE).
-//                                setReplyMarkup(KeyboardFactory.getForceReplyKeyboard()));
-//                    } catch (TelegramApiException e) {
-//                        e.printStackTrace();
-//                    }
+                case ConstantStorage.MSG_EDIT_REMINDER_DATE:
+                    String reminderDateText = message.getText();
+                    Date reminderDate = BotUtils.isValidDate(reminderDateText);
+                    if (reminderDate == null) {
+                        sendMessage.setChatId(chatId).
+                                setText(EmojiParser.parseToUnicode(ConstantStorage.ERR_MSG_WRONG_DATE_FORMAT));
+                    } else {
+
+                        Map<String, String> remMap = reminderMap.get(String.valueOf(userId));
+                        remMap.put("date", new SimpleDateFormat(ConstantStorage.FORMAT_DATE).format(reminderDate));
+                        reminderMap.put(String.valueOf(userId), remMap);
+
+                        sendMessage.setChatId(chatId).
+                                setText(ConstantStorage.MSG_EDIT_REMINDER_TIME).
+                                setReplyMarkup(KeyboardFactory.getForceReplyKeyboard());
+                    }
+                    try {
+                        sender.execute(sendMessage);
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case ConstantStorage.MSG_EDIT_REMINDER_TIME:
+                    String reminderTimeText = message.getText();
+                    Map<String, Integer> reminderTime = BotUtils.isValidTime(reminderTimeText);
+                    if (reminderTime == null) {
+                        sendMessage.setChatId(chatId).
+                                setText(EmojiParser.parseToUnicode(ConstantStorage.ERR_MSG_WRONG_TIME_FORMAT));
+                    } else {
+                        Map<String, String> remMap = reminderMap.get(String.valueOf(userId));
+                        SimpleReminder simpleReminder = new SimpleReminder();
+                        simpleReminder.setCreationDate(new Date());
+                        simpleReminder.setText(remMap.get("text"));
+
+                        String stringDateTime = remMap.get("date").concat(" ").concat(reminderTimeText);
+                        DateTimeFormatter dateTimeFormatter
+                                = DateTimeFormat.forPattern("dd.MM.yyyy HH.mm");
+                        DateTime remDateTime = DateTime.parse(stringDateTime, dateTimeFormatter);
+                        simpleReminder.setRemindDate(remDateTime.toDate());
+
+                        person.getReminderList().add(simpleReminder);
+                        personDao.update(person);
+
+                        sendMessage.setChatId(chatId).
+                                setText(EmojiParser.parseToUnicode(ConstantStorage.MSG_SUCCESS_REMINDER_ADDITION));
+                    }
+                    try {
+                        sender.execute(sendMessage);
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
                     break;
             }
             //*********************************************************
@@ -335,95 +371,4 @@ public class Bot extends AbilityBot {
     }
 
     //******************************************************************************************************************
-
-//    public Ability replyToEnterReminderText() {
-//        String msg = "О чем нужно напомнить?";
-//        return Ability.
-//                builder().
-//                name("addsimplereminder").
-//                info("Введите текст напоминания").
-//                privacy(PUBLIC).
-//                locality(ALL).
-//                input(0).
-//                action(ctx -> {
-//                    try {
-//                        sender.execute(new SendMessage()
-//                                .setText(msg).setChatId(ctx.chatId()).setReplyMarkup(KeyboardFactory.getForceReplyKeyboard()));
-//                    } catch (TelegramApiException e) {
-//                        e.printStackTrace();
-//                    }
-//                }).
-//                reply(upd -> {
-//                            String text = upd.getMessage().getText();
-//                            System.out.println(text);
-//                        },
-//                        MESSAGE,
-//                        REPLY,
-//                        isReplyToBot(),
-//                        isReplyToMessage(msg)).
-//                build();
-//    }
-//
-//    public Ability replyToEnterReminderDate() {
-//        String msg = "Когда нужно напомнить (дата в формате дд.ММ.гггг)?";
-//        return Ability.
-//                builder().
-//                name("addsimplereminderDate").
-//                info("Введите дату напоминания").
-//                privacy(Privacy.ADMIN).
-//                locality(ALL).
-//                input(0).
-//                action(ctx -> {
-//                    try {
-//                        sender.execute(new SendMessage()
-//                                .setText(msg).setChatId(ctx.chatId()).setReplyMarkup(KeyboardFactory.getForceReplyKeyboard()));
-//                    } catch (TelegramApiException e) {
-//                        e.printStackTrace();
-//                    }
-//                }).
-//                reply(upd -> {
-//                            try {
-//                                /*simpleReminder.setRemindDate(new SimpleDateFormat("dd.MM.yyyy").parse(upd.getMessage().getText()));*/
-//                                System.out.println(upd.getMessage().getText());
-//                            } catch (Exception e) {
-//                                e.printStackTrace();
-//                            }
-//                        },
-//                        MESSAGE,
-//                        REPLY,
-//                        isReplyToBot(),
-//                        isReplyToMessage(msg)).
-//                build();
-//    }
-
-//    @Deprecated
-//    public Ability useDatabaseToCountPerUser() {
-//        return Ability.builder()
-//                .name("count")
-//                .info("Increments a counter per user")
-//                .locality(ALL)
-//                .privacy(PUBLIC)
-//                .input(0)
-//                .action(ctx -> {
-//                    responseHandler.replyToCount(ctx.chatId());
-//                })
-//                .build();
-//    }
-//
-//    @Deprecated
-//    public void replyToCount(long chatId) {
-//        try {
-//            Integer counter = countMap.compute(String.valueOf(sender.getMe().getId()), (id, count) -> count == null ? 1 : ++count);
-//            String message = String.format("Your count is now *%d*!", counter);
-//
-//            sender.execute(new SendMessage()
-//                    .setText(message)
-//                    .setChatId(chatId)
-//                    .setReplyMarkup(KeyboardFactory.getStartCountKeyboard()));
-//        } catch (TelegramApiException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-
 }

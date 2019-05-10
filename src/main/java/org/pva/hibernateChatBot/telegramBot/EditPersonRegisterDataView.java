@@ -9,11 +9,7 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageTe
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static java.lang.Math.toIntExact;
 
@@ -70,7 +66,7 @@ public class EditPersonRegisterDataView {
 
     public static void replyToEmail(long chatId, MessageSender sender) {
         String MESSAGE =
-                ConstantStorage.EDIT_PERSON_EMAIL_MESSAGE;
+                ConstantStorage.MSG_EDIT_PERSON_EMAIL;
         try {
             sender.execute(new SendMessage()
                     .setText(MESSAGE)
@@ -83,7 +79,7 @@ public class EditPersonRegisterDataView {
 
     public static void replyToBirthDate(long chatId, MessageSender sender) {
         String MESSAGE =
-                ConstantStorage.EDIT_PERSON_BIRTH_DATE_MESSAGE;
+                ConstantStorage.MSG_EDIT_PERSON_BIRTH_DATE;
         try {
             sender.execute(new SendMessage()
                     .setText(MESSAGE)
@@ -96,7 +92,7 @@ public class EditPersonRegisterDataView {
 
     public static void replyToGender(long chatId, Update upd, MessageSender sender) {
         if (upd.hasCallbackQuery()) {
-            String MESSAGE = ConstantStorage.EDIT_PERSON_GENDER_MESSAGE;
+            String MESSAGE = ConstantStorage.MSG_EDIT_PERSON_GENDER;
             long message_id = upd.getCallbackQuery().getMessage().getMessageId();
             String inline_message_id = upd.getCallbackQuery().getInlineMessageId();
 
