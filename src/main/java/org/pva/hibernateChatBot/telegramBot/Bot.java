@@ -38,6 +38,7 @@ public class Bot extends AbilityBot {
     private static final Integer BOT_CREATOR_ID = Integer.valueOf(System.getenv("BOT_CREATOR_ID"));
     private final PersonDao personDao;
     private final Map<String, Map<String, String>> reminderMap = db.getMap(ConstantStorage.DBNS_SIMPLE_REMINDERS);
+    private final Map<String, Long> currentReminderIdsMap = db.getMap(ConstantStorage.DBNS_CURRENT_REMINDER_IDS);
 
     public Bot(SessionFactory sessionFactory) {
         super(BOT_TOKEN, BOT_USERNAME);
@@ -245,6 +246,10 @@ public class Bot extends AbilityBot {
                     EditPersonRegisterDataView.replyToEditRegisterData(upd, person, sender);
                     break;
                 case ConstantStorage.CBD_EDIT_REMINDER_TEXT:
+                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(person,
+                            upd.getCallbackQuery().getMessage().getText());
+                    currentReminderIdsMap.put(String.valueOf(upd.getCallbackQuery().getFrom().getId()), simpleReminder.getId());
+                    EditReminderView.editNewReminderText(chatId, sender);
                     break;
                 case ConstantStorage.CBD_EDIT_REMINDER_DATE:
                     break;
@@ -281,6 +286,7 @@ public class Bot extends AbilityBot {
             long userId = upd.getMessage().getFrom().getId();
             long chatId = upd.getMessage().getChatId();
             SendMessage sendMessage = new SendMessage();
+            SimpleReminder simpleReminder;
             //*********************************************************
             Message message = upd.getMessage();
             Message reply = upd.getMessage().getReplyToMessage();
@@ -379,7 +385,7 @@ public class Bot extends AbilityBot {
                                 setText(EmojiParser.parseToUnicode(ConstantStorage.ERR_MSG_WRONG_TIME_FORMAT));
                     } else {
                         Map<String, String> remMap = reminderMap.get(String.valueOf(userId));
-                        SimpleReminder simpleReminder = new SimpleReminder();
+                        simpleReminder = new SimpleReminder();
                         simpleReminder.setCreationDate(new Date());
                         simpleReminder.setText(remMap.get("text"));
                         simpleReminder.setComplete(false);
@@ -402,6 +408,12 @@ public class Bot extends AbilityBot {
                         e.printStackTrace();
                     }
                     break;
+                case ConstantStorage.MSG_EDIT_NEW_REMINDER_TEXT:
+                    simpleReminder = person.getSimpleReminderById(currentReminderIdsMap.get(String.valueOf(upd.getMessage().getFrom().getId())));
+                    simpleReminder.setText(upd.getMessage().getText());
+                    personDao.update(person);
+                    EditReminderView.viewSelectReminder(simpleReminder, upd, sender);
+                    break;
             }
             //*********************************************************
         };
@@ -411,31 +423,10 @@ public class Bot extends AbilityBot {
     public Reply replyToReminderSelection() {
         Consumer<Update> action = upd -> {
             Person person = personDao.findByUserId((long) upd.getMessage().getFrom().getId());
-            long userId = upd.getMessage().getFrom().getId();
-            long chatId = upd.getMessage().getChatId();
-            SendMessage sendMessage = new SendMessage();
-            //*********************************************************
             Long id = Long.valueOf(upd.getMessage().getText().replace("/".concat(ConstantStorage.PREFIX_REMINDERS_LIST), ""));
             SimpleReminder simpleReminder = person.getSimpleReminderById(id);
 
-            try {
-                if (simpleReminder == null) return;
-                sender.execute(new SendMessage().setChatId(chatId).
-                        setText(EmojiParser.parseToUnicode(
-                                String.format(":memo: Редактировать напоминание (%s):\n" +
-                                                "Текст: %s\n" +
-                                                "Дата: %s\n" +
-                                                "Время: %s\n",
-                                        "/rem".concat(String.valueOf(simpleReminder.getId())),
-                                        simpleReminder.getText(),
-                                        new SimpleDateFormat(ConstantStorage.FORMAT_DATE).format(simpleReminder.getRemindDate()),
-                                        new SimpleDateFormat(ConstantStorage.FORMAT_TIME).format(simpleReminder.getRemindDate())))).
-                        setReplyMarkup(KeyboardFactory.getEditReminderKeyboard()));
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
-
-            //*********************************************************
+            EditReminderView.viewSelectReminder(simpleReminder, upd, sender);
         };
         return Reply.of(action, Flag.MESSAGE, isReplyToReminderSelector());
     }

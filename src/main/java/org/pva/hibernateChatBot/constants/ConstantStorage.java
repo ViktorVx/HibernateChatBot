@@ -9,6 +9,9 @@ public class ConstantStorage {
     public static final String MSG_EDIT_REMINDER_TEXT = "Введите текст напоминания:";
     public static final String MSG_EDIT_REMINDER_DATE = "Введите дату напоминания (в формате дд.мм.гггг):";
     public static final String MSG_EDIT_REMINDER_TIME = "Введите время напоминания (в формате чч.мм):";
+    public static final String MSG_EDIT_NEW_REMINDER_TEXT = "Введите новый текст напоминания:";
+    public static final String MSG_EDIT_NEW_REMINDER_DATE = "Введите новую дату напоминания (в формате дд.мм.гггг):";
+    public static final String MSG_EDIT_NEW_REMINDER_TIME = "Введите новое время напоминания (в формате чч.мм):";
 
     public static final String MSG_EDIT_PERSON_EMAIL = "Введите email:";
     public static final String MSG_EDIT_PERSON_BIRTH_DATE = "Введите дату рождения (в формате дд.мм.гггг):";
@@ -44,6 +47,7 @@ public class ConstantStorage {
     public static final String CBD_EDIT_REMINDER_BACK_BUTTON = "cbd_edit_reminder_back_button";
 
     public static final String DBNS_SIMPLE_REMINDERS= "DBNS_SIMPLE_REMINDERS";
+    public static final String DBNS_CURRENT_REMINDER_IDS= "DBNS_CURRENT_REMINDER_IDS";
 
     public static final String ERR_MSG_WRONG_DATE_FORMAT = ":x::x::x: Не верный формат даты :x::x::x:";
     public static final String ERR_MSG_WRONG_TIME_FORMAT = ":x::x::x: Не верный формат времени :x::x::x:";

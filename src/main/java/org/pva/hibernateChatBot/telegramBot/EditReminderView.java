@@ -80,4 +80,35 @@ public class EditReminderView {
         }
     }
 
+    public static void editNewReminderText(long chatId, MessageSender sender) {
+        String MESSAGE = ConstantStorage.MSG_EDIT_NEW_REMINDER_TEXT;
+        try {
+            sender.execute(new SendMessage()
+                    .setText(MESSAGE)
+                    .setChatId(chatId).setReplyMarkup(KeyboardFactory.getForceReplyKeyboard()));
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void viewSelectReminder(SimpleReminder simpleReminder, Update upd, MessageSender sender) {
+        long chatId = upd.getMessage().getChatId();
+        try {
+            if (simpleReminder == null) return;
+            sender.execute(new SendMessage().setChatId(chatId).
+                    setText(EmojiParser.parseToUnicode(
+                            String.format(":memo: Редактировать напоминание (%s):\n" +
+                                            "Текст: %s\n" +
+                                            "Дата: %s\n" +
+                                            "Время: %s\n",
+                                    "/rem".concat(String.valueOf(simpleReminder.getId())),
+                                    simpleReminder.getText(),
+                                    new SimpleDateFormat(ConstantStorage.FORMAT_DATE).format(simpleReminder.getRemindDate()),
+                                    new SimpleDateFormat(ConstantStorage.FORMAT_TIME).format(simpleReminder.getRemindDate())))).
+                    setReplyMarkup(KeyboardFactory.getEditReminderKeyboard()));
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
