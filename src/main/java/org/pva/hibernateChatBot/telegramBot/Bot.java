@@ -29,6 +29,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.telegram.abilitybots.api.objects.Locality.ALL;
 import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
@@ -173,11 +175,11 @@ public class Bot extends AbilityBot {
                     Collections.sort(reminderList, Comparator.comparing(o -> ((SimpleReminder) o).getRemindDate()));
                     for (Reminder reminder : reminderList) {
                         SimpleReminder simpleReminder = (SimpleReminder) reminder;
-                        message = message.concat(String.format( "/n%d %s %s - %s\n",
-                                reminderList.indexOf(simpleReminder) + 1,
+                        message = message.concat(String.format("/".concat(ConstantStorage.PREFIX_REMINDERS_LIST).concat("%d %s %s - %s\n"),
+                                simpleReminder.getId(),
                                 new SimpleDateFormat(ConstantStorage.FORMAT_DATE).format(simpleReminder.getRemindDate()),
                                 new SimpleDateFormat(ConstantStorage.FORMAT_TIME).format(simpleReminder.getRemindDate()),
-                                simpleReminder.getText() ));
+                                simpleReminder.getText()));
                     }
                     try {
                         sender.execute(new SendMessage()
@@ -245,6 +247,21 @@ public class Bot extends AbilityBot {
                     person.setGender(Gender.UNKNOWN);
                     personDao.update(person);
                     EditPersonRegisterDataView.replyToEditRegisterData(upd, person, sender);
+                    break;
+                case ConstantStorage.CBD_EDIT_REMINDER_TEXT:
+                    break;
+                case ConstantStorage.CBD_EDIT_REMINDER_DATE:
+                    break;
+                case ConstantStorage.CBD_EDIT_REMINDER_TIME:
+                    break;
+                case ConstantStorage.CBD_EDIT_REMINDER_CLOSE:
+                    SimpleReminder simpleReminder = EditReminderView.getSimpleReminderFromMessage(person,
+                            upd.getCallbackQuery().getMessage().getText());
+                    System.out.println(simpleReminder.getText());
+                    break;
+                case ConstantStorage.CBD_EDIT_REMINDER_DELETE:
+                    break;
+                case ConstantStorage.CBD_EDIT_REMINDER_BACK_BUTTON:
                     break;
 
 
@@ -394,18 +411,18 @@ public class Bot extends AbilityBot {
             long chatId = upd.getMessage().getChatId();
             SendMessage sendMessage = new SendMessage();
             //*********************************************************
-            Integer index = Integer.valueOf(upd.getMessage().getText().replace("/n", ""))-1;
-            List<Reminder> reminderList = person.getActiveRimindersList();
-            Collections.sort(reminderList, Comparator.comparing(o -> ((SimpleReminder) o).getRemindDate()));
-            SimpleReminder simpleReminder = (SimpleReminder) reminderList.get(index);
+            Long id = Long.valueOf(upd.getMessage().getText().replace("/".concat(ConstantStorage.PREFIX_REMINDERS_LIST), ""));
+            SimpleReminder simpleReminder = person.getSimpleReminderById(id);
 
             try {
+                if (simpleReminder == null) return;
                 sender.execute(new SendMessage().setChatId(chatId).
                         setText(EmojiParser.parseToUnicode(
-                                String.format(":memo: Редактировать напоминание:\n" +
-                                        "Текст: %s\n" +
-                                        "Дата: %s\n" +
-                                        "Время: %s\n",
+                                String.format(":memo: Редактировать напоминание (%s):\n" +
+                                                "Текст: %s\n" +
+                                                "Дата: %s\n" +
+                                                "Время: %s\n",
+                                        "/rem".concat(String.valueOf(simpleReminder.getId())),
                                         simpleReminder.getText(),
                                         new SimpleDateFormat(ConstantStorage.FORMAT_DATE).format(simpleReminder.getRemindDate()),
                                         new SimpleDateFormat(ConstantStorage.FORMAT_TIME).format(simpleReminder.getRemindDate())))).
@@ -416,7 +433,7 @@ public class Bot extends AbilityBot {
 
             //*********************************************************
         };
-        return Reply.of(action, isReplyToReminderSelector());
+        return Reply.of(action, Flag.MESSAGE, isReplyToReminderSelector());
     }
 
     //*** ADDITIONAL PREDICATES ****************************************************************************************
@@ -433,7 +450,7 @@ public class Bot extends AbilityBot {
     }
 
     private Predicate<Update> isReplyToReminderSelector() {
-        return upd -> upd.getMessage().getText().matches("^/n[0-9]+");
+        return upd -> upd.getMessage().getText().matches("^/".concat(ConstantStorage.PREFIX_REMINDERS_LIST).concat("[0-9]+"));
     }
 
     //******************************************************************************************************************

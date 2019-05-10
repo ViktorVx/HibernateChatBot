@@ -51,4 +51,6 @@ public class ConstantStorage {
 
     public static final String FORMAT_DATE = "dd.MM.yyyy";
     public static final String FORMAT_TIME = "HH.mm";
+
+    public static final String PREFIX_REMINDERS_LIST = "rem";
 }

@@ -2,6 +2,7 @@ package org.pva.hibernateChatBot.person;
 
 import org.pva.hibernateChatBot.enums.Gender;
 import org.pva.hibernateChatBot.reminder.Reminder;
+import org.pva.hibernateChatBot.reminder.SimpleReminder;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -148,6 +149,14 @@ public class Person {
     public List<Reminder> getActiveRimindersList() {
         return getReminderList().stream().
                 filter(rmd -> rmd.getComplete()==null ? true : !rmd.getComplete()).collect(Collectors.toList());
+    }
+
+    public SimpleReminder getSimpleReminderById(Long id) {
+        List<Reminder> reminderList = getActiveRimindersList();
+        for (Reminder reminder : reminderList) {
+            if (reminder.getId().equals(id)) return (SimpleReminder) reminder;
+        }
+        return null;
     }
 
 
