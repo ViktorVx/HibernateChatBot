@@ -7,6 +7,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(indexes = {@Index(columnList = "userid", name = "user_id_hidx")})
@@ -142,6 +143,11 @@ public class Person {
 
     public void setMiddleName(String middleName) {
         this.middleName = middleName;
+    }
+
+    public List<Reminder> getActiveRimindersList() {
+        return getReminderList().stream().
+                filter(rmd -> rmd.getComplete()==null ? true : !rmd.getComplete()).collect(Collectors.toList());
     }
 
 

@@ -119,6 +119,32 @@ public class KeyboardFactory {
         return inlineKeyboard;
     }
 
+    public static InlineKeyboardMarkup getEditReminderKeyboard() {
+        InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+
+        List<InlineKeyboardButton> rowInline = new ArrayList<>();
+        rowInline.add(new InlineKeyboardButton().setText(EmojiParser.parseToUnicode(":lower_left_fountain_pen: Текст")).
+                setCallbackData(ConstantStorage.CBD_EDIT_REMINDER_TEXT));
+        rowInline.add(new InlineKeyboardButton().setText(EmojiParser.parseToUnicode(":lower_left_fountain_pen: Дату")).
+                setCallbackData(ConstantStorage.CBD_EDIT_REMINDER_DATE));
+        rowInline.add(new InlineKeyboardButton().setText(EmojiParser.parseToUnicode(":lower_left_fountain_pen: Время")).
+                setCallbackData(ConstantStorage.CBD_EDIT_REMINDER_TIME));
+        rowsInline.add(rowInline);
+
+        rowInline = new ArrayList<>();
+        rowInline.add(new InlineKeyboardButton().setText(EmojiParser.parseToUnicode(":white_check_mark: Выполнить")).
+                setCallbackData(ConstantStorage.CBD_EDIT_REMINDER_CLOSE));
+        rowInline.add(new InlineKeyboardButton().setText(EmojiParser.parseToUnicode(":x: Удалить")).
+                setCallbackData(ConstantStorage.CBD_EDIT_REMINDER_DELETE));
+        rowInline.add(new InlineKeyboardButton().setText(EmojiParser.parseToUnicode(":arrow_left: Назад")).
+                setCallbackData(ConstantStorage.CBD_EDIT_REMINDER_BACK_BUTTON));
+        rowsInline.add(rowInline);
+
+        inlineKeyboard.setKeyboard(rowsInline);
+        return inlineKeyboard;
+    }
+
     public static ForceReplyKeyboard getForceReplyKeyboard() {
         ForceReplyKeyboard forceReplyKeyboard = new ForceReplyKeyboard();
         return forceReplyKeyboard;

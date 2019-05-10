@@ -36,6 +36,13 @@ public class ConstantStorage {
     public static final String CBD_OTHER_GENDER_SELECT = "cbd_other_gender_select";
     public static final String CBD_GENDER_SELECTOR_BACK_BUTTON = "cbd_gender_selector_back_button";
 
+    public static final String CBD_EDIT_REMINDER_TEXT = "cbd_edit_reminder_text";
+    public static final String CBD_EDIT_REMINDER_DATE = "cbd_edit_reminder_date";
+    public static final String CBD_EDIT_REMINDER_TIME = "cbd_edit_reminder_time";
+    public static final String CBD_EDIT_REMINDER_CLOSE = "cbd_edit_reminder_close";
+    public static final String CBD_EDIT_REMINDER_DELETE = "cbd_edit_reminder_delete";
+    public static final String CBD_EDIT_REMINDER_BACK_BUTTON = "cbd_edit_reminder_back_button";
+
     public static final String DBNS_SIMPLE_REMINDERS= "DBNS_SIMPLE_REMINDERS";
 
     public static final String ERR_MSG_WRONG_DATE_FORMAT = ":x::x::x: Не верный формат даты :x::x::x:";

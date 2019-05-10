@@ -169,16 +169,11 @@ public class Bot extends AbilityBot {
                 .action(ctx -> {
                     Person person = personDao.findByUserId((long) ctx.user().getId());
                     String message = EmojiParser.parseToUnicode(":calendar: Список напоминаний (/addsimplereminder):\n");
-                    List<Reminder> reminderList = person.getReminderList();
-                    Collections.sort(reminderList, new Comparator<Reminder>() {
-                        @Override
-                        public int compare(Reminder o1, Reminder o2) {
-                            return ((SimpleReminder) o1).getRemindDate().compareTo(((SimpleReminder) o2).getRemindDate());
-                        }
-                    });
+                    List<Reminder> reminderList = person.getActiveRimindersList();
+                    Collections.sort(reminderList, Comparator.comparing(o -> ((SimpleReminder) o).getRemindDate()));
                     for (Reminder reminder : reminderList) {
                         SimpleReminder simpleReminder = (SimpleReminder) reminder;
-                        message = message.concat(String.format( "/%d %s %s - %s\n",
+                        message = message.concat(String.format( "/n%d %s %s - %s\n",
                                 reminderList.indexOf(simpleReminder) + 1,
                                 new SimpleDateFormat(ConstantStorage.FORMAT_DATE).format(simpleReminder.getRemindDate()),
                                 new SimpleDateFormat(ConstantStorage.FORMAT_TIME).format(simpleReminder.getRemindDate()),
@@ -366,6 +361,7 @@ public class Bot extends AbilityBot {
                         SimpleReminder simpleReminder = new SimpleReminder();
                         simpleReminder.setCreationDate(new Date());
                         simpleReminder.setText(remMap.get("text"));
+                        simpleReminder.setComplete(false);
 
                         String stringDateTime = remMap.get("date").concat(" ").concat(reminderTimeText);
                         DateTimeFormatter dateTimeFormatter
@@ -391,6 +387,38 @@ public class Bot extends AbilityBot {
         return Reply.of(action, Flag.MESSAGE, Flag.REPLY);
     }
 
+    public Reply replyToReminderSelection() {
+        Consumer<Update> action = upd -> {
+            Person person = personDao.findByUserId((long) upd.getMessage().getFrom().getId());
+            long userId = upd.getMessage().getFrom().getId();
+            long chatId = upd.getMessage().getChatId();
+            SendMessage sendMessage = new SendMessage();
+            //*********************************************************
+            Integer index = Integer.valueOf(upd.getMessage().getText().replace("/n", ""))-1;
+            List<Reminder> reminderList = person.getActiveRimindersList();
+            Collections.sort(reminderList, Comparator.comparing(o -> ((SimpleReminder) o).getRemindDate()));
+            SimpleReminder simpleReminder = (SimpleReminder) reminderList.get(index);
+
+            try {
+                sender.execute(new SendMessage().setChatId(chatId).
+                        setText(EmojiParser.parseToUnicode(
+                                String.format(":memo: Редактировать напоминание:\n" +
+                                        "Текст: %s\n" +
+                                        "Дата: %s\n" +
+                                        "Время: %s\n",
+                                        simpleReminder.getText(),
+                                        new SimpleDateFormat(ConstantStorage.FORMAT_DATE).format(simpleReminder.getRemindDate()),
+                                        new SimpleDateFormat(ConstantStorage.FORMAT_TIME).format(simpleReminder.getRemindDate())))).
+                        setReplyMarkup(KeyboardFactory.getEditReminderKeyboard()));
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+
+            //*********************************************************
+        };
+        return Reply.of(action, isReplyToReminderSelector());
+    }
+
     //*** ADDITIONAL PREDICATES ****************************************************************************************
 
     private Predicate<Update> isReplyToMessage(String message) {
@@ -402,6 +430,10 @@ public class Bot extends AbilityBot {
 
     private Predicate<Update> isReplyToBot() {
         return upd -> upd.getMessage().getReplyToMessage().getFrom().getUserName().equalsIgnoreCase(getBotUsername());
+    }
+
+    private Predicate<Update> isReplyToReminderSelector() {
+        return upd -> upd.getMessage().getText().matches("^/n[0-9]+");
     }
 
     //******************************************************************************************************************
