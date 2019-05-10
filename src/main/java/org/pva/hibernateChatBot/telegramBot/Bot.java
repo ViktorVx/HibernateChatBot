@@ -265,6 +265,7 @@ public class Bot extends AbilityBot {
                     EditReminderView.successDeleteReminder(chatId, simpleReminder, sender);
                     break;
                 case ConstantStorage.CBD_EDIT_REMINDER_BACK_BUTTON:
+                    EditReminderView.viewRemindersList(person, upd, sender);
                     break;
 
 
