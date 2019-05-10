@@ -3,8 +3,6 @@ package org.pva.hibernateChatBot.telegramBot;
 import com.vdurmont.emoji.EmojiParser;
 import org.hibernate.SessionFactory;
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.pva.hibernateChatBot.constants.ConstantStorage;
@@ -12,7 +10,7 @@ import org.pva.hibernateChatBot.enums.Gender;
 import org.pva.hibernateChatBot.person.Person;
 import org.pva.hibernateChatBot.person.PersonDao;
 import org.pva.hibernateChatBot.reminder.Reminder;
-import org.pva.hibernateChatBot.reminder.SimpleReminder;
+import org.pva.hibernateChatBot.reminder.simpleReminder.SimpleReminder;
 import org.pva.hibernateChatBot.utils.BotUtils;
 import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.api.objects.Ability;
@@ -24,13 +22,10 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.telegram.abilitybots.api.objects.Locality.ALL;
 import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
@@ -257,7 +252,16 @@ public class Bot extends AbilityBot {
                 case ConstantStorage.CBD_EDIT_REMINDER_CLOSE:
                     SimpleReminder simpleReminder = EditReminderView.getSimpleReminderFromMessage(person,
                             upd.getCallbackQuery().getMessage().getText());
-                    System.out.println(simpleReminder.getText());
+                    simpleReminder.setComplete(true);
+                    personDao.update(person);
+                    try {
+                        sender.execute(new SendMessage().
+                                setChatId(chatId).
+                                setText(EmojiParser.parseToUnicode(":white_check_mark: Напоминание \"".concat(simpleReminder.getText()).
+                                        concat("\" успешно завершено! Просмотреть список напоминаний - /viewreminders"))));
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
                     break;
                 case ConstantStorage.CBD_EDIT_REMINDER_DELETE:
                     break;

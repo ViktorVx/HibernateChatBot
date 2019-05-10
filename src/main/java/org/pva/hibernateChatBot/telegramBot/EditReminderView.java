@@ -2,7 +2,7 @@ package org.pva.hibernateChatBot.telegramBot;
 
 import org.pva.hibernateChatBot.constants.ConstantStorage;
 import org.pva.hibernateChatBot.person.Person;
-import org.pva.hibernateChatBot.reminder.SimpleReminder;
+import org.pva.hibernateChatBot.reminder.simpleReminder.SimpleReminder;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

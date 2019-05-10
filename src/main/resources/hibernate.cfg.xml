@@ -23,6 +23,6 @@
         <mapping class="org.pva.hibernateChatBot.reminder.EveryWeekReminder"/>
         <mapping class="org.pva.hibernateChatBot.reminder.EveryYearReminder"/>
         <mapping class="org.pva.hibernateChatBot.reminder.Reminder"/>
-        <mapping class="org.pva.hibernateChatBot.reminder.SimpleReminder"/>
+        <mapping class="org.pva.hibernateChatBot.reminder.simpleReminder.SimpleReminder"/>
     </session-factory>
 </hibernate-configuration>

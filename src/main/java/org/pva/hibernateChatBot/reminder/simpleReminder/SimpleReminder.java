@@ -1,6 +1,7 @@
-package org.pva.hibernateChatBot.reminder;
+package org.pva.hibernateChatBot.reminder.simpleReminder;
 
 import org.pva.hibernateChatBot.person.Person;
+import org.pva.hibernateChatBot.reminder.Reminder;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
