@@ -3,6 +3,7 @@ package org.pva.hibernateChatBot.telegramBot;
 import com.vdurmont.emoji.EmojiParser;
 import org.hibernate.SessionFactory;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.pva.hibernateChatBot.constants.ConstantStorage;
@@ -252,6 +253,10 @@ public class Bot extends AbilityBot {
                     EditReminderView.editNewReminderText(chatId, sender);
                     break;
                 case ConstantStorage.CBD_EDIT_REMINDER_DATE:
+                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(person,
+                            upd.getCallbackQuery().getMessage().getText());
+                    currentReminderIdsMap.put(String.valueOf(upd.getCallbackQuery().getFrom().getId()), simpleReminder.getId());
+                    EditReminderView.editNewReminderDate(chatId, sender);
                     break;
                 case ConstantStorage.CBD_EDIT_REMINDER_TIME:
                     break;
@@ -411,6 +416,22 @@ public class Bot extends AbilityBot {
                 case ConstantStorage.MSG_EDIT_NEW_REMINDER_TEXT:
                     simpleReminder = person.getSimpleReminderById(currentReminderIdsMap.get(String.valueOf(upd.getMessage().getFrom().getId())));
                     simpleReminder.setText(upd.getMessage().getText());
+                    personDao.update(person);
+                    EditReminderView.viewSelectReminder(simpleReminder, upd, sender);
+                    break;
+                case ConstantStorage.MSG_EDIT_NEW_REMINDER_DATE:
+                    simpleReminder = person.getSimpleReminderById(currentReminderIdsMap.get(String.valueOf(upd.getMessage().getFrom().getId())));
+                    Date date = BotUtils.isValidDate(upd.getMessage().getText());
+                    Date oldDate = simpleReminder.getRemindDate();
+                    if (date != null) {
+                        LocalDateTime localDateTime = LocalDateTime.fromDateFields(date);
+                        if (oldDate != null) {
+                            LocalDateTime oldLocalDateTime = LocalDateTime.fromDateFields(oldDate);
+                            localDateTime = new LocalDateTime(localDateTime.getYear(), localDateTime.getMonthOfYear(),
+                                    localDateTime.getDayOfMonth(), oldLocalDateTime.getHourOfDay(), oldLocalDateTime.getMinuteOfHour());
+                        }
+                        simpleReminder.setRemindDate(localDateTime.toDate());
+                    }
                     personDao.update(person);
                     EditReminderView.viewSelectReminder(simpleReminder, upd, sender);
                     break;

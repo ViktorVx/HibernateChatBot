@@ -80,17 +80,6 @@ public class EditReminderView {
         }
     }
 
-    public static void editNewReminderText(long chatId, MessageSender sender) {
-        String MESSAGE = ConstantStorage.MSG_EDIT_NEW_REMINDER_TEXT;
-        try {
-            sender.execute(new SendMessage()
-                    .setText(MESSAGE)
-                    .setChatId(chatId).setReplyMarkup(KeyboardFactory.getForceReplyKeyboard()));
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
-    }
-
     public static void viewSelectReminder(SimpleReminder simpleReminder, Update upd, MessageSender sender) {
         long chatId = upd.getMessage().getChatId();
         try {
@@ -111,4 +100,25 @@ public class EditReminderView {
         }
     }
 
+    public static void editNewReminderText(long chatId, MessageSender sender) {
+        String MESSAGE = ConstantStorage.MSG_EDIT_NEW_REMINDER_TEXT;
+        try {
+            sender.execute(new SendMessage()
+                    .setText(MESSAGE)
+                    .setChatId(chatId).setReplyMarkup(KeyboardFactory.getForceReplyKeyboard()));
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void editNewReminderDate(long chatId, MessageSender sender) {
+        String MESSAGE = ConstantStorage.MSG_EDIT_NEW_REMINDER_DATE;
+        try {
+            sender.execute(new SendMessage()
+                    .setText(MESSAGE)
+                    .setChatId(chatId).setReplyMarkup(KeyboardFactory.getForceReplyKeyboard()));
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
 }
