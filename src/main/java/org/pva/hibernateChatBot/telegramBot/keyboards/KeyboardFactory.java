@@ -1,41 +1,15 @@
-package org.pva.hibernateChatBot.telegramBot;
+package org.pva.hibernateChatBot.telegramBot.keyboards;
 
 import com.vdurmont.emoji.EmojiParser;
-import org.pva.hibernateChatBot.constants.ConstantStorage;
+import org.pva.hibernateChatBot.telegramBot.constants.ConstantStorage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ForceReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class KeyboardFactory {
-
-    public static ReplyKeyboard getStartCountKeyboard() {
-        InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-        List<InlineKeyboardButton> rowInline = new ArrayList<>();
-        rowInline.add(new InlineKeyboardButton().setText("Старт").setCallbackData("start"));
-        rowInline.add(new InlineKeyboardButton().setText("i++").setCallbackData("count"));
-        rowsInline.add(rowInline);
-        inlineKeyboard.setKeyboard(rowsInline);
-        return inlineKeyboard;
-
-//        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
-//        replyKeyboardMarkup.setSelective(true);
-//        replyKeyboardMarkup.setResizeKeyboard(true);
-//        replyKeyboardMarkup.setOneTimeKeyboard(false);
-//
-//        List<KeyboardRow> keyboardRowList = new ArrayList<>();
-//        KeyboardRow keyboardRow1 = new KeyboardRow();
-//        keyboardRow1.add(new KeyboardButton("/start"));
-//        keyboardRow1.add(new KeyboardButton("/count"));
-//
-//        keyboardRowList.add(keyboardRow1);
-//        replyKeyboardMarkup.setKeyboard(keyboardRowList);
-//        return replyKeyboardMarkup;
-    }
 
     public static InlineKeyboardMarkup getInfoPersonEditKeyboard() {
         InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();

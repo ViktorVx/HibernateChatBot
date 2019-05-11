@@ -1,4 +1,4 @@
-package org.pva.hibernateChatBot.constants;
+package org.pva.hibernateChatBot.telegramBot.constants;
 
 public class ConstantStorage {
 

@@ -1,6 +1,6 @@
-package org.pva.hibernateChatBot.utils;
+package org.pva.hibernateChatBot.telegramBot.utils;
 
-import org.pva.hibernateChatBot.constants.ConstantStorage;
+import org.pva.hibernateChatBot.telegramBot.constants.ConstantStorage;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

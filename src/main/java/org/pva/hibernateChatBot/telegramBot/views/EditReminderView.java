@@ -1,10 +1,11 @@
-package org.pva.hibernateChatBot.telegramBot;
+package org.pva.hibernateChatBot.telegramBot.views;
 
 import com.vdurmont.emoji.EmojiParser;
-import org.pva.hibernateChatBot.constants.ConstantStorage;
+import org.pva.hibernateChatBot.telegramBot.constants.ConstantStorage;
 import org.pva.hibernateChatBot.person.Person;
 import org.pva.hibernateChatBot.reminder.Reminder;
 import org.pva.hibernateChatBot.reminder.simpleReminder.SimpleReminder;
+import org.pva.hibernateChatBot.telegramBot.keyboards.KeyboardFactory;
 import org.telegram.abilitybots.api.sender.MessageSender;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
