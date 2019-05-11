@@ -259,6 +259,10 @@ public class Bot extends AbilityBot {
                     EditReminderView.editNewReminderDate(chatId, sender);
                     break;
                 case ConstantStorage.CBD_EDIT_REMINDER_TIME:
+                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(person,
+                            upd.getCallbackQuery().getMessage().getText());
+                    currentReminderIdsMap.put(String.valueOf(upd.getCallbackQuery().getFrom().getId()), simpleReminder.getId());
+                    EditReminderView.editNewReminderTime(chatId, sender);
                     break;
                 case ConstantStorage.CBD_EDIT_REMINDER_CLOSE:
                     simpleReminder = EditReminderView.getSimpleReminderFromMessage(person,
@@ -292,6 +296,8 @@ public class Bot extends AbilityBot {
             long chatId = upd.getMessage().getChatId();
             SendMessage sendMessage = new SendMessage();
             SimpleReminder simpleReminder;
+            Date date;
+            Date oldDate;
             //*********************************************************
             Message message = upd.getMessage();
             Message reply = upd.getMessage().getReplyToMessage();
@@ -421,8 +427,8 @@ public class Bot extends AbilityBot {
                     break;
                 case ConstantStorage.MSG_EDIT_NEW_REMINDER_DATE:
                     simpleReminder = person.getSimpleReminderById(currentReminderIdsMap.get(String.valueOf(upd.getMessage().getFrom().getId())));
-                    Date date = BotUtils.isValidDate(upd.getMessage().getText());
-                    Date oldDate = simpleReminder.getRemindDate();
+                    date = BotUtils.isValidDate(upd.getMessage().getText());
+                    oldDate = simpleReminder.getRemindDate();
                     if (date != null) {
                         LocalDateTime localDateTime = LocalDateTime.fromDateFields(date);
                         if (oldDate != null) {
@@ -430,6 +436,19 @@ public class Bot extends AbilityBot {
                             localDateTime = new LocalDateTime(localDateTime.getYear(), localDateTime.getMonthOfYear(),
                                     localDateTime.getDayOfMonth(), oldLocalDateTime.getHourOfDay(), oldLocalDateTime.getMinuteOfHour());
                         }
+                        simpleReminder.setRemindDate(localDateTime.toDate());
+                    }
+                    personDao.update(person);
+                    EditReminderView.viewSelectReminder(simpleReminder, upd, sender);
+                    break;
+                case ConstantStorage.MSG_EDIT_NEW_REMINDER_TIME:
+                    simpleReminder = person.getSimpleReminderById(currentReminderIdsMap.get(String.valueOf(upd.getMessage().getFrom().getId())));
+                    Map<String, Integer> dateMap = BotUtils.isValidTime(upd.getMessage().getText());
+                    oldDate = simpleReminder.getRemindDate();
+                    if (dateMap != null) {
+                        LocalDateTime localDateTime = LocalDateTime.fromDateFields(oldDate);
+                        localDateTime = new LocalDateTime(localDateTime.getYear(), localDateTime.getMonthOfYear(),
+                                localDateTime.getDayOfMonth(), dateMap.get("hours"), dateMap.get("minutes"));
                         simpleReminder.setRemindDate(localDateTime.toDate());
                     }
                     personDao.update(person);

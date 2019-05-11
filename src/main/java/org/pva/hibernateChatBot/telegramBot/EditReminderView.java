@@ -121,4 +121,15 @@ public class EditReminderView {
             e.printStackTrace();
         }
     }
+
+    public static void editNewReminderTime(long chatId, MessageSender sender) {
+        String MESSAGE = ConstantStorage.MSG_EDIT_NEW_REMINDER_TIME;
+        try {
+            sender.execute(new SendMessage()
+                    .setText(MESSAGE)
+                    .setChatId(chatId).setReplyMarkup(KeyboardFactory.getForceReplyKeyboard()));
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
 }
