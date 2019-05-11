@@ -1,8 +1,8 @@
-package org.pva.hibernateChatBot.person;
+package org.pva.hibernateChatBot.entity.person;
 
-import org.pva.hibernateChatBot.enums.Gender;
-import org.pva.hibernateChatBot.reminder.Reminder;
-import org.pva.hibernateChatBot.reminder.simpleReminder.SimpleReminder;
+import org.pva.hibernateChatBot.entity.enums.Gender;
+import org.pva.hibernateChatBot.entity.reminder.Reminder;
+import org.pva.hibernateChatBot.entity.reminder.simpleReminder.SimpleReminder;
 
 import javax.persistence.*;
 import java.util.ArrayList;

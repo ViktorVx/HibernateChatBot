@@ -2,7 +2,7 @@ package org.pva.hibernateChatBot.telegramBot.views;
 
 import com.vdurmont.emoji.EmojiParser;
 import org.pva.hibernateChatBot.telegramBot.constants.ConstantStorage;
-import org.pva.hibernateChatBot.person.Person;
+import org.pva.hibernateChatBot.entity.person.Person;
 import org.pva.hibernateChatBot.telegramBot.keyboards.KeyboardFactory;
 import org.telegram.abilitybots.api.sender.MessageSender;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;

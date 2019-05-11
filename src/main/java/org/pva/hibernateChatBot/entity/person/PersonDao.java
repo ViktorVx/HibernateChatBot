@@ -1,4 +1,4 @@
-package org.pva.hibernateChatBot.person;
+package org.pva.hibernateChatBot.entity.person;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;

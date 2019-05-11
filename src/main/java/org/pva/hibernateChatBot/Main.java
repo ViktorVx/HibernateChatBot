@@ -2,7 +2,7 @@ package org.pva.hibernateChatBot;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-import org.pva.hibernateChatBot.person.PersonDao;
+import org.pva.hibernateChatBot.entity.person.PersonDao;
 import org.pva.hibernateChatBot.telegramBot.Bot;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.meta.TelegramBotsApi;

@@ -1,4 +1,4 @@
-package org.pva.hibernateChatBot.reminder;
+package org.pva.hibernateChatBot.entity.reminder;
 
 import javax.persistence.*;
 import java.util.Date;

@@ -15,9 +15,9 @@
         <property name="show_sql">false</property>
         <property name="format_sql">true</property>
 
-        <mapping class="org.pva.hibernateChatBot.person.Person"/>
+        <mapping class="org.pva.hibernateChatBot.entity.person.Person"/>
 
-        <mapping class="org.pva.hibernateChatBot.reminder.Reminder"/>
-        <mapping class="org.pva.hibernateChatBot.reminder.simpleReminder.SimpleReminder"/>
+        <mapping class="org.pva.hibernateChatBot.entity.reminder.Reminder"/>
+        <mapping class="org.pva.hibernateChatBot.entity.reminder.simpleReminder.SimpleReminder"/>
     </session-factory>
 </hibernate-configuration>
