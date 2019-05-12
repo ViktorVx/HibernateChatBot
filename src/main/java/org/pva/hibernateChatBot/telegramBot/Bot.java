@@ -497,14 +497,34 @@ public class Bot extends AbilityBot {
 
     public void mainShedulledTask(Integer horizontLength) {
         List<Person> personList = personDao.getAll();
-        List<SimpleReminder> simpleReminderList;
+
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime horizont = now.plusMillis(horizontLength);
+
         for (Person person : personList) {
             for (Reminder reminder : person.getReminderList()) {
                 SimpleReminder simpleReminder = (SimpleReminder) reminder;
                 if (simpleReminder.getComplete()) continue;
+                LocalDateTime remDateTime = LocalDateTime.fromDateFields(simpleReminder.getRemindDate());
+                if (remDateTime.compareTo(horizont) <= 0) {
 
+                    Long delay = simpleReminder.getRemindDate().getTime() - now.toDate().getTime();
+                    Thread remThread = new Thread(() -> {
+                        try {
+                            Thread.sleep(delay<=0 ? horizontLength : delay);
+                            sender.execute(new SendMessage().
+                                    setText(simpleReminder.getText()).
+                                    setChatId(person.getUserId()));
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        } catch (TelegramApiException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    );
+                    remThread.start();
+
+                }
             }
         }
     }

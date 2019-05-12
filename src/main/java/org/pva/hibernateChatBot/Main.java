@@ -12,7 +12,7 @@ public class Main {
 
     private static final SessionFactory ourSessionFactory;
     private static PersonDao personDao;
-    private static Integer MAIN_TASK_PERIOD = 3600000;
+    private static Integer MAIN_TASK_PERIOD = 600000;
 
     static {
         try {
