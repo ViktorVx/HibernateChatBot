@@ -70,6 +70,7 @@ public class Bot extends AbilityBot {
                         User user = ctx.user();
                         person = new Person();
                         person.setUserId((long) user.getId());
+                        person.setChatId(ctx.chatId());
                         person.setFirstName(user.getFirstName());
                         person.setLastName(user.getLastName());
                         person.setLogin(user.getUserName().concat("@").concat(String.valueOf(user.getId())));
@@ -490,6 +491,22 @@ public class Bot extends AbilityBot {
 
     private Predicate<Update> isReplyToReminderSelector() {
         return upd -> upd.getMessage().getText().matches("^/".concat(ConstantStorage.PREFIX_REMINDERS_LIST).concat("[0-9]+"));
+    }
+
+    //*** REMINDER SCHEDULED CREATION ***********************************************************************************
+
+    public void mainShedulledTask(Integer horizontLength) {
+        List<Person> personList = personDao.getAll();
+        List<SimpleReminder> simpleReminderList;
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime horizont = now.plusMillis(horizontLength);
+        for (Person person : personList) {
+            for (Reminder reminder : person.getReminderList()) {
+                SimpleReminder simpleReminder = (SimpleReminder) reminder;
+                if (simpleReminder.getComplete()) continue;
+
+            }
+        }
     }
 
     //******************************************************************************************************************

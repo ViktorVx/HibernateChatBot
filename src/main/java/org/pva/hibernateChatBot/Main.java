@@ -12,6 +12,7 @@ public class Main {
 
     private static final SessionFactory ourSessionFactory;
     private static PersonDao personDao;
+    private static Integer MAIN_TASK_PERIOD = 3600000;
 
     static {
         try {
@@ -26,13 +27,34 @@ public class Main {
     }
 
     public static void main(final String[] args) throws Exception {
+        Bot bot = new Bot(ourSessionFactory);
+        runBot(bot);
+        runReminderCreator(bot);
+    }
+
+    private static void runBot(Bot bot) {
         ApiContextInitializer.init();
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi();
         try {
-            telegramBotsApi.registerBot(new Bot(ourSessionFactory));
+            telegramBotsApi.registerBot(bot);
         } catch (TelegramApiRequestException e) {
             e.printStackTrace();
         }
-        while (true) { }
     }
+
+    private static void runReminderCreator(Bot bot) {
+        bot.mainShedulledTask(MAIN_TASK_PERIOD);
+        Thread reminderCreator = new Thread(() -> {
+            while (true) {
+                try {
+                    bot.mainShedulledTask(MAIN_TASK_PERIOD);
+                    Thread.sleep(MAIN_TASK_PERIOD);
+                } catch (InterruptedException ex) {
+                }
+            }
+        });
+        reminderCreator.start();
+    }
+
+
 }

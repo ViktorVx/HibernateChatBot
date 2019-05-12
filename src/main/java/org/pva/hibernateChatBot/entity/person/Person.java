@@ -33,6 +33,9 @@ public class Person {
     @Column(unique = true, nullable = false)
     private Long userId;
 
+    @Column(unique = true, nullable = false)
+    private Long chatId;
+
     @Column
     @Enumerated(EnumType.ORDINAL)
     private Gender gender;
@@ -48,6 +51,14 @@ public class Person {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reminder> reminderList = new ArrayList<Reminder>();
+
+    public Long getChatId() {
+        return chatId;
+    }
+
+    public void setChatId(Long chatId) {
+        this.chatId = chatId;
+    }
 
     public Long getUserId() {
         return userId;
