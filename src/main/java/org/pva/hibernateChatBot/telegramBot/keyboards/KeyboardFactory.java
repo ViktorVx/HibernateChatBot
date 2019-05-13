@@ -119,6 +119,23 @@ public class KeyboardFactory {
         return inlineKeyboard;
     }
 
+    public static InlineKeyboardMarkup getCloseReminderKeyboard() {
+        InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+
+        List<InlineKeyboardButton> rowInline = new ArrayList<>();
+        rowInline.add(new InlineKeyboardButton().setText(EmojiParser.parseToUnicode(":white_check_mark: Выполнить")).
+                setCallbackData(ConstantStorage.CBD_EDIT_REMINDER_CLOSE));
+        rowInline.add(new InlineKeyboardButton().setText(EmojiParser.parseToUnicode(":x: Удалить")).
+                setCallbackData(ConstantStorage.CBD_EDIT_REMINDER_DELETE));
+        rowInline.add(new InlineKeyboardButton().setText(EmojiParser.parseToUnicode(":stopwatch: Отложить")).
+                setCallbackData(ConstantStorage.CBD_EDIT_REMINDER_BACK_BUTTON));
+        rowsInline.add(rowInline);
+
+        inlineKeyboard.setKeyboard(rowsInline);
+        return inlineKeyboard;
+    }
+
     public static ForceReplyKeyboard getForceReplyKeyboard() {
         ForceReplyKeyboard forceReplyKeyboard = new ForceReplyKeyboard();
         return forceReplyKeyboard;

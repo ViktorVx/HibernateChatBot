@@ -45,6 +45,7 @@ public class ConstantStorage {
     public static final String CBD_EDIT_REMINDER_CLOSE = "cbd_edit_reminder_close";
     public static final String CBD_EDIT_REMINDER_DELETE = "cbd_edit_reminder_delete";
     public static final String CBD_EDIT_REMINDER_BACK_BUTTON = "cbd_edit_reminder_back_button";
+    public static final String CBD_EDIT_REMINDER_DELAY = "cbd_edit_reminder_delay";
 
     public static final String DBNS_SIMPLE_REMINDERS= "DBNS_SIMPLE_REMINDERS";
     public static final String DBNS_CURRENT_REMINDER_IDS= "DBNS_CURRENT_REMINDER_IDS";

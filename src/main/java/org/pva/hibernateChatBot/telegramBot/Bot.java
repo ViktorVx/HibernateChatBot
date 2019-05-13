@@ -266,12 +266,14 @@ public class Bot extends AbilityBot {
                 case ConstantStorage.CBD_EDIT_REMINDER_TIME:
                     simpleReminder = EditReminderView.getSimpleReminderFromMessage(person,
                             upd.getCallbackQuery().getMessage().getText());
+                    if (simpleReminder == null) return;
                     currentReminderIdsMap.put(String.valueOf(upd.getCallbackQuery().getFrom().getId()), simpleReminder.getId());
                     EditReminderView.editNewReminderTime(chatId, sender);
                     break;
                 case ConstantStorage.CBD_EDIT_REMINDER_CLOSE:
                     simpleReminder = EditReminderView.getSimpleReminderFromMessage(person,
                             upd.getCallbackQuery().getMessage().getText());
+                    if (simpleReminder == null) return;
                     simpleReminder.setComplete(true);
                     personDao.update(person);
                     EditReminderView.successCompleteReminder(chatId, simpleReminder, sender);
@@ -279,6 +281,7 @@ public class Bot extends AbilityBot {
                 case ConstantStorage.CBD_EDIT_REMINDER_DELETE:
                     simpleReminder = EditReminderView.getSimpleReminderFromMessage(person,
                             upd.getCallbackQuery().getMessage().getText());
+                    if (simpleReminder == null) return;
                     person.getReminderList().remove(simpleReminder);
                     personDao.update(person);
                     EditReminderView.successDeleteReminder(chatId, simpleReminder, sender);
@@ -507,14 +510,19 @@ public class Bot extends AbilityBot {
                 if (simpleReminder.getComplete()) continue;
                 LocalDateTime remDateTime = LocalDateTime.fromDateFields(simpleReminder.getRemindDate());
                 if (remDateTime.compareTo(horizont) <= 0) {
+                    StringBuilder stringBuilder = new StringBuilder();
+                    stringBuilder.append(String.format("Напоминание /%s%s:\n",
+                            ConstantStorage.PREFIX_REMINDERS_LIST,
+                            String.valueOf(simpleReminder.getId())));
+                    stringBuilder.append(simpleReminder.getText());
 
                     Long delay = simpleReminder.getRemindDate().getTime() - now.toDate().getTime();
                     Thread remThread = new Thread(() -> {
                         try {
                             Thread.sleep(delay<=0 ? horizontLength : delay);
                             sender.execute(new SendMessage().
-                                    setText(simpleReminder.getText()).
-                                    setChatId(person.getUserId()));
+                                    setText(stringBuilder.toString()).
+                                    setChatId(person.getUserId()).setReplyMarkup(KeyboardFactory.getCloseReminderKeyboard()));
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         } catch (TelegramApiException e) {
