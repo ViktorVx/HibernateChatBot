@@ -295,8 +295,9 @@ public class Bot extends AbilityBot {
                     simpleReminder = EditReminderView.getSimpleReminderFromMessage(person,
                             upd.getCallbackQuery().getMessage().getText());
                     if (simpleReminder == null) return;
-                    currentReminderIdsMap.put(String.valueOf(upd.getCallbackQuery().getFrom().getId()), simpleReminder.getId());
-                    EditReminderView.editNewReminderDate(chatId, sender);
+                    EditReminderView.viewSelectReminder(simpleReminder, upd, sender);
+//                    currentReminderIdsMap.put(String.valueOf(upd.getCallbackQuery().getFrom().getId()), simpleReminder.getId());
+//                    EditReminderView.editNewReminderDate(chatId, sender);
                     break;
 
 

@@ -11,6 +11,7 @@ public class Main {
 
     private static final SessionFactory ourSessionFactory;
     private static Integer MAIN_TASK_PERIOD = 3600000;
+//    private static Integer MAIN_TASK_PERIOD = 60000;
 
     static {
         try {

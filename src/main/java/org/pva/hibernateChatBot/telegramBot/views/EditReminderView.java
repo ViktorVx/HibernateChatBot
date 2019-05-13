@@ -82,7 +82,12 @@ public class EditReminderView {
     }
 
     public static void viewSelectReminder(SimpleReminder simpleReminder, Update upd, MessageSender sender) {
-        long chatId = upd.getMessage().getChatId();
+        long chatId;
+        if (upd.hasMessage()) {
+            chatId = upd.getMessage().getChatId();
+        } else {
+            chatId = upd.getCallbackQuery().getMessage().getChatId();
+        }
         try {
             if (simpleReminder == null) return;
             sender.execute(new SendMessage().setChatId(chatId).
