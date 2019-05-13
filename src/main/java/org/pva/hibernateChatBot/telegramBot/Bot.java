@@ -194,7 +194,7 @@ public class Bot extends AbilityBot {
                 .build();
     }
 
-    //*** REPLYES TO BUTTONS AND MESSAGES ******************************************************************************
+    //*** REPLIES TO BUTTONS AND MESSAGES ******************************************************************************
 
     public Reply replyToButtons() {
         Consumer<Update> action = upd -> {
@@ -296,11 +296,7 @@ public class Bot extends AbilityBot {
                             upd.getCallbackQuery().getMessage().getText());
                     if (simpleReminder == null) return;
                     EditReminderView.viewSelectReminder(simpleReminder, upd, sender);
-//                    currentReminderIdsMap.put(String.valueOf(upd.getCallbackQuery().getFrom().getId()), simpleReminder.getId());
-//                    EditReminderView.editNewReminderDate(chatId, sender);
                     break;
-
-
             }
             //****************************************************
         };
