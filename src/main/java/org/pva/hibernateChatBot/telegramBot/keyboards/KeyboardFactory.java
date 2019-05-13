@@ -129,7 +129,7 @@ public class KeyboardFactory {
         rowInline.add(new InlineKeyboardButton().setText(EmojiParser.parseToUnicode(":x: Удалить")).
                 setCallbackData(ConstantStorage.CBD_EDIT_REMINDER_DELETE));
         rowInline.add(new InlineKeyboardButton().setText(EmojiParser.parseToUnicode(":stopwatch: Отложить")).
-                setCallbackData(ConstantStorage.CBD_EDIT_REMINDER_BACK_BUTTON));
+                setCallbackData(ConstantStorage.CBD_EDIT_REMINDER_DELAY));
         rowsInline.add(rowInline);
 
         inlineKeyboard.setKeyboard(rowsInline);

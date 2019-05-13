@@ -10,7 +10,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 public class Main {
 
     private static final SessionFactory ourSessionFactory;
-    private static Integer MAIN_TASK_PERIOD = 60000;
+    private static Integer MAIN_TASK_PERIOD = 3600000;
 
     static {
         try {
@@ -22,7 +22,7 @@ public class Main {
         }
     }
 
-    public static void main(final String[] args) throws Exception {
+    public static void main(final String[] args) {
         Bot bot = new Bot(ourSessionFactory);
         runBot(bot);
         runReminderCreator(bot);
