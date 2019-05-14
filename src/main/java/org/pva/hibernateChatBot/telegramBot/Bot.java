@@ -65,17 +65,25 @@ public class Bot extends AbilityBot {
                 .locality(ALL)
                 .privacy(PUBLIC)
                 .action(ctx -> {
-                    Person person = personDao.findByUserId((long) ctx.user().getId());
-                    if (person == null) {
-                        User user = ctx.user();
-                        person = new Person();
-                        person.setUserId((long) user.getId());
-                        person.setChatId(ctx.chatId());
-                        person.setFirstName(user.getFirstName());
-                        person.setLastName(user.getLastName());
-                        person.setLogin(user.getUserName().concat("@").concat(String.valueOf(user.getId())));
-                        personDao.save(person);
-                    }
+//                    Person person = personDao.findByUserId((long) ctx.user().getId());
+//                    if (person == null) {
+//                        User user = ctx.user();
+//                        person = new Person();
+//                        person.setUserId((long) user.getId());
+//                        person.setChatId(ctx.chatId());
+//                        person.setFirstName(user.getFirstName());
+//                        person.setLastName(user.getLastName());
+//                        person.setLogin(user.getUserName().concat("@").concat(String.valueOf(user.getId())));
+//                        personDao.save(person);
+//                    }
+                    //***
+                    List<Map<String, String>> list = db.getList(ConstantStorage.DBNS_PERSONS);
+                    Map<String, String> map = new HashMap<>();
+                    map.put("userId", String.valueOf(ctx.user().getId()));
+                    map.put("age", "22");
+                    list.add(map);
+                    db.commit();
+                    //***
 
                     String MESSAGE = String.format("Привет, %s!\n" +
                             "Ты зашел в бот-напоминайку!\n" +

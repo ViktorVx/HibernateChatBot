@@ -17,3 +17,4 @@ _site/
 *.log
 token*.txt
 ReminderVxBot
+*.json

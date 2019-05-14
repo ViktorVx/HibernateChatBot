@@ -58,4 +58,8 @@ public class ConstantStorage {
     public static final String FORMAT_TIME = "HH.mm";
 
     public static final String PREFIX_REMINDERS_LIST = "rem";
+
+    //***
+    public static final String DBNS_PERSONS= "DBNS_PERSONS";
+    //***
 }
