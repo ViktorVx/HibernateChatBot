@@ -47,9 +47,6 @@ public class ConstantStorage {
     public static final String CBD_EDIT_REMINDER_BACK_BUTTON = "cbd_edit_reminder_back_button";
     public static final String CBD_EDIT_REMINDER_DELAY = "cbd_edit_reminder_delay";
 
-    public static final String DBNS_SIMPLE_REMINDERS= "DBNS_SIMPLE_REMINDERS";
-    public static final String DBNS_CURRENT_REMINDER_IDS= "DBNS_CURRENT_REMINDER_IDS";
-
     public static final String ERR_MSG_WRONG_DATE_FORMAT = ":x::x::x: Не верный формат даты :x::x::x:";
     public static final String ERR_MSG_WRONG_TIME_FORMAT = ":x::x::x: Не верный формат времени :x::x::x:";
     public static final String ERR_MSG_WRONG_EMAIL_FORMAT = ":x::x::x: Не верный формат email :x::x::x:";
@@ -60,6 +57,10 @@ public class ConstantStorage {
     public static final String PREFIX_REMINDERS_LIST = "rem";
 
     //***
+    public static final String DBNS_EDIT_REMINDER = "DBNS_EDIT_REMINDER";
+    public static final String DBNS_CURRENT_REMINDER_IDS= "DBNS_CURRENT_REMINDER_IDS";
+
     public static final String DBNS_PERSONS= "DBNS_PERSONS";
+    public static final String DBNS_SIMPLE_REMINDERS= "DBNS_SIMPLE_REMINDERS";
     //***
 }

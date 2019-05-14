@@ -6,17 +6,17 @@ import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.pva.hibernateChatBot.telegramBot.constants.ConstantStorage;
 import org.pva.hibernateChatBot.entity.enums.Gender;
 import org.pva.hibernateChatBot.entity.person.Person;
 import org.pva.hibernateChatBot.entity.person.PersonDao;
 import org.pva.hibernateChatBot.entity.reminder.Reminder;
 import org.pva.hibernateChatBot.entity.reminder.simpleReminder.SimpleReminder;
+import org.pva.hibernateChatBot.telegramBot.constants.ConstantStorage;
 import org.pva.hibernateChatBot.telegramBot.keyboards.KeyboardFactory;
+import org.pva.hibernateChatBot.telegramBot.utils.BotUtils;
 import org.pva.hibernateChatBot.telegramBot.views.EditPersonRegisterDataView;
 import org.pva.hibernateChatBot.telegramBot.views.EditPersonalDataView;
 import org.pva.hibernateChatBot.telegramBot.views.EditReminderView;
-import org.pva.hibernateChatBot.telegramBot.utils.BotUtils;
 import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.api.objects.Ability;
 import org.telegram.abilitybots.api.objects.Flag;
@@ -42,8 +42,11 @@ public class Bot extends AbilityBot {
     private static final String BOT_USERNAME = "ReminderVxBot";
     private static final Integer BOT_CREATOR_ID = Integer.valueOf(System.getenv("BOT_CREATOR_ID"));
     private final PersonDao personDao;
-    private final Map<String, Map<String, String>> reminderMap = db.getMap(ConstantStorage.DBNS_SIMPLE_REMINDERS);
+    private final Map<String, Map<String, String>> editReminderMap = db.getMap(ConstantStorage.DBNS_EDIT_REMINDER);
     private final Map<String, Long> currentReminderIdsMap = db.getMap(ConstantStorage.DBNS_CURRENT_REMINDER_IDS);
+
+    private final Map<String, Map<String, String>> personsMap = db.getMap(ConstantStorage.DBNS_PERSONS);
+    private final Map<String, List<Map<String, String>>> remindersMap = db.getMap(ConstantStorage.DBNS_SIMPLE_REMINDERS);
 
     public Bot(SessionFactory sessionFactory) {
         super(BOT_TOKEN, BOT_USERNAME);
@@ -76,13 +79,20 @@ public class Bot extends AbilityBot {
 //                        person.setLogin(user.getUserName().concat("@").concat(String.valueOf(user.getId())));
 //                        personDao.save(person);
 //                    }
-                    //***
-                    List<Map<String, String>> list = db.getList(ConstantStorage.DBNS_PERSONS);
-                    Map<String, String> map = new HashMap<>();
-                    map.put("userId", String.valueOf(ctx.user().getId()));
-                    map.put("age", "22");
-                    list.add(map);
-                    db.commit();
+
+                    User user = ctx.user();
+                    if (!personsMap.containsKey(user.getId().toString())) {
+                        Map<String, String> map = new HashMap<>();
+                        map.put("userId", String.valueOf(user.getId()));
+                        map.put("chatId", String.valueOf(ctx.chatId()));
+                        map.put("firstName", String.valueOf(user.getFirstName()));
+                        map.put("lastName", String.valueOf(user.getLastName()));
+                        map.put("login", user.getUserName().concat("@").concat(String.valueOf(user.getId())));
+
+                        personsMap.put(user.getId().toString(), map);
+                        db.commit();
+                    }
+
                     //***
 
                     String MESSAGE = String.format("Привет, %s!\n" +
@@ -378,7 +388,7 @@ public class Bot extends AbilityBot {
 
                     Map<String, String> newRemMap = new HashMap<>();
                     newRemMap.put("text", reminderText);
-                    reminderMap.put(String.valueOf(userId), newRemMap);
+                    editReminderMap.put(String.valueOf(userId), newRemMap);
 
                     try {
                         sender.execute(new SendMessage().setChatId(chatId).
@@ -396,9 +406,9 @@ public class Bot extends AbilityBot {
                                 setText(EmojiParser.parseToUnicode(ConstantStorage.ERR_MSG_WRONG_DATE_FORMAT));
                     } else {
 
-                        Map<String, String> remMap = reminderMap.get(String.valueOf(userId));
+                        Map<String, String> remMap = editReminderMap.get(String.valueOf(userId));
                         remMap.put("date", new SimpleDateFormat(ConstantStorage.FORMAT_DATE).format(reminderDate));
-                        reminderMap.put(String.valueOf(userId), remMap);
+                        editReminderMap.put(String.valueOf(userId), remMap);
 
                         sendMessage.setChatId(chatId).
                                 setText(ConstantStorage.MSG_EDIT_REMINDER_TIME).
@@ -417,7 +427,7 @@ public class Bot extends AbilityBot {
                         sendMessage.setChatId(chatId).
                                 setText(EmojiParser.parseToUnicode(ConstantStorage.ERR_MSG_WRONG_TIME_FORMAT));
                     } else {
-                        Map<String, String> remMap = reminderMap.get(String.valueOf(userId));
+                        Map<String, String> remMap = editReminderMap.get(String.valueOf(userId));
                         simpleReminder = new SimpleReminder();
                         simpleReminder.setCreationDate(new Date());
                         simpleReminder.setText(remMap.get("text"));
@@ -533,7 +543,7 @@ public class Bot extends AbilityBot {
                     Long delay = simpleReminder.getRemindDate().getTime() - now.toDate().getTime();
                     Thread remThread = new Thread(() -> {
                         try {
-                            Thread.sleep(delay<=0 ? horizontLength : delay);
+                            Thread.sleep(delay <= 0 ? horizontLength : delay);
                             sender.execute(new SendMessage().
                                     setText(stringBuilder.toString()).
                                     setChatId(person.getUserId()).setReplyMarkup(KeyboardFactory.getCloseReminderKeyboard()));
