@@ -68,7 +68,7 @@ public class BotUtils {
 
     public static List<SimpleReminder> getActiveRemindersList(List<SimpleReminder> simpleReminders) {
         return simpleReminders.stream().
-                filter(rmd -> rmd.getComplete() == null || !rmd.getComplete()).collect(Collectors.toList());
+                filter(rmd -> rmd.isComplete() == null || !rmd.isComplete()).collect(Collectors.toList());
 
     }
 }

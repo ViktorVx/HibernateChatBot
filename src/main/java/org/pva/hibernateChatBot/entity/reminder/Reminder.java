@@ -5,20 +5,19 @@ import java.util.Date;
 
 public abstract class Reminder implements Serializable {
 
-    Long id;
+    private Long id;
 
-    Date creationDate;
+    private Date creationDate;
 
-    String text;
+    private String text;
 
-    Boolean complete;
+    private Boolean complete;
+
+    public Reminder() { }
 
     public Reminder(Date creationDate, String text) {
         this.creationDate = creationDate;
         this.text = text;
-    }
-
-    public Reminder() {
     }
 
     public Long getId() {
@@ -45,7 +44,7 @@ public abstract class Reminder implements Serializable {
         this.text = text;
     }
 
-    public Boolean getComplete() {
+    public Boolean isComplete() {
         return complete;
     }
 

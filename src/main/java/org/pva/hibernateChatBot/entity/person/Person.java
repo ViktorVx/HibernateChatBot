@@ -12,55 +12,23 @@ public class Person implements Serializable {
 
     private Long id;
 
+    private Long userId;
+
+    private Long chatId;
+
+    private String login;
+
     private String firstName;
 
     private String lastName;
 
     private String middleName;
 
-    private Date birthDate;
-
-    private Long userId;
-
-    private Long chatId;
-
-    private Gender gender;
-
-    private String login;
-
     private String email;
 
-    public Long getChatId() {
-        return chatId;
-    }
+    private Date birthDate;
 
-    public void setChatId(Long chatId) {
-        this.chatId = chatId;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    private Gender gender;
 
     public Person() {
     }
@@ -71,28 +39,36 @@ public class Person implements Serializable {
         this.middleName = middleName;
     }
 
-    public void setGender(Gender gender) {
-        this.gender = gender;
-    }
-
-    public Gender getGender() {
-        return gender;
-    }
-
-    public Date getBirthDate() {
-        return birthDate;
-    }
-
-    public void setBirthDate(Date birthDate) {
-        this.birthDate = birthDate;
-    }
-
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getChatId() {
+        return chatId;
+    }
+
+    public void setChatId(Long chatId) {
+        this.chatId = chatId;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
     }
 
     public String getFirstName() {
@@ -119,9 +95,33 @@ public class Person implements Serializable {
         this.middleName = middleName;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Date getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(Date birthDate) {
+        this.birthDate = birthDate;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
+
     public SimpleReminder getSimpleReminderById(Long id, List<SimpleReminder> simpleReminders) {
         for (SimpleReminder reminder : BotUtils.getActiveRemindersList(simpleReminders)) {
-            if (reminder.getComplete() == null || !reminder.getComplete())
+            if (reminder.isComplete() == null || !reminder.isComplete())
                 if (reminder.getId().equals(id)) return reminder;
         }
         return null;

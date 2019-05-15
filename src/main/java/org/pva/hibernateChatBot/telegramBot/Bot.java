@@ -39,7 +39,6 @@ public class Bot extends AbilityBot {
     private static final String BOT_TOKEN = System.getenv("TELEGRAM_TOKEN");
     private static final String BOT_USERNAME = "ReminderVxBot";
     private static final Integer BOT_CREATOR_ID = Integer.valueOf(System.getenv("BOT_CREATOR_ID"));
-    //    private final PersonDao personDao;
     private final Map<String, Map<String, String>> editReminderMap = db.getMap(ConstantStorage.DBNS_EDIT_REMINDER);
     private final Map<String, Long> currentReminderIdsMap = db.getMap(ConstantStorage.DBNS_CURRENT_REMINDER_IDS);
 
@@ -49,7 +48,6 @@ public class Bot extends AbilityBot {
 
     public Bot() {
         super(BOT_TOKEN, BOT_USERNAME);
-//        personDao = new PersonDao(sessionFactory);
     }
 
     @Override
@@ -192,7 +190,7 @@ public class Bot extends AbilityBot {
                     String message = EmojiParser.parseToUnicode(":calendar: Список напоминаний (/addsimplereminder):\n");
                     List<SimpleReminder> reminderList = new ArrayList<>();
                     if (remindersMap.containsKey(ctx.user().getId().toString()))
-                        reminderList = remindersMap.get(ctx.user().getId().toString()).stream().filter(c -> c.getComplete() == null || !c.getComplete()).collect(Collectors.toList());
+                        reminderList = remindersMap.get(ctx.user().getId().toString()).stream().filter(c -> c.isComplete() == null || !c.isComplete()).collect(Collectors.toList());
 
                     Collections.sort(reminderList, (o1, o2) -> o2.getRemindDate().compareTo(o1.getRemindDate()));
                     for (SimpleReminder reminder : reminderList) {
@@ -552,7 +550,7 @@ public class Bot extends AbilityBot {
 
         for (String personId : remindersMap.keySet()) {
             for (SimpleReminder simpleReminder : remindersMap.get(personId)) {
-                if (simpleReminder.getComplete()) continue;
+                if (simpleReminder.isComplete()) continue;
                 LocalDateTime remDateTime = LocalDateTime.fromDateFields(simpleReminder.getRemindDate());
                 if (remDateTime.compareTo(horizon) <= 0) {
                     StringBuilder stringBuilder = new StringBuilder();
