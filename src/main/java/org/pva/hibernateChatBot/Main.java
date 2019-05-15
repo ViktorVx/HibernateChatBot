@@ -11,7 +11,7 @@ public class Main {
 
     private static final SessionFactory ourSessionFactory;
 //    private static Integer MAIN_TASK_PERIOD = 3600000;
-    private static Integer MAIN_TASK_PERIOD = 60000;
+    private static Integer MAIN_TASK_PERIOD = 10000;
 
     static {
         try {
@@ -40,11 +40,11 @@ public class Main {
     }
 
     private static void runReminderCreator(Bot bot) {
-        bot.mainShedulledTask(MAIN_TASK_PERIOD);
+        bot.mainSheduledTask(MAIN_TASK_PERIOD);
         Thread reminderCreator = new Thread(() -> {
             while (true) {
                 try {
-                    bot.mainShedulledTask(MAIN_TASK_PERIOD);
+                    bot.mainSheduledTask(MAIN_TASK_PERIOD);
                     Thread.sleep(MAIN_TASK_PERIOD);
                 } catch (InterruptedException ex) {
                 }

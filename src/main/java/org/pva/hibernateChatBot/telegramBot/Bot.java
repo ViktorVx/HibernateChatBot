@@ -43,7 +43,7 @@ public class Bot extends AbilityBot {
     private static final String BOT_TOKEN = System.getenv("TELEGRAM_TOKEN");
     private static final String BOT_USERNAME = "ReminderVxBot";
     private static final Integer BOT_CREATOR_ID = Integer.valueOf(System.getenv("BOT_CREATOR_ID"));
-//    private final PersonDao personDao;
+    //    private final PersonDao personDao;
     private final Map<String, Map<String, String>> editReminderMap = db.getMap(ConstantStorage.DBNS_EDIT_REMINDER);
     private final Map<String, Long> currentReminderIdsMap = db.getMap(ConstantStorage.DBNS_CURRENT_REMINDER_IDS);
 
@@ -199,9 +199,9 @@ public class Bot extends AbilityBot {
                     //***
                     List<SimpleReminder> reminderList = new ArrayList<>();
                     if (remindersMap.containsKey(ctx.user().getId().toString()))
-                        reminderList = remindersMap.get(ctx.user().getId().toString()).stream().filter(c-> c.getComplete() == null || !c.getComplete()).collect(Collectors.toList());
+                        reminderList = remindersMap.get(ctx.user().getId().toString()).stream().filter(c -> c.getComplete() == null || !c.getComplete()).collect(Collectors.toList());
 
-                    Collections.sort(reminderList, Comparator.comparing(o -> ((SimpleReminder) o).getRemindDate()));
+                    Collections.sort(reminderList, (o1, o2) -> o2.getRemindDate().compareTo(o1.getRemindDate()));
                     for (SimpleReminder reminder : reminderList) {
                         SimpleReminder simpleReminder = reminder;
                         message = message.concat(String.format("/".concat(ConstantStorage.PREFIX_REMINDERS_LIST).concat("%d %s %s - %s\n"),
@@ -304,7 +304,7 @@ public class Bot extends AbilityBot {
                     currentReminderIdsMap.put(String.valueOf(upd.getCallbackQuery().getFrom().getId()), simpleReminder.getId());
                     EditReminderView.editNewReminderTime(chatId, sender);
                     break;
-                case ConstantStorage.CBD_EDIT_REMINDER_CLOSE:
+                case ConstantStorage.CBD_EDIT_REMINDER_CLOSE: //todo не работает
                     simpleReminder = EditReminderView.getSimpleReminderFromMessage(person, remindersMap.get(personId),
                             upd.getCallbackQuery().getMessage().getText());
                     if (simpleReminder == null) return;
@@ -313,7 +313,7 @@ public class Bot extends AbilityBot {
                     personsMap.put(personId, person);
                     EditReminderView.successCompleteReminder(chatId, simpleReminder, sender);
                     break;
-                case ConstantStorage.CBD_EDIT_REMINDER_DELETE:
+                case ConstantStorage.CBD_EDIT_REMINDER_DELETE: //todo не работает
                     simpleReminder = EditReminderView.getSimpleReminderFromMessage(person, remindersMap.get(personId),
                             upd.getCallbackQuery().getMessage().getText());
                     if (simpleReminder == null) return;
@@ -322,7 +322,7 @@ public class Bot extends AbilityBot {
                     personsMap.put(personId, person);
                     EditReminderView.successDeleteReminder(chatId, simpleReminder, sender);
                     break;
-                case ConstantStorage.CBD_EDIT_REMINDER_BACK_BUTTON:
+                case ConstantStorage.CBD_EDIT_REMINDER_BACK_BUTTON: //todo не работает
                     EditReminderView.viewRemindersList(person, upd, sender);
                     break;
                 case ConstantStorage.CBD_EDIT_REMINDER_DELAY:
@@ -569,24 +569,15 @@ public class Bot extends AbilityBot {
 
     //*** REMINDER SCHEDULED CREATION ***********************************************************************************
 
-    public void mainShedulledTask(Integer horizontLength) {
-//        List<Person> personList = personDao.getAll();
-//        List<Person> personList = new ArrayList<>();
-        List<Person> personList = new ArrayList<>(); //todo ПРОТЕТСИРОВАТЬ ВСЕ!!! КНОПКИ, ССЫЛКИ, ВВОД ТЕКСТА, НАПОМИНАНИЯ ПО ВРЕМЕНИ
-        for (String personId : personsMap.keySet()) {
-            Person person = personsMap.get(personId);
-            personList.add(person);
-        }
-
+    public void mainSheduledTask(Integer horizonLength) {
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime horizont = now.plusMillis(horizontLength);
+        LocalDateTime horizon = now.plusMillis(horizonLength);
 
-        for (Person person : personList) {
-            for (Reminder reminder : person.getReminderList()) {
-                SimpleReminder simpleReminder = (SimpleReminder) reminder;
+        for (String personId : remindersMap.keySet()) {
+            for (SimpleReminder simpleReminder : remindersMap.get(personId)) {
                 if (simpleReminder.getComplete()) continue;
                 LocalDateTime remDateTime = LocalDateTime.fromDateFields(simpleReminder.getRemindDate());
-                if (remDateTime.compareTo(horizont) <= 0) {
+                if (remDateTime.compareTo(horizon) <= 0) {
                     StringBuilder stringBuilder = new StringBuilder();
                     stringBuilder.append(String.format("Напоминание /%s%s:\n",
                             ConstantStorage.PREFIX_REMINDERS_LIST,
@@ -596,10 +587,10 @@ public class Bot extends AbilityBot {
                     Long delay = simpleReminder.getRemindDate().getTime() - now.toDate().getTime();
                     Thread remThread = new Thread(() -> {
                         try {
-                            Thread.sleep(delay <= 0 ? horizontLength : delay);
+                            Thread.sleep(delay <= 0 ? horizonLength : delay);
                             sender.execute(new SendMessage().
                                     setText(stringBuilder.toString()).
-                                    setChatId(person.getUserId()).setReplyMarkup(KeyboardFactory.getCloseReminderKeyboard()));
+                                    setChatId(personsMap.get(personId).getUserId()).setReplyMarkup(KeyboardFactory.getCloseReminderKeyboard()));
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         } catch (TelegramApiException e) {
@@ -608,7 +599,6 @@ public class Bot extends AbilityBot {
                     }
                     );
                     remThread.start();
-
                 }
             }
         }

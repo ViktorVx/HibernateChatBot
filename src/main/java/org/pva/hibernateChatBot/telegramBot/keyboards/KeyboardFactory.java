@@ -71,6 +71,8 @@ public class KeyboardFactory {
         rowInline.add(new InlineKeyboardButton().setText("Регистрационные данные").setCallbackData(ConstantStorage.CBD_EDIT_REGISTER_DATA));
         rowsInline.add(rowInline);
 
+        //todo add backbutton!
+
         inlineKeyboard.setKeyboard(rowsInline);
         return inlineKeyboard;
     }
@@ -124,11 +126,11 @@ public class KeyboardFactory {
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
 
         List<InlineKeyboardButton> rowInline = new ArrayList<>();
-        rowInline.add(new InlineKeyboardButton().setText(EmojiParser.parseToUnicode(":white_check_mark: Выполнить")).
+        rowInline.add(new InlineKeyboardButton().setText(EmojiParser.parseToUnicode(":white_check_mark: Выполнить")). //todo не рабоатет
                 setCallbackData(ConstantStorage.CBD_EDIT_REMINDER_CLOSE));
-        rowInline.add(new InlineKeyboardButton().setText(EmojiParser.parseToUnicode(":x: Удалить")).
+        rowInline.add(new InlineKeyboardButton().setText(EmojiParser.parseToUnicode(":x: Удалить")). //todo не рабоатет
                 setCallbackData(ConstantStorage.CBD_EDIT_REMINDER_DELETE));
-        rowInline.add(new InlineKeyboardButton().setText(EmojiParser.parseToUnicode(":stopwatch: Отложить")).
+        rowInline.add(new InlineKeyboardButton().setText(EmojiParser.parseToUnicode(":stopwatch: Отложить")). //todo не рабоатет
                 setCallbackData(ConstantStorage.CBD_EDIT_REMINDER_DELAY));
         rowsInline.add(rowInline);
 
