@@ -163,10 +163,11 @@ public class Person implements Serializable {
                 filter(rmd -> rmd.getComplete()==null ? true : !rmd.getComplete()).collect(Collectors.toList());
     }
 
-    public SimpleReminder getSimpleReminderById(Long id) {
-        List<Reminder> reminderList = getActiveRimindersList();
-        for (Reminder reminder : reminderList) {
-            if (reminder.getId().equals(id)) return (SimpleReminder) reminder;
+    public SimpleReminder getSimpleReminderById(Long id, List<SimpleReminder> simpleReminders) {
+//        List<Reminder> reminderList = getActiveRimindersList();
+        for (SimpleReminder reminder : simpleReminders) {
+            if (reminder.getComplete() == null || !reminder.getComplete())
+                if (reminder.getId().equals(id)) return reminder;
         }
         return null;
     }

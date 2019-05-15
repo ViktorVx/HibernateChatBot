@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 
 public class EditReminderView {
 
-    public static SimpleReminder getSimpleReminderFromMessage(Person person, String msg) {
+    public static SimpleReminder getSimpleReminderFromMessage(Person person, List<SimpleReminder> simpleReminders, String msg) {
         Pattern pattern = Pattern.compile("/".concat(ConstantStorage.PREFIX_REMINDERS_LIST).concat("([0-9]+)"));
         Matcher matcher = pattern.matcher(msg);
         Long remId = null;
@@ -32,7 +32,7 @@ public class EditReminderView {
                 return null;
             }
         }
-        return person.getSimpleReminderById(remId);
+        return person.getSimpleReminderById(remId, simpleReminders);
     }
 
     public static void successCompleteReminder(long chatId, SimpleReminder simpleReminder, MessageSender sender) {
