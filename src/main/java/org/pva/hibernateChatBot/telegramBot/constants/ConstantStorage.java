@@ -23,6 +23,7 @@ public class ConstantStorage {
 
     public static final String CBD_EDIT_PERSON_DATA = "cbd_person_data";
     public static final String CBD_EDIT_REGISTER_DATA = "cbd_register_data";
+    public static final String CBD_MAIN_MENU = "cbd_main_menu";
 
     public static final String CBD_EDIT_LAST_NAME = "cbd_last_name";
     public static final String CBD_EDIT_FIRST_NAME = "cbd_first_name";

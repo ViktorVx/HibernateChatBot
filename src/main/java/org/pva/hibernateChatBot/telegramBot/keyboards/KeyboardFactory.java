@@ -71,7 +71,10 @@ public class KeyboardFactory {
         rowInline.add(new InlineKeyboardButton().setText("Регистрационные данные").setCallbackData(ConstantStorage.CBD_EDIT_REGISTER_DATA));
         rowsInline.add(rowInline);
 
-        //todo add backbutton!
+        rowInline = new ArrayList<>();
+        rowInline.add(new InlineKeyboardButton().setText(EmojiParser.parseToUnicode(":arrow_upper_left: Главное меню")).setCallbackData(ConstantStorage.CBD_MAIN_MENU));
+        rowsInline.add(rowInline);
+        //todo доделать обработчик кнопки
 
         inlineKeyboard.setKeyboard(rowsInline);
         return inlineKeyboard;
