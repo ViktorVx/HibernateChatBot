@@ -1,57 +1,34 @@
 package org.pva.hibernateChatBot.entity.person;
 
 import org.pva.hibernateChatBot.entity.enums.Gender;
-import org.pva.hibernateChatBot.entity.reminder.Reminder;
 import org.pva.hibernateChatBot.entity.reminder.simpleReminder.SimpleReminder;
 import org.pva.hibernateChatBot.telegramBot.utils.BotUtils;
 
-import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@Entity
-@Table(indexes = {@Index(columnList = "userid", name = "user_id_hidx")})
 public class Person implements Serializable {
 
-    @Id
-    @GeneratedValue
     private Long id;
 
-    @Column
     private String firstName;
 
-    @Column(nullable = false)
     private String lastName;
 
-    @Column
     private String middleName;
 
-    @Column
     private Date birthDate;
 
-    @Column(unique = true, nullable = false)
     private Long userId;
 
-    @Column(unique = true, nullable = false)
     private Long chatId;
 
-    @Column
-    @Enumerated(EnumType.ORDINAL)
     private Gender gender;
 
-    @Column(unique = true)
     private String login;
 
-    @Column
-    private String password;
-
-    @Column(unique = true)
     private String email;
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Reminder> reminderList = new ArrayList<Reminder>();
 
     public Long getChatId() {
         return chatId;
@@ -69,28 +46,12 @@ public class Person implements Serializable {
         this.userId = userId;
     }
 
-    public List<Reminder> getReminderList() {
-        return reminderList;
-    }
-
-    public void setReminderList(List<Reminder> reminderList) {
-        this.reminderList = reminderList;
-    }
-
     public String getLogin() {
         return login;
     }
 
     public void setLogin(String login) {
         this.login = login;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getEmail() {

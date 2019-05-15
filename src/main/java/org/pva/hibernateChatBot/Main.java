@@ -1,7 +1,5 @@
 package org.pva.hibernateChatBot;
 
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
 import org.pva.hibernateChatBot.telegramBot.Bot;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -9,22 +7,11 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
 public class Main {
 
-    private static final SessionFactory ourSessionFactory;
     private static Integer MAIN_TASK_PERIOD = 3600000;
 //    private static Integer MAIN_TASK_PERIOD = 60000;
 
-    static {
-        try {
-            Configuration configuration = new Configuration();
-            configuration.configure();
-            ourSessionFactory = configuration.buildSessionFactory();
-        } catch (Throwable ex) {
-            throw new ExceptionInInitializerError(ex);
-        }
-    }
-
     public static void main(final String[] args) {
-        Bot bot = new Bot(ourSessionFactory);
+        Bot bot = new Bot();
         runBot(bot);
         runReminderCreator(bot);
     }

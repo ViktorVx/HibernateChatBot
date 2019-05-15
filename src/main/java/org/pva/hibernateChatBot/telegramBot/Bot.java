@@ -1,15 +1,12 @@
 package org.pva.hibernateChatBot.telegramBot;
 
 import com.vdurmont.emoji.EmojiParser;
-import org.hibernate.SessionFactory;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.pva.hibernateChatBot.entity.enums.Gender;
 import org.pva.hibernateChatBot.entity.person.Person;
-import org.pva.hibernateChatBot.entity.person.PersonDao;
-import org.pva.hibernateChatBot.entity.reminder.Reminder;
 import org.pva.hibernateChatBot.entity.reminder.simpleReminder.SimpleReminder;
 import org.pva.hibernateChatBot.telegramBot.constants.ConstantStorage;
 import org.pva.hibernateChatBot.telegramBot.keyboards.KeyboardFactory;
@@ -36,7 +33,6 @@ import java.util.stream.Collectors;
 import static org.telegram.abilitybots.api.objects.Locality.ALL;
 import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
 import static org.telegram.abilitybots.api.util.AbilityUtils.getChatId;
-import static org.telegram.abilitybots.api.util.AbilityUtils.isSuperGroupUpdate;
 
 public class Bot extends AbilityBot {
 
@@ -51,7 +47,7 @@ public class Bot extends AbilityBot {
     private final Map<String, List<SimpleReminder>> remindersMap = db.getMap(ConstantStorage.DBNS_SIMPLE_REMINDERS);
     private final Map<String, Long> remindersLastIndexMap = db.getMap(ConstantStorage.DBNS_REMINDERS_LAST_INDEX);
 
-    public Bot(SessionFactory sessionFactory) {
+    public Bot() {
         super(BOT_TOKEN, BOT_USERNAME);
 //        personDao = new PersonDao(sessionFactory);
     }
@@ -193,10 +189,7 @@ public class Bot extends AbilityBot {
                 .locality(ALL)
                 .privacy(PUBLIC)
                 .action(ctx -> {
-//                    Person person = personDao.findByUserId((long) ctx.user().getId());
-
                     String message = EmojiParser.parseToUnicode(":calendar: Список напоминаний (/addsimplereminder):\n");
-                    //***
                     List<SimpleReminder> reminderList = new ArrayList<>();
                     if (remindersMap.containsKey(ctx.user().getId().toString()))
                         reminderList = remindersMap.get(ctx.user().getId().toString()).stream().filter(c -> c.getComplete() == null || !c.getComplete()).collect(Collectors.toList());

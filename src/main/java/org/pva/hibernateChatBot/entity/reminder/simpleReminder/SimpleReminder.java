@@ -3,14 +3,10 @@ package org.pva.hibernateChatBot.entity.reminder.simpleReminder;
 import org.pva.hibernateChatBot.entity.person.Person;
 import org.pva.hibernateChatBot.entity.reminder.Reminder;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
 import java.util.Date;
 
-@Entity(name = "SimpleReminder")
 public class SimpleReminder extends Reminder {
 
-    @Column
     Date remindDate;
 
     public Date getRemindDate() {
@@ -24,7 +20,7 @@ public class SimpleReminder extends Reminder {
     public SimpleReminder() {
     }
 
-    public SimpleReminder(Person person, Date creationDate, String text, Date remindDate) {
+    public SimpleReminder(Date creationDate, String text, Date remindDate) {
         super(creationDate, text);
         this.remindDate = remindDate;
     }
