@@ -1,11 +1,12 @@
 package org.pva.hibernateChatBot.telegramBot.views;
 
 import com.vdurmont.emoji.EmojiParser;
-import org.pva.hibernateChatBot.telegramBot.constants.ConstantStorage;
 import org.pva.hibernateChatBot.entity.person.Person;
 import org.pva.hibernateChatBot.entity.reminder.Reminder;
 import org.pva.hibernateChatBot.entity.reminder.simpleReminder.SimpleReminder;
+import org.pva.hibernateChatBot.telegramBot.constants.ConstantStorage;
 import org.pva.hibernateChatBot.telegramBot.keyboards.KeyboardFactory;
+import org.pva.hibernateChatBot.telegramBot.utils.BotUtils;
 import org.telegram.abilitybots.api.sender.MessageSender;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -16,23 +17,19 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class EditReminderView {
 
-    public static SimpleReminder getSimpleReminderFromMessage(Person person, List<SimpleReminder> simpleReminders, String msg) {
-        Pattern pattern = Pattern.compile("/".concat(ConstantStorage.PREFIX_REMINDERS_LIST).concat("([0-9]+)"));
-        Matcher matcher = pattern.matcher(msg);
-        Long remId = null;
-        if (matcher.find()) {
-            try {
-                remId = Long.valueOf(matcher.group(1));
-            } catch (Exception e) {
-                return null;
+    public static SimpleReminder getSimpleReminderFromMessage(String personId, List<SimpleReminder> simpleReminderList, String msg) {
+        SimpleReminder simpleReminder = null;
+        Long remId = BotUtils.getReminderIdFromText(msg);
+        for (SimpleReminder reminder : simpleReminderList) {
+            if (reminder.getId().equals(remId)) {
+                simpleReminder = reminder;
+                break;
             }
         }
-        return person.getSimpleReminderById(remId, simpleReminders);
+        return simpleReminder;
     }
 
     public static void successCompleteReminder(long chatId, SimpleReminder simpleReminder, MessageSender sender) {
@@ -57,9 +54,8 @@ public class EditReminderView {
         }
     }
 
-    public static void viewRemindersList(Person person, Update upd, MessageSender sender) {
+    public static void viewRemindersList(Person person, Update upd, List<SimpleReminder> reminderList, MessageSender sender) {
         String message = EmojiParser.parseToUnicode(":calendar: Список напоминаний (/addsimplereminder):\n");
-        List<Reminder> reminderList = person.getActiveRimindersList();
         Collections.sort(reminderList, Comparator.comparing(o -> ((SimpleReminder) o).getRemindDate()));
         for (Reminder reminder : reminderList) {
             SimpleReminder simpleReminder = (SimpleReminder) reminder;

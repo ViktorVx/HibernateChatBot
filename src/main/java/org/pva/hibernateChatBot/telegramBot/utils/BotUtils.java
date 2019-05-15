@@ -1,5 +1,6 @@
 package org.pva.hibernateChatBot.telegramBot.utils;
 
+import org.pva.hibernateChatBot.entity.reminder.simpleReminder.SimpleReminder;
 import org.pva.hibernateChatBot.telegramBot.constants.ConstantStorage;
 
 import java.text.ParseException;
@@ -7,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class BotUtils {
 
@@ -48,5 +50,25 @@ public class BotUtils {
         resMap.put("hours", hours);
         resMap.put("minutes", minutes);
         return resMap;
+    }
+
+    public static long getReminderIdFromText(String text) {
+        Pattern pattern = Pattern.compile("/".concat(ConstantStorage.PREFIX_REMINDERS_LIST).concat("([0-9]+)"));
+        Matcher matcher = pattern.matcher(text);
+        Long remId = null;
+        if (matcher.find()) {
+            try {
+                remId = Long.valueOf(matcher.group(1));
+            } catch (Exception e) {
+                return 0;
+            }
+        }
+        return remId;
+    }
+
+    public static List<SimpleReminder> getActiveRemindersList(List<SimpleReminder> simpleReminders) {
+        return simpleReminders.stream().
+                filter(rmd -> rmd.getComplete() == null || !rmd.getComplete()).collect(Collectors.toList());
+
     }
 }

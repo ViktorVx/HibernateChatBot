@@ -225,9 +225,9 @@ public class Bot extends AbilityBot {
 
     public Reply replyToButtons() {
         Consumer<Update> action = upd -> {
-//            Person person = personDao.findByUserId((long) upd.getCallbackQuery().getFrom().getId());
             String personId = upd.getCallbackQuery().getFrom().getId().toString();
             Person person = personsMap.get(personId);
+            List<SimpleReminder> simpleReminderList = remindersMap.get(personId);
             SimpleReminder simpleReminder;
             //****************************************************
             long chatId = getChatId(upd);
@@ -267,69 +267,68 @@ public class Bot extends AbilityBot {
                     break;
                 case ConstantStorage.CBD_MALE_GENDER_SELECT:
                     person.setGender(Gender.MALE);
-//                    personDao.update(person);
                     personsMap.put(personId, person);
                     EditPersonRegisterDataView.replyToEditRegisterData(upd, person, sender);
                     break;
                 case ConstantStorage.CBD_FEMALE_GENDER_SELECT:
                     person.setGender(Gender.FEMALE);
-//                    personDao.update(person);
                     personsMap.put(personId, person);
                     EditPersonRegisterDataView.replyToEditRegisterData(upd, person, sender);
                     break;
                 case ConstantStorage.CBD_OTHER_GENDER_SELECT:
                     person.setGender(Gender.UNKNOWN);
-//                    personDao.update(person);
                     personsMap.put(personId, person);
                     EditPersonRegisterDataView.replyToEditRegisterData(upd, person, sender);
                     break;
                 case ConstantStorage.CBD_EDIT_REMINDER_TEXT:
-                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(person, remindersMap.get(personId),
+                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(personId, simpleReminderList,
                             upd.getCallbackQuery().getMessage().getText());
                     if (simpleReminder == null) return;
                     currentReminderIdsMap.put(String.valueOf(upd.getCallbackQuery().getFrom().getId()), simpleReminder.getId());
                     EditReminderView.editNewReminderText(chatId, sender);
                     break;
                 case ConstantStorage.CBD_EDIT_REMINDER_DATE:
-                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(person, remindersMap.get(personId),
+                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(personId, simpleReminderList,
                             upd.getCallbackQuery().getMessage().getText());
                     if (simpleReminder == null) return;
                     currentReminderIdsMap.put(String.valueOf(upd.getCallbackQuery().getFrom().getId()), simpleReminder.getId());
                     EditReminderView.editNewReminderDate(chatId, sender);
                     break;
                 case ConstantStorage.CBD_EDIT_REMINDER_TIME:
-                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(person, remindersMap.get(personId),
+                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(personId, simpleReminderList,
                             upd.getCallbackQuery().getMessage().getText());
                     if (simpleReminder == null) return;
                     currentReminderIdsMap.put(String.valueOf(upd.getCallbackQuery().getFrom().getId()), simpleReminder.getId());
                     EditReminderView.editNewReminderTime(chatId, sender);
                     break;
-                case ConstantStorage.CBD_EDIT_REMINDER_CLOSE: //todo не работает
-                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(person, remindersMap.get(personId),
+                case ConstantStorage.CBD_EDIT_REMINDER_CLOSE:
+                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(personId, simpleReminderList,
                             upd.getCallbackQuery().getMessage().getText());
-                    if (simpleReminder == null) return;
-                    simpleReminder.setComplete(true);
-//                    personDao.update(person);
-                    personsMap.put(personId, person);
-                    EditReminderView.successCompleteReminder(chatId, simpleReminder, sender);
+                    if (simpleReminder != null) {
+                        simpleReminder.setComplete(true);
+                        remindersMap.put(personId, simpleReminderList);
+                        EditReminderView.successCompleteReminder(chatId, simpleReminder, sender);
+                    }
                     break;
-                case ConstantStorage.CBD_EDIT_REMINDER_DELETE: //todo не работает
-                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(person, remindersMap.get(personId),
+                case ConstantStorage.CBD_EDIT_REMINDER_DELETE:
+                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(personId, simpleReminderList,
                             upd.getCallbackQuery().getMessage().getText());
-                    if (simpleReminder == null) return;
-                    person.getReminderList().remove(simpleReminder);
-//                    personDao.update(person);
-                    personsMap.put(personId, person);
-                    EditReminderView.successDeleteReminder(chatId, simpleReminder, sender);
+                    if (simpleReminder != null) {
+                        simpleReminderList.remove(simpleReminder);
+                        remindersMap.put(personId, simpleReminderList);
+                        EditReminderView.successDeleteReminder(chatId, simpleReminder, sender);
+                    }
                     break;
-                case ConstantStorage.CBD_EDIT_REMINDER_BACK_BUTTON: //todo не работает
-                    EditReminderView.viewRemindersList(person, upd, sender);
+                case ConstantStorage.CBD_EDIT_REMINDER_BACK_BUTTON:
+                    simpleReminderList = BotUtils.getActiveRemindersList(remindersMap.get(personId));
+                    EditReminderView.viewRemindersList(person, upd, simpleReminderList, sender);
                     break;
                 case ConstantStorage.CBD_EDIT_REMINDER_DELAY:
-                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(person, remindersMap.get(personId),
+                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(personId, simpleReminderList,
                             upd.getCallbackQuery().getMessage().getText());
-                    if (simpleReminder == null) return;
-                    EditReminderView.viewSelectReminder(simpleReminder, upd, sender);
+                    if (simpleReminder != null) {
+                        EditReminderView.viewSelectReminder(simpleReminder, upd, sender);
+                    }
                     break;
             }
             //****************************************************
@@ -340,7 +339,6 @@ public class Bot extends AbilityBot {
     public Reply replyToMsg() {
         Consumer<Update> action = upd -> {
             String personId = upd.getMessage().getFrom().getId().toString();
-//            Person person = personDao.findByUserId((long) upd.getMessage().getFrom().getId());
             Person person = personsMap.get(personId);
             long userId = upd.getMessage().getFrom().getId();
             long chatId = upd.getMessage().getChatId();
@@ -359,20 +357,17 @@ public class Bot extends AbilityBot {
             switch (msg) {
                 case ConstantStorage.MSG_EDIT_PERSON_LAST_NAME:
                     person.setLastName(message.getText());
-//                    personDao.update(person);
                     personsMap.put(personId, person);
                     db.commit();
                     EditPersonalDataView.replyToEditPersonalData(upd, person, sender);
                     break;
                 case ConstantStorage.MSG_EDIT_PERSON_FIRST_NAME:
                     person.setFirstName(message.getText());
-//                    personDao.update(person);
                     personsMap.put(personId, person);
                     EditPersonalDataView.replyToEditPersonalData(upd, person, sender);
                     break;
                 case ConstantStorage.MSG_EDIT_PERSON_MIDDLE_NAME:
                     person.setMiddleName(message.getText());
-//                    personDao.update(person);
                     personsMap.put(personId, person);
                     EditPersonalDataView.replyToEditPersonalData(upd, person, sender);
                     break;
@@ -387,7 +382,6 @@ public class Bot extends AbilityBot {
                             e.printStackTrace();
                         }
                     }
-//                    personDao.update(person);
                     personsMap.put(personId, person);
                     EditPersonRegisterDataView.replyToEditRegisterData(upd, person, sender);
                     break;
@@ -403,7 +397,6 @@ public class Bot extends AbilityBot {
                             e.printStackTrace();
                         }
                     }
-//                    personDao.update(person);
                     personsMap.put(personId, person);
                     EditPersonRegisterDataView.replyToEditRegisterData(upd, person, sender);
                     break;
@@ -465,12 +458,7 @@ public class Bot extends AbilityBot {
 
                         simpleReminder.setId(remindersLastIndexMap.get(personId) + 1);
                         remindersLastIndexMap.compute(personId, (k, ind) -> ind + 1);
-//                        remindersLastIndexMap.put(personId,
-//                                remindersLastIndexMap.get(personId) + 1);
 
-//                        person.getReminderList().add(simpleReminder);
-//                        personDao.update(person);
-//                        personsMap.put(personId, person);
                         List<SimpleReminder> simpleReminderList;
                         if (!remindersMap.containsKey(personId)) {
                             simpleReminderList = new ArrayList<>();
@@ -494,7 +482,6 @@ public class Bot extends AbilityBot {
                     simpleReminder = person.getSimpleReminderById(currentReminderIdsMap.get(String.valueOf(upd.getMessage().getFrom().getId())),
                             remindersMap.get(personId));
                     simpleReminder.setText(upd.getMessage().getText());
-//                    personDao.update(person);
                     personsMap.put(personId, person);
                     EditReminderView.viewSelectReminder(simpleReminder, upd, sender);
                     break;
@@ -512,7 +499,6 @@ public class Bot extends AbilityBot {
                         }
                         simpleReminder.setRemindDate(localDateTime.toDate());
                     }
-//                    personDao.update(person);
                     personsMap.put(personId, person);
                     EditReminderView.viewSelectReminder(simpleReminder, upd, sender);
                     break;
@@ -527,7 +513,6 @@ public class Bot extends AbilityBot {
                                 localDateTime.getDayOfMonth(), dateMap.get("hours"), dateMap.get("minutes"));
                         simpleReminder.setRemindDate(localDateTime.toDate());
                     }
-//                    personDao.update(person);
                     personsMap.put(personId, person);
                     EditReminderView.viewSelectReminder(simpleReminder, upd, sender);
                     break;
@@ -539,7 +524,6 @@ public class Bot extends AbilityBot {
 
     public Reply replyToReminderSelection() {
         Consumer<Update> action = upd -> {
-//            Person person = personDao.findByUserId((long) upd.getMessage().getFrom().getId());
             String personId = upd.getMessage().getFrom().getId().toString();
             Person person = personsMap.get(personId);
             Long id = Long.valueOf(upd.getMessage().getText().replace("/".concat(ConstantStorage.PREFIX_REMINDERS_LIST), ""));

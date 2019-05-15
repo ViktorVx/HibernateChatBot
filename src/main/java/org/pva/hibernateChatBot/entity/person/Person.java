@@ -3,13 +3,13 @@ package org.pva.hibernateChatBot.entity.person;
 import org.pva.hibernateChatBot.entity.enums.Gender;
 import org.pva.hibernateChatBot.entity.reminder.Reminder;
 import org.pva.hibernateChatBot.entity.reminder.simpleReminder.SimpleReminder;
+import org.pva.hibernateChatBot.telegramBot.utils.BotUtils;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(indexes = {@Index(columnList = "userid", name = "user_id_hidx")})
@@ -158,14 +158,8 @@ public class Person implements Serializable {
         this.middleName = middleName;
     }
 
-    public List<Reminder> getActiveRimindersList() {
-        return getReminderList().stream().
-                filter(rmd -> rmd.getComplete()==null ? true : !rmd.getComplete()).collect(Collectors.toList());
-    }
-
     public SimpleReminder getSimpleReminderById(Long id, List<SimpleReminder> simpleReminders) {
-//        List<Reminder> reminderList = getActiveRimindersList();
-        for (SimpleReminder reminder : simpleReminders) {
+        for (SimpleReminder reminder : BotUtils.getActiveRemindersList(simpleReminders)) {
             if (reminder.getComplete() == null || !reminder.getComplete())
                 if (reminder.getId().equals(id)) return reminder;
         }
