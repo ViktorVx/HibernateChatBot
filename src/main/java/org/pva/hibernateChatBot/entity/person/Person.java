@@ -5,6 +5,7 @@ import org.pva.hibernateChatBot.entity.reminder.Reminder;
 import org.pva.hibernateChatBot.entity.reminder.simpleReminder.SimpleReminder;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.stream.Collectors;
 
 @Entity
 @Table(indexes = {@Index(columnList = "userid", name = "user_id_hidx")})
-public class Person {
+public class Person implements Serializable {
 
     @Id
     @GeneratedValue

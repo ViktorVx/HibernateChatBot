@@ -31,26 +31,29 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static org.telegram.abilitybots.api.objects.Locality.ALL;
 import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
 import static org.telegram.abilitybots.api.util.AbilityUtils.getChatId;
+import static org.telegram.abilitybots.api.util.AbilityUtils.isSuperGroupUpdate;
 
 public class Bot extends AbilityBot {
 
     private static final String BOT_TOKEN = System.getenv("TELEGRAM_TOKEN");
     private static final String BOT_USERNAME = "ReminderVxBot";
     private static final Integer BOT_CREATOR_ID = Integer.valueOf(System.getenv("BOT_CREATOR_ID"));
-    private final PersonDao personDao;
+//    private final PersonDao personDao;
     private final Map<String, Map<String, String>> editReminderMap = db.getMap(ConstantStorage.DBNS_EDIT_REMINDER);
     private final Map<String, Long> currentReminderIdsMap = db.getMap(ConstantStorage.DBNS_CURRENT_REMINDER_IDS);
 
-    private final Map<String, Map<String, String>> personsMap = db.getMap(ConstantStorage.DBNS_PERSONS);
-    private final Map<String, List<Map<String, String>>> remindersMap = db.getMap(ConstantStorage.DBNS_SIMPLE_REMINDERS);
+    private final Map<String, Person> personsMap = db.getMap(ConstantStorage.DBNS_PERSONS);
+    private final Map<String, List<SimpleReminder>> remindersMap = db.getMap(ConstantStorage.DBNS_SIMPLE_REMINDERS);
+    private final Map<String, Long> remindersLastIndexMap = db.getMap(ConstantStorage.DBNS_REMINDERS_LAST_INDEX);
 
     public Bot(SessionFactory sessionFactory) {
         super(BOT_TOKEN, BOT_USERNAME);
-        personDao = new PersonDao(sessionFactory);
+//        personDao = new PersonDao(sessionFactory);
     }
 
     @Override
@@ -81,15 +84,16 @@ public class Bot extends AbilityBot {
 //                    }
 
                     User user = ctx.user();
-                    if (!personsMap.containsKey(user.getId().toString())) {
-                        Map<String, String> map = new HashMap<>();
-                        map.put("userId", String.valueOf(user.getId()));
-                        map.put("chatId", String.valueOf(ctx.chatId()));
-                        map.put("firstName", String.valueOf(user.getFirstName()));
-                        map.put("lastName", String.valueOf(user.getLastName()));
-                        map.put("login", user.getUserName().concat("@").concat(String.valueOf(user.getId())));
-
-                        personsMap.put(user.getId().toString(), map);
+                    String personId = ctx.user().getId().toString();
+                    if (!personsMap.containsKey(personId)) {
+                        Person person = new Person();
+                        person.setUserId(Long.valueOf(personId));
+                        person.setChatId(ctx.chatId());
+                        person.setFirstName(user.getFirstName());
+                        person.setLastName(user.getLastName());
+                        person.setLogin(user.getUserName().concat("@").concat(String.valueOf(user.getId())));
+                        personsMap.put(user.getId().toString(), person);
+                        remindersLastIndexMap.put(personId, 0L);
                         db.commit();
                     }
 
@@ -189,12 +193,17 @@ public class Bot extends AbilityBot {
                 .locality(ALL)
                 .privacy(PUBLIC)
                 .action(ctx -> {
-                    Person person = personDao.findByUserId((long) ctx.user().getId());
+//                    Person person = personDao.findByUserId((long) ctx.user().getId());
+
                     String message = EmojiParser.parseToUnicode(":calendar: Список напоминаний (/addsimplereminder):\n");
-                    List<Reminder> reminderList = person.getActiveRimindersList();
+                    //***
+                    List<SimpleReminder> reminderList = new ArrayList<>();
+                    if (remindersMap.containsKey(ctx.user().getId().toString()))
+                        reminderList = remindersMap.get(ctx.user().getId().toString()).stream().filter(c-> c.getComplete() == null || !c.getComplete()).collect(Collectors.toList());
+
                     Collections.sort(reminderList, Comparator.comparing(o -> ((SimpleReminder) o).getRemindDate()));
-                    for (Reminder reminder : reminderList) {
-                        SimpleReminder simpleReminder = (SimpleReminder) reminder;
+                    for (SimpleReminder reminder : reminderList) {
+                        SimpleReminder simpleReminder = reminder;
                         message = message.concat(String.format("/".concat(ConstantStorage.PREFIX_REMINDERS_LIST).concat("%d %s %s - %s\n"),
                                 simpleReminder.getId(),
                                 new SimpleDateFormat(ConstantStorage.FORMAT_DATE).format(simpleReminder.getRemindDate()),
@@ -216,7 +225,9 @@ public class Bot extends AbilityBot {
 
     public Reply replyToButtons() {
         Consumer<Update> action = upd -> {
-            Person person = personDao.findByUserId((long) upd.getCallbackQuery().getFrom().getId());
+//            Person person = personDao.findByUserId((long) upd.getCallbackQuery().getFrom().getId());
+            String personId = upd.getCallbackQuery().getFrom().getId().toString();
+            Person person = personsMap.get(personId);
             SimpleReminder simpleReminder;
             //****************************************************
             long chatId = getChatId(upd);
@@ -227,13 +238,13 @@ public class Bot extends AbilityBot {
                 case ConstantStorage.CBD_EDIT_REGISTER_DATA:
                     EditPersonRegisterDataView.replyToEditRegisterData(upd, person, sender);
                     break;
-                case ConstantStorage.MSG_EDIT_PERSON_LAST_NAME:
+                case ConstantStorage.CBD_EDIT_LAST_NAME:
                     EditPersonalDataView.replyToEditLastName(chatId, sender);
                     break;
-                case ConstantStorage.MSG_EDIT_PERSON_FIRST_NAME:
+                case ConstantStorage.CBD_EDIT_FIRST_NAME:
                     EditPersonalDataView.replyToEditFirstName(chatId, sender);
                     break;
-                case ConstantStorage.MSG_EDIT_PERSON_MIDDLE_NAME:
+                case ConstantStorage.CBD_EDIT_MIDDLE_NAME:
                     EditPersonalDataView.replyToEditMiddleName(chatId, sender);
                     break;
                 case ConstantStorage.CBD_EDIT_PERSONAL_DATA_BACK_BUTTON:
@@ -256,17 +267,20 @@ public class Bot extends AbilityBot {
                     break;
                 case ConstantStorage.CBD_MALE_GENDER_SELECT:
                     person.setGender(Gender.MALE);
-                    personDao.update(person);
+//                    personDao.update(person);
+                    personsMap.put(personId, person);
                     EditPersonRegisterDataView.replyToEditRegisterData(upd, person, sender);
                     break;
                 case ConstantStorage.CBD_FEMALE_GENDER_SELECT:
                     person.setGender(Gender.FEMALE);
-                    personDao.update(person);
+//                    personDao.update(person);
+                    personsMap.put(personId, person);
                     EditPersonRegisterDataView.replyToEditRegisterData(upd, person, sender);
                     break;
                 case ConstantStorage.CBD_OTHER_GENDER_SELECT:
                     person.setGender(Gender.UNKNOWN);
-                    personDao.update(person);
+//                    personDao.update(person);
+                    personsMap.put(personId, person);
                     EditPersonRegisterDataView.replyToEditRegisterData(upd, person, sender);
                     break;
                 case ConstantStorage.CBD_EDIT_REMINDER_TEXT:
@@ -295,7 +309,8 @@ public class Bot extends AbilityBot {
                             upd.getCallbackQuery().getMessage().getText());
                     if (simpleReminder == null) return;
                     simpleReminder.setComplete(true);
-                    personDao.update(person);
+//                    personDao.update(person);
+                    personsMap.put(personId, person);
                     EditReminderView.successCompleteReminder(chatId, simpleReminder, sender);
                     break;
                 case ConstantStorage.CBD_EDIT_REMINDER_DELETE:
@@ -303,7 +318,8 @@ public class Bot extends AbilityBot {
                             upd.getCallbackQuery().getMessage().getText());
                     if (simpleReminder == null) return;
                     person.getReminderList().remove(simpleReminder);
-                    personDao.update(person);
+//                    personDao.update(person);
+                    personsMap.put(personId, person);
                     EditReminderView.successDeleteReminder(chatId, simpleReminder, sender);
                     break;
                 case ConstantStorage.CBD_EDIT_REMINDER_BACK_BUTTON:
@@ -323,7 +339,9 @@ public class Bot extends AbilityBot {
 
     public Reply replyToMsg() {
         Consumer<Update> action = upd -> {
-            Person person = personDao.findByUserId((long) upd.getMessage().getFrom().getId());
+            String personId = upd.getMessage().getFrom().getId().toString();
+//            Person person = personDao.findByUserId((long) upd.getMessage().getFrom().getId());
+            Person person = personsMap.get(personId);
             long userId = upd.getMessage().getFrom().getId();
             long chatId = upd.getMessage().getChatId();
             SendMessage sendMessage = new SendMessage();
@@ -341,17 +359,21 @@ public class Bot extends AbilityBot {
             switch (msg) {
                 case ConstantStorage.MSG_EDIT_PERSON_LAST_NAME:
                     person.setLastName(message.getText());
-                    personDao.update(person);
+//                    personDao.update(person);
+                    personsMap.put(personId, person);
+                    db.commit();
                     EditPersonalDataView.replyToEditPersonalData(upd, person, sender);
                     break;
                 case ConstantStorage.MSG_EDIT_PERSON_FIRST_NAME:
                     person.setFirstName(message.getText());
-                    personDao.update(person);
+//                    personDao.update(person);
+                    personsMap.put(personId, person);
                     EditPersonalDataView.replyToEditPersonalData(upd, person, sender);
                     break;
                 case ConstantStorage.MSG_EDIT_PERSON_MIDDLE_NAME:
                     person.setMiddleName(message.getText());
-                    personDao.update(person);
+//                    personDao.update(person);
+                    personsMap.put(personId, person);
                     EditPersonalDataView.replyToEditPersonalData(upd, person, sender);
                     break;
                 case ConstantStorage.MSG_EDIT_PERSON_EMAIL:
@@ -365,7 +387,8 @@ public class Bot extends AbilityBot {
                             e.printStackTrace();
                         }
                     }
-                    personDao.update(person);
+//                    personDao.update(person);
+                    personsMap.put(personId, person);
                     EditPersonRegisterDataView.replyToEditRegisterData(upd, person, sender);
                     break;
                 case ConstantStorage.MSG_EDIT_PERSON_BIRTH_DATE:
@@ -380,7 +403,8 @@ public class Bot extends AbilityBot {
                             e.printStackTrace();
                         }
                     }
-                    personDao.update(person);
+//                    personDao.update(person);
+                    personsMap.put(personId, person);
                     EditPersonRegisterDataView.replyToEditRegisterData(upd, person, sender);
                     break;
                 case ConstantStorage.MSG_EDIT_REMINDER_TEXT:
@@ -439,8 +463,23 @@ public class Bot extends AbilityBot {
                         DateTime remDateTime = DateTime.parse(stringDateTime, dateTimeFormatter);
                         simpleReminder.setRemindDate(remDateTime.toDate());
 
-                        person.getReminderList().add(simpleReminder);
-                        personDao.update(person);
+                        simpleReminder.setId(remindersLastIndexMap.get(personId) + 1);
+                        remindersLastIndexMap.compute(personId, (k, ind) -> ind + 1);
+//                        remindersLastIndexMap.put(personId,
+//                                remindersLastIndexMap.get(personId) + 1);
+
+//                        person.getReminderList().add(simpleReminder);
+//                        personDao.update(person);
+//                        personsMap.put(personId, person);
+                        List<SimpleReminder> simpleReminderList;
+                        if (!remindersMap.containsKey(personId)) {
+                            simpleReminderList = new ArrayList<>();
+                        } else {
+                            simpleReminderList = remindersMap.get(personId);
+                        }
+                        simpleReminderList.add(simpleReminder);
+                        remindersMap.put(personId, simpleReminderList);
+                        db.commit();
 
                         sendMessage.setChatId(chatId).
                                 setText(EmojiParser.parseToUnicode(ConstantStorage.MSG_SUCCESS_REMINDER_ADDITION));
@@ -454,7 +493,8 @@ public class Bot extends AbilityBot {
                 case ConstantStorage.MSG_EDIT_NEW_REMINDER_TEXT:
                     simpleReminder = person.getSimpleReminderById(currentReminderIdsMap.get(String.valueOf(upd.getMessage().getFrom().getId())));
                     simpleReminder.setText(upd.getMessage().getText());
-                    personDao.update(person);
+//                    personDao.update(person);
+                    personsMap.put(personId, person);
                     EditReminderView.viewSelectReminder(simpleReminder, upd, sender);
                     break;
                 case ConstantStorage.MSG_EDIT_NEW_REMINDER_DATE:
@@ -470,7 +510,8 @@ public class Bot extends AbilityBot {
                         }
                         simpleReminder.setRemindDate(localDateTime.toDate());
                     }
-                    personDao.update(person);
+//                    personDao.update(person);
+                    personsMap.put(personId, person);
                     EditReminderView.viewSelectReminder(simpleReminder, upd, sender);
                     break;
                 case ConstantStorage.MSG_EDIT_NEW_REMINDER_TIME:
@@ -483,7 +524,8 @@ public class Bot extends AbilityBot {
                                 localDateTime.getDayOfMonth(), dateMap.get("hours"), dateMap.get("minutes"));
                         simpleReminder.setRemindDate(localDateTime.toDate());
                     }
-                    personDao.update(person);
+//                    personDao.update(person);
+                    personsMap.put(personId, person);
                     EditReminderView.viewSelectReminder(simpleReminder, upd, sender);
                     break;
             }
@@ -494,7 +536,9 @@ public class Bot extends AbilityBot {
 
     public Reply replyToReminderSelection() {
         Consumer<Update> action = upd -> {
-            Person person = personDao.findByUserId((long) upd.getMessage().getFrom().getId());
+//            Person person = personDao.findByUserId((long) upd.getMessage().getFrom().getId());
+            String personId = upd.getMessage().getFrom().getId().toString();
+            Person person = personsMap.get(personId);
             Long id = Long.valueOf(upd.getMessage().getText().replace("/".concat(ConstantStorage.PREFIX_REMINDERS_LIST), ""));
             SimpleReminder simpleReminder = person.getSimpleReminderById(id);
 
@@ -523,7 +567,9 @@ public class Bot extends AbilityBot {
     //*** REMINDER SCHEDULED CREATION ***********************************************************************************
 
     public void mainShedulledTask(Integer horizontLength) {
-        List<Person> personList = personDao.getAll();
+//        List<Person> personList = personDao.getAll();
+//        List<Person> personList = new ArrayList<>();
+        List<Person> personList = new ArrayList<>(personsMap.values());
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime horizont = now.plusMillis(horizontLength);

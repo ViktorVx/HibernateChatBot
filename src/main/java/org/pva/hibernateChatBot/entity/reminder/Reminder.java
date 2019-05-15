@@ -1,11 +1,12 @@
 package org.pva.hibernateChatBot.entity.reminder;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 @Entity(name = "reminder")
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class Reminder {
+public abstract class Reminder implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

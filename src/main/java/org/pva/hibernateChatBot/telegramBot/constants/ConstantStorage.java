@@ -62,5 +62,6 @@ public class ConstantStorage {
 
     public static final String DBNS_PERSONS= "DBNS_PERSONS";
     public static final String DBNS_SIMPLE_REMINDERS= "DBNS_SIMPLE_REMINDERS";
+    public static final String DBNS_REMINDERS_LAST_INDEX= "DBNS_REMINDER_LAST_INDEX";
     //***
 }
