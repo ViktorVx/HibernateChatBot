@@ -17,6 +17,16 @@ public class ConstantStorage {
     public static final String MSG_EDIT_PERSON_BIRTH_DATE = "Введите дату рождения (в формате дд.мм.гггг):";
     public static final String MSG_EDIT_PERSON_GENDER = "Выберите пол:";
 
+    public static final String MSG_START = "Привет, %s!\n" +
+            "Ты зашел в бот-напоминайку!\n" +
+            "О чем напомнить?\n" +
+            "/addsimplereminder - добавить простое напоминание\n" +
+            "/viewreminders - показать ближайшие напоминания\n" +
+            "Настройки:\n" +
+            "/start - начало работы\n" +
+            "/info - информация о пользователе\n" +
+            "/help - помощь";
+
     public static final String MSG_SUCCESS_REMINDER_ADDITION = ":gift::confetti_ball: Напоминание успешно добавлено! :tada::balloon:\n" +
             "/start - перейти в главное меню\n" +
             "/viewreminders - просмотреть список напоминаний";

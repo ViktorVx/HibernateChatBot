@@ -74,7 +74,6 @@ public class KeyboardFactory {
         rowInline = new ArrayList<>();
         rowInline.add(new InlineKeyboardButton().setText(EmojiParser.parseToUnicode(":arrow_upper_left: Главное меню")).setCallbackData(ConstantStorage.CBD_MAIN_MENU));
         rowsInline.add(rowInline);
-        //todo доделать обработчик кнопки
 
         inlineKeyboard.setKeyboard(rowsInline);
         return inlineKeyboard;

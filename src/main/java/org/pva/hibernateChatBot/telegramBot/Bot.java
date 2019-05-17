@@ -19,6 +19,7 @@ import org.telegram.abilitybots.api.objects.Ability;
 import org.telegram.abilitybots.api.objects.Flag;
 import org.telegram.abilitybots.api.objects.Reply;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
@@ -65,18 +66,6 @@ public class Bot extends AbilityBot {
                 .locality(ALL)
                 .privacy(PUBLIC)
                 .action(ctx -> {
-//                    Person person = personDao.findByUserId((long) ctx.user().getId());
-//                    if (person == null) {
-//                        User user = ctx.user();
-//                        person = new Person();
-//                        person.setUserId((long) user.getId());
-//                        person.setChatId(ctx.chatId());
-//                        person.setFirstName(user.getFirstName());
-//                        person.setLastName(user.getLastName());
-//                        person.setLogin(user.getUserName().concat("@").concat(String.valueOf(user.getId())));
-//                        personDao.save(person);
-//                    }
-
                     User user = ctx.user();
                     String personId = ctx.user().getId().toString();
                     if (!personsMap.containsKey(personId)) {
@@ -91,17 +80,7 @@ public class Bot extends AbilityBot {
                         db.commit();
                     }
 
-                    //***
-
-                    String MESSAGE = String.format("Привет, %s!\n" +
-                            "Ты зашел в бот-напоминайку!\n" +
-                            "О чем напомнить?\n" +
-                            "/addsimplereminder - добавить простое напоминание\n" +
-                            "/viewreminders - показать ближайшие напоминания\n" +
-                            "Настройки:\n" +
-                            "/start - начало работы\n" +
-                            "/info - информация о пользователе\n" +
-                            "/help - помощь", ctx.user().getUserName());
+                    String MESSAGE = String.format(ConstantStorage.MSG_START, ctx.user().getUserName());
                     try {
                         sender.execute(new SendMessage()
                                 .setText(MESSAGE)
@@ -319,6 +298,17 @@ public class Bot extends AbilityBot {
                             upd.getCallbackQuery().getMessage().getText());
                     if (simpleReminder != null) {
                         EditReminderView.viewSelectReminder(simpleReminder, upd, sender);
+                    }
+                    break;
+                case ConstantStorage.CBD_MAIN_MENU:
+                    String MESSAGE = String.format(ConstantStorage.MSG_START,
+                            upd.getCallbackQuery().getMessage().getFrom().getUserName());
+                    try {
+                        sender.execute(new EditMessageText()
+                                .setText(MESSAGE).setMessageId(upd.getCallbackQuery().getMessage().getMessageId())
+                                .setChatId(upd.getCallbackQuery().getMessage().getChat().getId()).setReplyMarkup(null));
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
                     }
                     break;
             }
