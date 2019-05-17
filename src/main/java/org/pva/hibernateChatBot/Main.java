@@ -10,7 +10,7 @@ public class Main {
     private static Integer MAIN_TASK_PERIOD = 3600000;
 //    private static Integer MAIN_TASK_PERIOD = 60000;
 
-    public static void main(final String[] args) {
+    public static void main(String[] args) {
         Bot bot = new Bot();
         runBot(bot);
         runReminderCreator(bot);
