@@ -65,14 +65,11 @@ public class ConstantStorage {
     public static final String FORMAT_DATE = "dd.MM.yyyy";
     public static final String FORMAT_TIME = "HH.mm";
 
-    public static final String PREFIX_REMINDERS_LIST = "rem";
-
-    //***
     public static final String DBNS_EDIT_REMINDER = "DBNS_EDIT_REMINDER";
     public static final String DBNS_CURRENT_REMINDER_IDS= "DBNS_CURRENT_REMINDER_IDS";
-
     public static final String DBNS_PERSONS= "DBNS_PERSONS";
     public static final String DBNS_SIMPLE_REMINDERS= "DBNS_SIMPLE_REMINDERS";
     public static final String DBNS_REMINDERS_LAST_INDEX= "DBNS_REMINDER_LAST_INDEX";
-    //***
+
+    public static final String PREFIX_REMINDERS_LIST = "rem";
 }

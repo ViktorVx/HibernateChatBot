@@ -1,7 +1,6 @@
 package org.pva.hibernateChatBot.telegramBot.views;
 
 import com.vdurmont.emoji.EmojiParser;
-import org.pva.hibernateChatBot.entity.person.Person;
 import org.pva.hibernateChatBot.entity.reminder.Reminder;
 import org.pva.hibernateChatBot.entity.reminder.simpleReminder.SimpleReminder;
 import org.pva.hibernateChatBot.telegramBot.constants.ConstantStorage;
@@ -20,7 +19,7 @@ import java.util.List;
 
 public class EditReminderView {
 
-    public static SimpleReminder getSimpleReminderFromMessage(String personId, List<SimpleReminder> simpleReminderList, String msg) {
+    public static SimpleReminder getSimpleReminderFromMessage(List<SimpleReminder> simpleReminderList, String msg) {
         SimpleReminder simpleReminder = null;
         Long remId = BotUtils.getReminderIdFromText(msg);
         for (SimpleReminder reminder : simpleReminderList) {
@@ -54,9 +53,9 @@ public class EditReminderView {
         }
     }
 
-    public static void viewRemindersList(Person person, Update upd, List<SimpleReminder> reminderList, MessageSender sender) {
+    public static void viewRemindersList(Update upd, List<SimpleReminder> reminderList, MessageSender sender) {
         String message = EmojiParser.parseToUnicode(":calendar: Список напоминаний (/addsimplereminder):\n");
-        Collections.sort(reminderList, Comparator.comparing(o -> ((SimpleReminder) o).getRemindDate()));
+        Collections.sort(reminderList, (o1, o2)-> o2.getRemindDate().compareTo(o1.getRemindDate()));
         for (Reminder reminder : reminderList) {
             SimpleReminder simpleReminder = (SimpleReminder) reminder;
             message = message.concat(String.format("/".concat(ConstantStorage.PREFIX_REMINDERS_LIST).concat("%d %s %s - %s\n"),
@@ -78,12 +77,7 @@ public class EditReminderView {
     }
 
     public static void viewSelectReminder(SimpleReminder simpleReminder, Update upd, MessageSender sender) {
-        long chatId;
-        if (upd.hasMessage()) {
-            chatId = upd.getMessage().getChatId();
-        } else {
-            chatId = upd.getCallbackQuery().getMessage().getChatId();
-        }
+        long chatId = upd.hasMessage() ? upd.getMessage().getChatId() : upd.getCallbackQuery().getMessage().getChatId();
         try {
             if (simpleReminder == null) return;
             sender.execute(new SendMessage().setChatId(chatId).

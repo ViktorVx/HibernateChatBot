@@ -251,28 +251,28 @@ public class Bot extends AbilityBot {
                     EditPersonRegisterDataView.replyToEditRegisterData(upd, person, sender);
                     break;
                 case ConstantStorage.CBD_EDIT_REMINDER_TEXT:
-                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(personId, simpleReminderList,
+                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(simpleReminderList,
                             upd.getCallbackQuery().getMessage().getText());
                     if (simpleReminder == null) return;
                     currentReminderIdsMap.put(String.valueOf(upd.getCallbackQuery().getFrom().getId()), simpleReminder.getId());
                     EditReminderView.editNewReminderText(chatId, sender);
                     break;
                 case ConstantStorage.CBD_EDIT_REMINDER_DATE:
-                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(personId, simpleReminderList,
+                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(simpleReminderList,
                             upd.getCallbackQuery().getMessage().getText());
                     if (simpleReminder == null) return;
                     currentReminderIdsMap.put(String.valueOf(upd.getCallbackQuery().getFrom().getId()), simpleReminder.getId());
                     EditReminderView.editNewReminderDate(chatId, sender);
                     break;
                 case ConstantStorage.CBD_EDIT_REMINDER_TIME:
-                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(personId, simpleReminderList,
+                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(simpleReminderList,
                             upd.getCallbackQuery().getMessage().getText());
                     if (simpleReminder == null) return;
                     currentReminderIdsMap.put(String.valueOf(upd.getCallbackQuery().getFrom().getId()), simpleReminder.getId());
                     EditReminderView.editNewReminderTime(chatId, sender);
                     break;
                 case ConstantStorage.CBD_EDIT_REMINDER_CLOSE:
-                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(personId, simpleReminderList,
+                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(simpleReminderList,
                             upd.getCallbackQuery().getMessage().getText());
                     if (simpleReminder != null) {
                         simpleReminder.setComplete(true);
@@ -281,7 +281,7 @@ public class Bot extends AbilityBot {
                     }
                     break;
                 case ConstantStorage.CBD_EDIT_REMINDER_DELETE:
-                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(personId, simpleReminderList,
+                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(simpleReminderList,
                             upd.getCallbackQuery().getMessage().getText());
                     if (simpleReminder != null) {
                         simpleReminderList.remove(simpleReminder);
@@ -291,10 +291,10 @@ public class Bot extends AbilityBot {
                     break;
                 case ConstantStorage.CBD_EDIT_REMINDER_BACK_BUTTON:
                     simpleReminderList = BotUtils.getActiveRemindersList(remindersMap.get(personId));
-                    EditReminderView.viewRemindersList(person, upd, simpleReminderList, sender);
+                    EditReminderView.viewRemindersList(upd, simpleReminderList, sender);
                     break;
                 case ConstantStorage.CBD_EDIT_REMINDER_DELAY:
-                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(personId, simpleReminderList,
+                    simpleReminder = EditReminderView.getSimpleReminderFromMessage(simpleReminderList,
                             upd.getCallbackQuery().getMessage().getText());
                     if (simpleReminder != null) {
                         EditReminderView.viewSelectReminder(simpleReminder, upd, sender);

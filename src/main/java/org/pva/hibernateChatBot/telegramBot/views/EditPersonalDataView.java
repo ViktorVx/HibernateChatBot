@@ -53,8 +53,7 @@ public class EditPersonalDataView {
     }
 
     public static void replyToEditLastName(long chatId, MessageSender sender) {
-        String MESSAGE =
-                ConstantStorage.MSG_EDIT_PERSON_LAST_NAME;
+        String MESSAGE = ConstantStorage.MSG_EDIT_PERSON_LAST_NAME;
         try {
             sender.execute(new SendMessage()
                     .setText(MESSAGE)
@@ -66,26 +65,22 @@ public class EditPersonalDataView {
     }
 
     public static void replyToEditFirstName(long chatId, MessageSender sender) {
-        String MESSAGE =
-                ConstantStorage.MSG_EDIT_PERSON_FIRST_NAME;
+        String MESSAGE = ConstantStorage.MSG_EDIT_PERSON_FIRST_NAME;
         try {
             sender.execute(new SendMessage()
                     .setText(MESSAGE)
                     .setChatId(chatId).setReplyMarkup(KeyboardFactory.getForceReplyKeyboard()));
-
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
     }
 
     public static void replyToEditMiddleName(long chatId, MessageSender sender) {
-        String MESSAGE =
-                ConstantStorage.MSG_EDIT_PERSON_MIDDLE_NAME;
+        String MESSAGE = ConstantStorage.MSG_EDIT_PERSON_MIDDLE_NAME;
         try {
             sender.execute(new SendMessage()
                     .setText(MESSAGE)
                     .setChatId(chatId).setReplyMarkup(KeyboardFactory.getForceReplyKeyboard()));
-
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
@@ -94,22 +89,21 @@ public class EditPersonalDataView {
     public static void replyToEditInfoBackButton(Update upd, MessageSender sender) {
         if (upd.hasCallbackQuery()) {
             String MESSAGE = String.format("%s, заполните данные о себе!\n", upd.getCallbackQuery().getFrom().getUserName());
-            long message_id = upd.getCallbackQuery().getMessage().getMessageId();
-            long chat_id = upd.getCallbackQuery().getMessage().getChatId();
-            String inline_message_id = upd.getCallbackQuery().getInlineMessageId();
+            long messageId = upd.getCallbackQuery().getMessage().getMessageId();
+            long chatId = upd.getCallbackQuery().getMessage().getChatId();
+            String inlineMessageId = upd.getCallbackQuery().getInlineMessageId();
 
-            EditMessageText new_message = new EditMessageText().
-                    setChatId(chat_id).
-                    setMessageId(toIntExact(message_id)).
-                    setInlineMessageId(inline_message_id).
+            EditMessageText newMessage = new EditMessageText().
+                    setChatId(chatId).
+                    setMessageId(toIntExact(messageId)).
+                    setInlineMessageId(inlineMessageId).
                     setText(MESSAGE);
-            new_message.setReplyMarkup(KeyboardFactory.getInfoEditKeyboard());
+            newMessage.setReplyMarkup(KeyboardFactory.getInfoEditKeyboard());
             try {
-                sender.execute(new_message);
+                sender.execute(newMessage);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
-
 }
