@@ -7,8 +7,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
 public class Main {
 
-    private static Integer MAIN_TASK_PERIOD = 3600000;
-//    private static Integer MAIN_TASK_PERIOD = 60000;
+    private static Integer MAIN_TASK_PERIOD = 60000;
 
     public static void main(String[] args) {
         Bot bot = new Bot();
@@ -27,7 +26,6 @@ public class Main {
     }
 
     private static void runReminderCreator(Bot bot) {
-        bot.mainSheduledTask(MAIN_TASK_PERIOD);
         Thread reminderCreator = new Thread(() -> {
             while (true) {
                 try {

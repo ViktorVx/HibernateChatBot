@@ -541,6 +541,7 @@ public class Bot extends AbilityBot {
         for (String personId : remindersMap.keySet()) {
             for (SimpleReminder simpleReminder : remindersMap.get(personId)) {
                 if (simpleReminder.isComplete()) continue;
+                if (simpleReminder.getRemindDate().before(now.toDate())) continue;
                 LocalDateTime remDateTime = LocalDateTime.fromDateFields(simpleReminder.getRemindDate());
                 if (remDateTime.compareTo(horizon) <= 0) {
                     StringBuilder stringBuilder = new StringBuilder();
