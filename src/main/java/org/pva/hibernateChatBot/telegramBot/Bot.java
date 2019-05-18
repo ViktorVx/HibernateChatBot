@@ -324,6 +324,7 @@ public class Bot extends AbilityBot {
             long userId = upd.getMessage().getFrom().getId();
             long chatId = upd.getMessage().getChatId();
             SendMessage sendMessage = new SendMessage();
+            List<SimpleReminder> simpleReminderList;
             SimpleReminder simpleReminder;
             Date date;
             Date oldDate;
@@ -440,7 +441,6 @@ public class Bot extends AbilityBot {
                         simpleReminder.setId(remindersLastIndexMap.get(personId) + 1);
                         remindersLastIndexMap.compute(personId, (k, ind) -> ind + 1);
 
-                        List<SimpleReminder> simpleReminderList;
                         if (!remindersMap.containsKey(personId)) {
                             simpleReminderList = new ArrayList<>();
                         } else {
@@ -462,13 +462,22 @@ public class Bot extends AbilityBot {
                 case ConstantStorage.MSG_EDIT_NEW_REMINDER_TEXT:
                     simpleReminder = person.getSimpleReminderById(currentReminderIdsMap.get(String.valueOf(upd.getMessage().getFrom().getId())),
                             remindersMap.get(personId));
-                    simpleReminder.setText(upd.getMessage().getText());
-                    personsMap.put(personId, person);
+                    simpleReminderList = remindersMap.get(String.valueOf(upd.getMessage().getFrom().getId()));
+                    for (SimpleReminder reminder : simpleReminderList) {
+                        if (simpleReminder.getId().equals(reminder.getId())) {
+                            simpleReminder = reminder;
+                            reminder.setText(upd.getMessage().getText());
+                            break;
+                        }
+                    }
+                    remindersMap.put(personId, simpleReminderList);
                     EditReminderView.viewSelectReminder(simpleReminder, upd, sender);
                     break;
                 case ConstantStorage.MSG_EDIT_NEW_REMINDER_DATE:
                     simpleReminder = person.getSimpleReminderById(currentReminderIdsMap.get(String.valueOf(upd.getMessage().getFrom().getId())),
                             remindersMap.get(personId));
+                    simpleReminderList = remindersMap.get(String.valueOf(upd.getMessage().getFrom().getId()));
+
                     date = BotUtils.isValidDate(upd.getMessage().getText());
                     oldDate = simpleReminder.getRemindDate();
                     if (date != null) {
@@ -478,23 +487,39 @@ public class Bot extends AbilityBot {
                             localDateTime = new LocalDateTime(localDateTime.getYear(), localDateTime.getMonthOfYear(),
                                     localDateTime.getDayOfMonth(), oldLocalDateTime.getHourOfDay(), oldLocalDateTime.getMinuteOfHour());
                         }
-                        simpleReminder.setRemindDate(localDateTime.toDate());
+                        for (SimpleReminder reminder : simpleReminderList) {
+                            if (simpleReminder.getId().equals(reminder.getId())) {
+                                simpleReminder = reminder;
+                                reminder.setRemindDate(localDateTime.toDate());
+                                break;
+                            }
+                        }
                     }
-                    personsMap.put(personId, person);
+                    remindersMap.put(personId, simpleReminderList);
                     EditReminderView.viewSelectReminder(simpleReminder, upd, sender);
                     break;
                 case ConstantStorage.MSG_EDIT_NEW_REMINDER_TIME:
                     simpleReminder = person.getSimpleReminderById(currentReminderIdsMap.get(String.valueOf(upd.getMessage().getFrom().getId())),
                             remindersMap.get(personId));
+                    simpleReminderList = remindersMap.get(String.valueOf(upd.getMessage().getFrom().getId()));
+
                     Map<String, Integer> dateMap = BotUtils.isValidTime(upd.getMessage().getText());
                     oldDate = simpleReminder.getRemindDate();
                     if (dateMap != null) {
                         LocalDateTime localDateTime = LocalDateTime.fromDateFields(oldDate);
                         localDateTime = new LocalDateTime(localDateTime.getYear(), localDateTime.getMonthOfYear(),
                                 localDateTime.getDayOfMonth(), dateMap.get("hours"), dateMap.get("minutes"));
-                        simpleReminder.setRemindDate(localDateTime.toDate());
+
+                        for (SimpleReminder reminder : simpleReminderList) {
+                            if (simpleReminder.getId().equals(reminder.getId())) {
+                                simpleReminder = reminder;
+                                reminder.setRemindDate(localDateTime.toDate());
+                                break;
+                            }
+                        }
                     }
-                    personsMap.put(personId, person);
+
+                    remindersMap.put(personId, simpleReminderList);
                     EditReminderView.viewSelectReminder(simpleReminder, upd, sender);
                     break;
             }
