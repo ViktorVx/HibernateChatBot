@@ -29,14 +29,13 @@ public class Main {
         Thread reminderCreator = new Thread(() -> {
             while (true) {
                 try {
-                    bot.mainSheduledTask(MAIN_TASK_PERIOD);
+                    bot.mainScheduledTask(MAIN_TASK_PERIOD);
                     Thread.sleep(MAIN_TASK_PERIOD);
                 } catch (InterruptedException ex) {
+                    ex.printStackTrace();
                 }
             }
         });
         reminderCreator.start();
     }
-
-
 }

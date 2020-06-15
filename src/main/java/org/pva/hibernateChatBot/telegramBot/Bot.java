@@ -171,14 +171,13 @@ public class Bot extends AbilityBot {
                     if (remindersMap.containsKey(ctx.user().getId().toString()))
                         reminderList = remindersMap.get(ctx.user().getId().toString()).stream().filter(c -> c.isComplete() == null || !c.isComplete()).collect(Collectors.toList());
 
-                    Collections.sort(reminderList, (o1, o2) -> o2.getRemindDate().compareTo(o1.getRemindDate()));
+                    reminderList.sort((o1, o2) -> o2.getRemindDate().compareTo(o1.getRemindDate()));
                     for (SimpleReminder reminder : reminderList) {
-                        SimpleReminder simpleReminder = reminder;
                         message = message.concat(String.format("/".concat(ConstantStorage.PREFIX_REMINDERS_LIST).concat("%d %s %s - %s\n"),
-                                simpleReminder.getId(),
-                                new SimpleDateFormat(ConstantStorage.FORMAT_DATE).format(simpleReminder.getRemindDate()),
-                                new SimpleDateFormat(ConstantStorage.FORMAT_TIME).format(simpleReminder.getRemindDate()),
-                                simpleReminder.getText()));
+                                reminder.getId(),
+                                new SimpleDateFormat(ConstantStorage.FORMAT_DATE).format(reminder.getRemindDate()),
+                                new SimpleDateFormat(ConstantStorage.FORMAT_TIME).format(reminder.getRemindDate()),
+                                reminder.getText()));
                     }
                     try {
                         sender.execute(new SendMessage()
@@ -439,7 +438,7 @@ public class Bot extends AbilityBot {
                         simpleReminder.setRemindDate(remDateTime.toDate());
 
                         simpleReminder.setId(remindersLastIndexMap.get(personId) + 1);
-                        remindersLastIndexMap.compute(personId, (k, ind) -> ind + 1);
+                        remindersLastIndexMap.compute(personId, (k, ind) -> (ind == null ? 0 : ind) + 1);
 
                         if (!remindersMap.containsKey(personId)) {
                             simpleReminderList = new ArrayList<>();
@@ -559,7 +558,7 @@ public class Bot extends AbilityBot {
 
     //*** REMINDER SCHEDULED CREATION ***********************************************************************************
 
-    public void mainSheduledTask(Integer horizonLength) {
+    public void mainScheduledTask(Integer horizonLength) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime horizon = now.plusMillis(horizonLength);
 
@@ -572,19 +571,17 @@ public class Bot extends AbilityBot {
                     StringBuilder stringBuilder = new StringBuilder();
                     stringBuilder.append(String.format("Напоминание /%s%s:\n",
                             ConstantStorage.PREFIX_REMINDERS_LIST,
-                            String.valueOf(simpleReminder.getId())));
+                            simpleReminder.getId()));
                     stringBuilder.append(simpleReminder.getText());
 
-                    Long delay = simpleReminder.getRemindDate().getTime() - now.toDate().getTime();
+                    long delay = simpleReminder.getRemindDate().getTime() - now.toDate().getTime();
                     Thread remThread = new Thread(() -> {
                         try {
                             Thread.sleep(delay <= 0 ? horizonLength : delay);
                             sender.execute(new SendMessage().
                                     setText(stringBuilder.toString()).
                                     setChatId(personsMap.get(personId).getUserId()).setReplyMarkup(KeyboardFactory.getCloseReminderKeyboard()));
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        } catch (TelegramApiException e) {
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
@@ -594,6 +591,5 @@ public class Bot extends AbilityBot {
             }
         }
     }
-
     //******************************************************************************************************************
 }

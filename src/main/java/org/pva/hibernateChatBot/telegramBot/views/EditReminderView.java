@@ -13,8 +13,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class EditReminderView {
@@ -55,7 +53,7 @@ public class EditReminderView {
 
     public static void viewRemindersList(Update upd, List<SimpleReminder> reminderList, MessageSender sender) {
         String message = EmojiParser.parseToUnicode(":calendar: Список напоминаний (/addsimplereminder):\n");
-        Collections.sort(reminderList, (o1, o2)-> o2.getRemindDate().compareTo(o1.getRemindDate()));
+        reminderList.sort((o1, o2) -> o2.getRemindDate().compareTo(o1.getRemindDate()));
         for (Reminder reminder : reminderList) {
             SimpleReminder simpleReminder = (SimpleReminder) reminder;
             message = message.concat(String.format("/".concat(ConstantStorage.PREFIX_REMINDERS_LIST).concat("%d %s %s - %s\n"),
